@@ -87,7 +87,7 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "thomasmanach06@gmail.com")
   .filter(Boolean);
 
 const DEFAULT_APP_URL = process.env.NODE_ENV === "production"
-  ? "https://mysmartjournal.com"
+  ? "https://mysmartjournal-app.vercel.app"
   : "http://localhost:5173";
 
 function cleanBaseUrl(url) {
@@ -306,6 +306,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
+  "https://mysmartjournal-app.vercel.app",
   APP_BASE_URL,
   API_BASE_URL,
 ].filter(Boolean);

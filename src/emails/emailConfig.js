@@ -6,7 +6,7 @@ export const EMAIL_CATEGORIES = {
 
 export const SUPPORTED_LOCALES = ["fr", "en"];
 
-const DEFAULT_APP_URL = "https://mysmartjournal.com";
+const DEFAULT_APP_URL = "https://mysmartjournal-app.vercel.app";
 
 function cleanBaseUrl(url) {
   return String(url || DEFAULT_APP_URL).replace(/\/$/, "");
