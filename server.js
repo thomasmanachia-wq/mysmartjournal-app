@@ -114,6 +114,22 @@ function log(level, action, data = {}) {
   level === "error" ? console.error(JSON.stringify(entry)) : console.log(JSON.stringify(entry));
 }
 
+function getSubscriptionPeriodEndUnix(subscription) {
+  const candidates = [
+    subscription?.current_period_end,
+    ...(subscription?.items?.data || []).map((item) => item?.current_period_end),
+  ]
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value) && value > 0);
+
+  return candidates.length ? Math.max(...candidates) : null;
+}
+
+function getSubscriptionPeriodEndIso(subscription) {
+  const periodEnd = getSubscriptionPeriodEndUnix(subscription);
+  return periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
+}
+
 async function updateUserSettingsBy(column, value, fields) {
   const { error } = await supabase
     .from("user_settings")
@@ -165,6 +181,21 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
           break;
         }
 
+        let subscriptionPeriodEnd = null;
+        let cancelAtPeriodEnd = false;
+        if (session.subscription) {
+          try {
+            const subscription = await stripe.subscriptions.retrieve(session.subscription);
+            subscriptionPeriodEnd = getSubscriptionPeriodEndIso(subscription);
+            cancelAtPeriodEnd = subscription.cancel_at_period_end === true;
+          } catch (subscriptionErr) {
+            log("warn", "checkout_subscription_retrieve_failed", {
+              error: subscriptionErr.message,
+              subscriptionId: session.subscription,
+            });
+          }
+        }
+
         const { error: supabaseError } = await updateUserSettingsBy(
           "user_id",
           userId,
@@ -172,8 +203,8 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
             plan: "premium",
             stripe_customer_id: session.customer,
             stripe_subscription_id: session.subscription,
-            cancel_at_period_end: false,
-            subscription_current_period_end: null,
+            cancel_at_period_end: cancelAtPeriodEnd,
+            subscription_current_period_end: subscriptionPeriodEnd,
             updated_at: new Date().toISOString(),
           }
         );
@@ -267,9 +298,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
             plan: shouldRemainPremium ? "premium" : "free",
             stripe_subscription_id: subscription.id,
             cancel_at_period_end: subscription.cancel_at_period_end === true,
-            subscription_current_period_end: subscription.current_period_end
-              ? new Date(subscription.current_period_end * 1000).toISOString()
-              : null,
+            subscription_current_period_end: getSubscriptionPeriodEndIso(subscription),
             updated_at: new Date().toISOString(),
           }
         );
@@ -776,9 +805,7 @@ app.post("/cancel-subscription", requireAuth, async (req, res) => {
 
     await updateUserSettingsBy("user_id", userId, {
       cancel_at_period_end: true,
-      subscription_current_period_end: subscription.current_period_end
-        ? new Date(subscription.current_period_end * 1000).toISOString()
-        : null,
+      subscription_current_period_end: getSubscriptionPeriodEndIso(subscription),
       updated_at: new Date().toISOString(),
     });
 
@@ -790,7 +817,7 @@ app.post("/cancel-subscription", requireAuth, async (req, res) => {
     res.json({
       success: true,
       cancel_at_period_end: true,
-      current_period_end: subscription.current_period_end,
+      current_period_end: getSubscriptionPeriodEndUnix(subscription),
     });
   } catch (err) {
     log("error", "cancel_subscription_error", { error: err.message, userId });
