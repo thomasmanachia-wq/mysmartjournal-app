@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch, supabase } from "../lib/supabase.js";
 import { getSettings } from "../lib/settingsService.js";
@@ -12,6 +12,8 @@ import {
 
 const EMOTIONS = ["Confiant", "Neutre", "Anxieux", "FOMO", "Revenge"];
 const USER_PREFS_KEY = "analysis_preferences";
+const ANALYSIS_DRAFT_KEY = "msj_analysis_draft_v1";
+const ANALYSIS_PREFS_STORAGE_KEY = "msj_analysis_preferences_v1";
 
 const MARKETS = [
   { value: "forex", label: "Forex" },
@@ -48,18 +50,8 @@ function uniqueList(values) {
   return [...new Set(values.filter(Boolean))];
 }
 
-export default function Analyse() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
-  const [error, setError] = useState(null);
-  const [analysisPrefs, setAnalysisPrefs] = useState(DEFAULT_ANALYSIS_PREFS);
-  const [favoriteInstruments, setFavoriteInstruments] = useState([]);
-  const [customInputs, setCustomInputs] = useState({ instrument: "", setup: "", analysisType: "" });
-  const [openAdd, setOpenAdd] = useState(null);
-  const [openDropdown, setOpenDropdown] = useState(null);
-
-  const [form, setForm] = useState({
+function createDefaultForm() {
+  return {
     date: new Date().toISOString().split("T")[0],
     market: "forex",
     pair: "",
@@ -75,7 +67,78 @@ export default function Analyse() {
     notes: "",
     risk: "",
     emotion: "",
+  };
+}
+
+function readStorageJson(key) {
+  try {
+    const rawValue = localStorage.getItem(key);
+    if (!rawValue) return null;
+    const parsed = JSON.parse(rawValue);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStorageJson(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // La page reste utilisable si le navigateur bloque le stockage local.
+  }
+}
+
+function readAnalysisDraft() {
+  const draft = readStorageJson(ANALYSIS_DRAFT_KEY);
+  if (!draft) return null;
+  return { ...createDefaultForm(), ...draft };
+}
+
+function writeAnalysisDraft(form) {
+  writeStorageJson(ANALYSIS_DRAFT_KEY, form);
+}
+
+function readStoredAnalysisPrefs() {
+  return readStorageJson(ANALYSIS_PREFS_STORAGE_KEY) || {};
+}
+
+function writeStoredAnalysisPrefs(prefs) {
+  writeStorageJson(ANALYSIS_PREFS_STORAGE_KEY, prefs);
+}
+
+export default function Analyse() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
+  const [error, setError] = useState(null);
+  const [analysisPrefs, setAnalysisPrefs] = useState(DEFAULT_ANALYSIS_PREFS);
+  const [favoriteInstruments, setFavoriteInstruments] = useState([]);
+  const [customInputs, setCustomInputs] = useState({ instrument: "", setup: "", analysisType: "" });
+  const [openAdd, setOpenAdd] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const draftWriterReady = useRef(false);
+  const [initialDraft] = useState(() => {
+    const draft = readAnalysisDraft();
+    return { form: draft || createDefaultForm(), restored: Boolean(draft) };
   });
+  const [form, setForm] = useState(initialDraft.form);
+
+  useEffect(() => {
+    if (!draftWriterReady.current) {
+      draftWriterReady.current = true;
+      return;
+    }
+    writeAnalysisDraft(form);
+  }, [form]);
+
+  function updateForm(updater) {
+    setForm((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      writeAnalysisDraft(next);
+      return next;
+    });
+  }
 
   useEffect(() => {
     async function loadPreferences() {
@@ -85,7 +148,10 @@ export default function Analyse() {
           getSettings().catch(() => null),
         ]);
 
-        const savedPrefs = user?.user_metadata?.[USER_PREFS_KEY] || {};
+        const savedPrefs = {
+          ...(user?.user_metadata?.[USER_PREFS_KEY] || {}),
+          ...readStoredAnalysisPrefs(),
+        };
         setAnalysisPrefs({
           preferredMarket: savedPrefs.preferredMarket || settings?.main_market || "forex",
           customInstruments: savedPrefs.customInstruments || {},
@@ -96,48 +162,40 @@ export default function Analyse() {
         });
         setFavoriteInstruments(settings?.paires_favorites || []);
 
-        const preferredMarket = settings?.main_market || savedPrefs.preferredMarket || "forex";
-        const safeMarket = MARKETS.some((market) => market.value === preferredMarket) ? preferredMarket : "forex";
-        setForm((prev) => ({ ...prev, market: safeMarket }));
+        if (!initialDraft.restored) {
+          const preferredMarket = settings?.main_market || savedPrefs.preferredMarket || "forex";
+          const safeMarket = MARKETS.some((market) => market.value === preferredMarket) ? preferredMarket : "forex";
+          updateForm((prev) => ({ ...prev, market: safeMarket }));
+        }
       } catch {
         // La page reste utilisable même si les préférences ne sont pas encore disponibles.
       }
     }
     loadPreferences();
-  }, []);
+  }, [initialDraft.restored]);
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    updateForm((prev) => ({ ...prev, [name]: value }));
   }
 
   function handleMarketChange(e) {
     const market = e.target.value;
-    setForm((prev) => ({ ...prev, market, pair: "" }));
+    updateForm((prev) => ({ ...prev, market, pair: "" }));
     persistAnalysisPrefs({ ...analysisPrefs, preferredMarket: market });
   }
 
-  async function persistAnalysisPrefs(nextPrefs) {
-    setAnalysisPrefs({
+  function persistAnalysisPrefs(nextPrefs) {
+    const normalizedPrefs = {
       preferredMarket: nextPrefs.preferredMarket || form.market,
       customInstruments: nextPrefs.customInstruments || {},
       hiddenInstruments: nextPrefs.hiddenInstruments || {},
       customSetups: nextPrefs.customSetups || [],
       customAnalysisTypes: nextPrefs.customAnalysisTypes || [],
       hiddenAnalysisTypes: nextPrefs.hiddenAnalysisTypes || [],
-    });
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      await supabase.auth.updateUser({
-        data: {
-          ...(user.user_metadata || {}),
-          [USER_PREFS_KEY]: nextPrefs,
-        },
-      });
-    } catch {
-      // La saisie reste fluide même si la synchronisation des préférences échoue.
-    }
+    };
+    setAnalysisPrefs(normalizedPrefs);
+    writeStoredAnalysisPrefs(normalizedPrefs);
   }
 
   function addCustomInstrument() {
@@ -157,7 +215,7 @@ export default function Analyse() {
       },
       preferredMarket: form.market,
     };
-    setForm((prev) => ({ ...prev, pair: instrument }));
+    updateForm((prev) => ({ ...prev, pair: instrument }));
     setCustomInputs((prev) => ({ ...prev, instrument: "" }));
     setOpenAdd(null);
     persistAnalysisPrefs(nextPrefs);
@@ -167,7 +225,7 @@ export default function Analyse() {
     const setup = customInputs.setup.trim();
     if (!setup) return;
     const nextPrefs = { ...analysisPrefs, customSetups: uniqueList([...(analysisPrefs.customSetups || []), setup]) };
-    setForm((prev) => ({ ...prev, setup }));
+    updateForm((prev) => ({ ...prev, setup }));
     setCustomInputs((prev) => ({ ...prev, setup: "" }));
     setOpenAdd(null);
     persistAnalysisPrefs(nextPrefs);
@@ -181,7 +239,7 @@ export default function Analyse() {
       customAnalysisTypes: uniqueList([...(analysisPrefs.customAnalysisTypes || []), analysisType]),
       hiddenAnalysisTypes: (analysisPrefs.hiddenAnalysisTypes || []).filter((item) => item !== analysisType),
     };
-    setForm((prev) => ({ ...prev, analysisType }));
+    updateForm((prev) => ({ ...prev, analysisType }));
     setCustomInputs((prev) => ({ ...prev, analysisType: "" }));
     setOpenAdd(null);
     persistAnalysisPrefs(nextPrefs);
@@ -209,7 +267,7 @@ export default function Analyse() {
       },
     };
 
-    setForm((prev) => ({ ...prev, pair: prev.pair === instrument ? "" : prev.pair }));
+    updateForm((prev) => ({ ...prev, pair: prev.pair === instrument ? "" : prev.pair }));
     persistAnalysisPrefs(nextPrefs);
   }
 
@@ -218,7 +276,7 @@ export default function Analyse() {
       ...analysisPrefs,
       customSetups: (analysisPrefs.customSetups || []).filter((item) => item !== value),
     };
-    setForm((prev) => ({ ...prev, setup: prev.setup === value ? "" : prev.setup }));
+    updateForm((prev) => ({ ...prev, setup: prev.setup === value ? "" : prev.setup }));
     persistAnalysisPrefs(nextPrefs);
   }
 
@@ -231,12 +289,12 @@ export default function Analyse() {
       customAnalysisTypes: customMethods.filter((item) => item !== value),
       hiddenAnalysisTypes: isDefaultMethod ? uniqueList([...hiddenMethods, value]) : hiddenMethods,
     };
-    setForm((prev) => ({ ...prev, analysisType: prev.analysisType === value ? "" : prev.analysisType }));
+    updateForm((prev) => ({ ...prev, analysisType: prev.analysisType === value ? "" : prev.analysisType }));
     persistAnalysisPrefs(nextPrefs);
   }
 
   function selectEmotion(emotion) {
-    setForm((prev) => ({ ...prev, emotion: prev.emotion === emotion ? "" : emotion }));
+    updateForm((prev) => ({ ...prev, emotion: prev.emotion === emotion ? "" : emotion }));
   }
 
   const rr = (() => {
@@ -382,7 +440,7 @@ export default function Analyse() {
                     fp={fp}
                     openDropdown={openDropdown}
                     setOpenDropdown={setOpenDropdown}
-                    onSelect={(value) => setForm((prev) => ({ ...prev, pair: value }))}
+                    onSelect={(value) => updateForm((prev) => ({ ...prev, pair: value }))}
                     onRemove={removeInstrumentOption}
                   />
                 </div>
@@ -414,10 +472,10 @@ export default function Analyse() {
               <Field label="Timeframe"><input style={inputStyle("timeframe")} name="timeframe" value={form.timeframe} onChange={handleChange} placeholder="H4, M15..." {...fp("timeframe")} /></Field>
               <Field label="Direction" style={{ gridColumn: "1 / -1" }}>
                 <div style={styles.dirWrapper}>
-                  <button type="button" onClick={() => setForm((p) => ({ ...p, direction: "long" }))} style={{ ...styles.dirBtn, backgroundColor: form.direction === "long" ? "#064E3B" : "#0D1421", color: form.direction === "long" ? "#10B981" : "#6B7FA3", border: form.direction === "long" ? "1px solid #10B98155" : "1px solid #1E2D45", boxShadow: form.direction === "long" ? "0 0 12px rgba(16,185,129,0.15)" : "none" }}>
+                  <button type="button" onClick={() => updateForm((p) => ({ ...p, direction: "long" }))} style={{ ...styles.dirBtn, backgroundColor: form.direction === "long" ? "#064E3B" : "#0D1421", color: form.direction === "long" ? "#10B981" : "#6B7FA3", border: form.direction === "long" ? "1px solid #10B98155" : "1px solid #1E2D45", boxShadow: form.direction === "long" ? "0 0 12px rgba(16,185,129,0.15)" : "none" }}>
                     <TrendingUp size={13} /> LONG
                   </button>
-                  <button type="button" onClick={() => setForm((p) => ({ ...p, direction: "short" }))} style={{ ...styles.dirBtn, backgroundColor: form.direction === "short" ? "#450A0A" : "#0D1421", color: form.direction === "short" ? "#EF4444" : "#6B7FA3", border: form.direction === "short" ? "1px solid #EF444455" : "1px solid #1E2D45", boxShadow: form.direction === "short" ? "0 0 12px rgba(239,68,68,0.15)" : "none" }}>
+                  <button type="button" onClick={() => updateForm((p) => ({ ...p, direction: "short" }))} style={{ ...styles.dirBtn, backgroundColor: form.direction === "short" ? "#450A0A" : "#0D1421", color: form.direction === "short" ? "#EF4444" : "#6B7FA3", border: form.direction === "short" ? "1px solid #EF444455" : "1px solid #1E2D45", boxShadow: form.direction === "short" ? "0 0 12px rgba(239,68,68,0.15)" : "none" }}>
                     <TrendingDown size={13} /> SHORT
                   </button>
                 </div>
@@ -441,7 +499,7 @@ export default function Analyse() {
               fp={fp}
               openDropdown={openDropdown}
               setOpenDropdown={setOpenDropdown}
-              onSelect={(value) => setForm((prev) => ({ ...prev, setup: value }))}
+              onSelect={(value) => updateForm((prev) => ({ ...prev, setup: value }))}
               onRemove={removeSetupOption}
               addProps={{
                 type: "setup",
@@ -463,7 +521,7 @@ export default function Analyse() {
               fp={fp}
               openDropdown={openDropdown}
               setOpenDropdown={setOpenDropdown}
-              onSelect={(value) => setForm((prev) => ({ ...prev, analysisType: value }))}
+              onSelect={(value) => updateForm((prev) => ({ ...prev, analysisType: value }))}
               onRemove={removeAnalysisTypeOption}
               addProps={{
                 type: "analysisType",
@@ -500,7 +558,7 @@ export default function Analyse() {
       {error && <div style={styles.errorBanner}>{error}</div>}
 
       <div style={styles.cta}>
-        <button onClick={handleSubmit} disabled={isDisabled} style={{ ...styles.submitBtn, opacity: isDisabled ? 0.45 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}>
+        <button type="button" onClick={handleSubmit} disabled={isDisabled} style={{ ...styles.submitBtn, opacity: isDisabled ? 0.45 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}>
           {loading
             ? <><Loader size={15} style={{ animation: "spin 1s linear infinite" }} /> Analyse en cours...</>
             : <><Activity size={15} /> Lancer l'Analyse IA <ArrowRight size={15} /></>
@@ -558,7 +616,10 @@ function DropdownSelect({ name, value, placeholder, options, inputStyle, fp, ope
           color: value ? "#E8EDF5" : "#3B4B6B",
         }}
         onFocus={fp(name).onFocus}
-        onClick={() => setOpenDropdown(isOpen ? null : name)}
+        onClick={(event) => {
+          event.preventDefault();
+          setOpenDropdown(isOpen ? null : name);
+        }}
       >
         <span style={styles.dropdownValue}>{value || placeholder}</span>
         <ChevronDown size={16} color="#8A9BB8" />
@@ -573,7 +634,9 @@ function DropdownSelect({ name, value, placeholder, options, inputStyle, fp, ope
               <button
                 type="button"
                 style={styles.dropdownOptionBtn}
-                onClick={() => {
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                   onSelect(option);
                   setOpenDropdown(null);
                 }}
@@ -584,6 +647,7 @@ function DropdownSelect({ name, value, placeholder, options, inputStyle, fp, ope
                 type="button"
                 style={styles.dropdownRemoveBtn}
                 onClick={(event) => {
+                  event.preventDefault();
                   event.stopPropagation();
                   onRemove(option);
                 }}
@@ -603,7 +667,14 @@ function InlineAdd({ open, value, placeholder, buttonLabel, onOpen, onChange, on
   return (
     <div style={styles.inlineAddWrap}>
       {!open ? (
-        <button type="button" onClick={onOpen} style={styles.inlineAddBtn}>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault();
+            onOpen();
+          }}
+          style={styles.inlineAddBtn}
+        >
           <Plus size={11} /> {buttonLabel}
         </button>
       ) : (
@@ -612,11 +683,25 @@ function InlineAdd({ open, value, placeholder, buttonLabel, onOpen, onChange, on
             style={{ ...styles.input, ...styles.inlineAddInput }}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onAdd()}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                onAdd();
+              }
+            }}
             placeholder={placeholder}
             autoFocus
           />
-          <button type="button" onClick={onAdd} style={styles.inlineConfirmBtn}>Ajouter</button>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.preventDefault();
+              onAdd();
+            }}
+            style={styles.inlineConfirmBtn}
+          >
+            Ajouter
+          </button>
         </div>
       )}
     </div>
