@@ -9,6 +9,10 @@ import { setSentryUser, clearSentryUser } from "../lib/monitoring.js";
 const AuthContext = createContext(null);
 const REMEMBER_SESSION_KEY = "msj_remember_session";
 const SESSION_ACTIVE_KEY = "msj_session_active";
+const LEGACY_ANALYSIS_STORAGE_KEYS = [
+  "msj_analysis_draft_v1",
+  "msj_analysis_preferences_v1",
+];
 
 function readStorage(storage, key) {
   try {
@@ -126,6 +130,7 @@ export function AuthProvider({ children }) {
     clearSentryUser();
     removeStorage(localStorage, REMEMBER_SESSION_KEY);
     removeStorage(sessionStorage, SESSION_ACTIVE_KEY);
+    LEGACY_ANALYSIS_STORAGE_KEYS.forEach((key) => removeStorage(localStorage, key));
     await supabase.auth.signOut();
   }
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiFetch, supabase } from "../lib/supabase.js";
+import { apiFetch } from "../lib/supabase.js";
+import { useAuth } from "../context/AuthContext";
 import { getSettings } from "../lib/settingsService.js";
 import { analytics } from "../lib/analytics.js";
 import { captureAIError } from "../lib/monitoring.js";
@@ -89,26 +90,60 @@ function writeStorageJson(key, value) {
   }
 }
 
-function readAnalysisDraft() {
-  const draft = readStorageJson(ANALYSIS_DRAFT_KEY);
+function removeStorageItem(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore les environnements où le stockage local est indisponible.
+  }
+}
+
+function getUserStorageKey(baseKey, userId) {
+  return userId ? `${baseKey}:${userId}` : null;
+}
+
+function clearLegacyAnalysisStorage() {
+  removeStorageItem(ANALYSIS_DRAFT_KEY);
+  removeStorageItem(ANALYSIS_PREFS_STORAGE_KEY);
+}
+
+function readAnalysisDraft(userId) {
+  const key = getUserStorageKey(ANALYSIS_DRAFT_KEY, userId);
+  if (!key) return null;
+  const draft = readStorageJson(key);
   if (!draft) return null;
   return { ...createDefaultForm(), ...draft };
 }
 
-function writeAnalysisDraft(form) {
-  writeStorageJson(ANALYSIS_DRAFT_KEY, form);
+function writeAnalysisDraft(userId, form) {
+  const key = getUserStorageKey(ANALYSIS_DRAFT_KEY, userId);
+  if (!key) return;
+  writeStorageJson(key, form);
 }
 
-function readStoredAnalysisPrefs() {
-  return readStorageJson(ANALYSIS_PREFS_STORAGE_KEY) || {};
+function readStoredAnalysisPrefs(userId) {
+  const key = getUserStorageKey(ANALYSIS_PREFS_STORAGE_KEY, userId);
+  if (!key) return {};
+  return readStorageJson(key) || {};
 }
 
-function writeStoredAnalysisPrefs(prefs) {
-  writeStorageJson(ANALYSIS_PREFS_STORAGE_KEY, prefs);
+function writeStoredAnalysisPrefs(userId, prefs) {
+  const key = getUserStorageKey(ANALYSIS_PREFS_STORAGE_KEY, userId);
+  if (!key) return;
+  writeStorageJson(key, prefs);
+}
+
+function getAnalysisErrorMessage(error) {
+  if (error?.status === 401) return "Session expirée. Reconnecte-toi puis relance l'analyse.";
+  if (error?.status === 403) return "Accès refusé. Vérifie ton compte puis réessaie.";
+  if (error?.status === 429) return error.message || "Trop de requêtes. Attends quelques instants puis réessaie.";
+  if (error?.status >= 500) return "Le service d'analyse IA est momentanément indisponible. Réessaie dans quelques instants.";
+  return error?.message || "Erreur lors de l'analyse. Réessaie dans quelques instants.";
 }
 
 export default function Analyse() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const [error, setError] = useState(null);
@@ -117,62 +152,91 @@ export default function Analyse() {
   const [customInputs, setCustomInputs] = useState({ instrument: "", setup: "", analysisType: "" });
   const [openAdd, setOpenAdd] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const draftWriterReady = useRef(false);
-  const [initialDraft] = useState(() => {
-    const draft = readAnalysisDraft();
-    return { form: draft || createDefaultForm(), restored: Boolean(draft) };
-  });
-  const [form, setForm] = useState(initialDraft.form);
-
-  useEffect(() => {
-    if (!draftWriterReady.current) {
-      draftWriterReady.current = true;
-      return;
-    }
-    writeAnalysisDraft(form);
-  }, [form]);
+  const storageUserIdRef = useRef(null);
+  const storageReadyRef = useRef(false);
+  const formTouchedRef = useRef(false);
+  const latestFormRef = useRef(createDefaultForm());
+  const [form, setForm] = useState(() => latestFormRef.current);
 
   function updateForm(updater) {
     setForm((prev) => {
       const next = typeof updater === "function" ? updater(prev) : updater;
-      writeAnalysisDraft(next);
+      formTouchedRef.current = true;
+      latestFormRef.current = next;
+      if (storageReadyRef.current && storageUserIdRef.current) {
+        writeAnalysisDraft(storageUserIdRef.current, next);
+      }
       return next;
     });
   }
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadPreferences() {
+      storageReadyRef.current = false;
+      storageUserIdRef.current = user?.id || null;
+      setError(null);
+
+      if (!user?.id) {
+        const defaultForm = createDefaultForm();
+        latestFormRef.current = defaultForm;
+        formTouchedRef.current = false;
+        setForm(defaultForm);
+        setAnalysisPrefs(DEFAULT_ANALYSIS_PREFS);
+        setFavoriteInstruments([]);
+        return;
+      }
+
+      const defaultForm = createDefaultForm();
+      latestFormRef.current = defaultForm;
+      formTouchedRef.current = false;
+      setForm(defaultForm);
+
       try {
-        const [{ data: { user } }, settings] = await Promise.all([
-          supabase.auth.getUser(),
-          getSettings().catch(() => null),
-        ]);
+        const settings = await getSettings().catch(() => null);
+        if (cancelled) return;
 
         const savedPrefs = {
           ...(user?.user_metadata?.[USER_PREFS_KEY] || {}),
-          ...readStoredAnalysisPrefs(),
+          ...readStoredAnalysisPrefs(user.id),
         };
-        setAnalysisPrefs({
+        const nextPrefs = {
           preferredMarket: savedPrefs.preferredMarket || settings?.main_market || "forex",
           customInstruments: savedPrefs.customInstruments || {},
           hiddenInstruments: savedPrefs.hiddenInstruments || {},
           customSetups: savedPrefs.customSetups || [],
           customAnalysisTypes: savedPrefs.customAnalysisTypes || [],
           hiddenAnalysisTypes: savedPrefs.hiddenAnalysisTypes || [],
-        });
+        };
+        setAnalysisPrefs(nextPrefs);
         setFavoriteInstruments(settings?.paires_favorites || []);
 
-        if (!initialDraft.restored) {
-          const preferredMarket = settings?.main_market || savedPrefs.preferredMarket || "forex";
-          const safeMarket = MARKETS.some((market) => market.value === preferredMarket) ? preferredMarket : "forex";
-          updateForm((prev) => ({ ...prev, market: safeMarket }));
+        const draft = readAnalysisDraft(user.id);
+        const preferredMarket = settings?.main_market || savedPrefs.preferredMarket || "forex";
+        const safeMarket = MARKETS.some((market) => market.value === preferredMarket) ? preferredMarket : "forex";
+        storageReadyRef.current = true;
+        if (formTouchedRef.current) {
+          writeAnalysisDraft(user.id, latestFormRef.current);
+        } else {
+          const nextForm = draft || { ...createDefaultForm(), market: safeMarket };
+          latestFormRef.current = nextForm;
+          setForm(nextForm);
         }
+        clearLegacyAnalysisStorage();
       } catch {
         // La page reste utilisable même si les préférences ne sont pas encore disponibles.
+        if (!cancelled) {
+          storageReadyRef.current = true;
+        }
       }
     }
+
     loadPreferences();
-  }, [initialDraft.restored]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -195,7 +259,9 @@ export default function Analyse() {
       hiddenAnalysisTypes: nextPrefs.hiddenAnalysisTypes || [],
     };
     setAnalysisPrefs(normalizedPrefs);
-    writeStoredAnalysisPrefs(normalizedPrefs);
+    if (storageReadyRef.current && storageUserIdRef.current) {
+      writeStoredAnalysisPrefs(storageUserIdRef.current, normalizedPrefs);
+    }
   }
 
   function addCustomInstrument() {
@@ -376,9 +442,14 @@ export default function Analyse() {
       } catch { /* silencieux */ }
 
     } catch (err) {
+      if (err?.payload?.limit_reached) {
+        analytics.premiumClicked("analysis_limit");
+        navigate("/settings?section=facturation");
+        return;
+      }
       captureAIError(form.pair, err.message);
       analytics.aiError(form.pair, err.message);
-      setError("Erreur lors de l'analyse. Vérifiez votre connexion.");
+      setError(getAnalysisErrorMessage(err));
     } finally {
       setLoading(false);
     }

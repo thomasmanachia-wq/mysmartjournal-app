@@ -75,6 +75,7 @@ function trackEvent(distinctId, event, properties = {}) {
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 const app = express();
+app.set("trust proxy", 1);
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -458,18 +459,29 @@ async function checkAnalysisLimit(req, res, next) {
       });
     }
 
-    if (usage) {
-      await supabase.from("analysis_usage").update({ count: currentCount + 1 }).eq("user_id", userId).eq("date", today);
-    } else {
-      await supabase.from("analysis_usage").insert([{ user_id: userId, date: today, count: 1 }]);
-    }
-
     req.plan = plan;
+    req.analysisUsage = { date: today, currentCount };
     next();
   } catch (err) {
     log("error", "analysis_limit_check_error", { error: err.message });
     captureBackendError(err, { route: "checkAnalysisLimit", userId });
     next();
+  }
+}
+
+async function incrementAnalysisUsage(userId, date, currentCount = 0) {
+  const usageDate = date || new Date().toISOString().split("T")[0];
+  const nextCount = currentCount + 1;
+  const { error } = await supabase
+    .from("analysis_usage")
+    .upsert(
+      { user_id: userId, date: usageDate, count: nextCount },
+      { onConflict: "user_id,date" }
+    );
+
+  if (error) {
+    log("warn", "analysis_usage_increment_error", { error: error.message, userId, date: usageDate });
+    captureBackendError(error, { route: "incrementAnalysisUsage", userId });
   }
 }
 
@@ -492,6 +504,31 @@ function handleValidationErrors(req, res, next) {
     });
   }
   next();
+}
+
+function parseOpenAIJson(content) {
+  const raw = String(content || "").trim();
+  if (!raw) throw new Error("Réponse OpenAI vide.");
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const withoutFence = raw
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    try {
+      return JSON.parse(withoutFence);
+    } catch {
+      const start = withoutFence.indexOf("{");
+      const end = withoutFence.lastIndexOf("}");
+      if (start >= 0 && end > start) {
+        return JSON.parse(withoutFence.slice(start, end + 1));
+      }
+      throw new Error("Réponse OpenAI JSON invalide.");
+    }
+  }
 }
 
 // ─── VALIDATION ───────────────────────────────────────────────────────────────
@@ -934,6 +971,11 @@ app.post(
     }
 
     try {
+      if (!process.env.OPENAI_API_KEY) {
+        log("error", "openai_key_missing", { userId });
+        return res.status(503).json({ error: "Service IA temporairement indisponible." });
+      }
+
       const prompt = buildEnrichedPrompt(
         safePair, direction, entry, stopLoss, takeProfit,
         rr, riskPercent, safeNotes, profile, recentTrades
@@ -951,10 +993,10 @@ Retourne UNIQUEMENT un JSON valide, sans markdown, sans texte autour.`,
           { role: "user", content: prompt },
         ],
         max_tokens: 1200,
+        response_format: { type: "json_object" },
       });
 
-      const raw = completion.choices[0].message.content.trim();
-      const parsed = JSON.parse(raw);
+      const parsed = parseOpenAIJson(completion.choices?.[0]?.message?.content);
 
       // Détecte patterns et met à jour profil en arrière-plan (non bloquant)
       const patterns = detectPatterns(safeNotes, parsed);
@@ -973,6 +1015,8 @@ Retourne UNIQUEMENT un JSON valide, sans markdown, sans texte autour.`,
         has_history: (profile?.total_trades_analyzed || 0) > 0,
         has_mistakes: (parsed.mistakes?.length || 0) > 0,
       });
+
+      await incrementAnalysisUsage(userId, req.analysisUsage?.date, req.analysisUsage?.currentCount || 0);
 
       log("info", "analysis_completed", { userId, pair: safePair, plan });
       res.json({ ...parsed, is_limited: false, plan });
