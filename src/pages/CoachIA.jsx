@@ -77,8 +77,13 @@ export default function CoachIA() {
         <ScoreCard label="Discipline" value={profile.discipline_score} icon={<Shield size={15} color="#3B82F6" />} />
         <ScoreCard label="Psychologie" value={profile.psychology_score} icon={<Brain size={15} color="#8B5CF6" />} />
         <ScoreCard label="Exécution" value={profile.execution_score} icon={<Zap size={15} color="#F59E0B" />} />
-        <ScoreCard label="Consistance" value={profile.consistency_score} icon={<Activity size={15} color="#10B981" />} />
+        {/* Consistance : affichée uniquement si le backend a calculé une valeur (non null) */}
+        {profile.consistency_score != null
+          ? <ScoreCard label="Consistance" value={profile.consistency_score} icon={<Activity size={15} color="#10B981" />} />
+          : <ScoreCardPending label="Consistance" icon={<Activity size={15} color="#3B4B6B" />} />
+        }
       </div>
+
 
       {/* Insights personnalisés */}
       <div style={styles.insightsGrid}>
@@ -177,6 +182,19 @@ function ScoreCard({ label, value, icon }) {
       <div style={styles.progressTrack}>
         <div style={{ ...styles.progressFill, width: `${pct}%`, backgroundColor: color }} />
       </div>
+    </div>
+  );
+}
+
+function ScoreCardPending({ label, icon }) {
+  return (
+    <div style={styles.scoreCard}>
+      <div style={styles.scoreCardHeader}>{icon}<span style={styles.scoreCardLabel}>{label}</span></div>
+      <span style={{ fontSize: "1.6rem", fontWeight: "700", color: "#3B4B6B" }}>—</span>
+      <div style={styles.progressTrack}>
+        <div style={{ ...styles.progressFill, width: "0%", backgroundColor: "#1E2D45" }} />
+      </div>
+      <span style={{ fontSize: "0.65rem", color: "#3B4B6B", marginTop: "-4px" }}>Données insuffisantes</span>
     </div>
   );
 }

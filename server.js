@@ -182,6 +182,21 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
           break;
         }
 
+        // ─── Idempotence : vérification du plan actuel avant toute action ────
+        // Stripe peut rejouer un même événement plusieurs fois. On lit le plan
+        // existant pour ne pas envoyer l'email de bienvenue premium en doublon.
+        let alreadyPremium = false;
+        try {
+          const { data: existingSettings } = await supabase
+            .from("user_settings")
+            .select("plan")
+            .eq("user_id", userId)
+            .single();
+          alreadyPremium = existingSettings?.plan === "premium";
+        } catch (checkErr) {
+          log("warn", "webhook_idempotence_check_failed", { error: checkErr.message, userId });
+        }
+
         let subscriptionPeriodEnd = null;
         let cancelAtPeriodEnd = false;
         if (session.subscription) {
@@ -213,6 +228,13 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
         if (supabaseError) {
           log("error", "supabase_update_failed", { error: supabaseError.message, userId });
           captureBackendError(supabaseError, { route: "webhook/checkout.session.completed", userId });
+        } else if (alreadyPremium) {
+          // Retry Stripe sur un événement déjà traité — on ne renvoie pas l'email
+          log("warn", "webhook_checkout_duplicate", {
+            userId,
+            sessionId: session.id,
+            message: "Plan already premium — email skipped (idempotence)",
+          });
         } else {
           log("info", "user_upgraded_premium", { userId });
           trackEvent(userId, "subscription_upgraded", {
@@ -230,6 +252,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
         }
         break;
       }
+
 
       case "invoice.payment_failed": {
         const invoice = event.data.object;
@@ -531,6 +554,60 @@ function parseOpenAIJson(content) {
   }
 }
 
+function validateAIResponse(parsed) {
+  if (!parsed || typeof parsed !== "object") {
+    const err = new Error("Réponse OpenAI invalide : l'IA n'a pas retourné d'objet JSON.");
+    err.isAiParseError = true;
+    throw err;
+  }
+
+  const score = parsed.score;
+  if (!score || typeof score !== "object") {
+    const err = new Error("Réponse OpenAI invalide : l'objet 'score' est manquant.");
+    err.isAiParseError = true;
+    throw err;
+  }
+
+  // Normalisation / alias si l'IA utilise setup_quality/risk_management ou vice versa
+  if (score.discipline == null && score.risk_management != null) {
+    score.discipline = score.risk_management;
+  }
+  if (score.execution == null && score.setup_quality != null) {
+    score.execution = score.setup_quality;
+  }
+  if (score.risk_management == null && score.discipline != null) {
+    score.risk_management = score.discipline;
+  }
+  if (score.setup_quality == null && score.execution != null) {
+    score.setup_quality = score.execution;
+  }
+
+  const requiredScoreKeys = ["overall", "discipline", "psychology", "execution"];
+  for (const key of requiredScoreKeys) {
+    const rawVal = score[key];
+    const numVal = Number(rawVal);
+    if (rawVal == null || typeof numVal !== "number" || isNaN(numVal) || numVal < 0 || numVal > 10) {
+      const err = new Error(`Réponse OpenAI invalide : le score '${key}' doit être un nombre entre 0 et 10 (reçu: ${rawVal}).`);
+      err.isAiParseError = true;
+      throw err;
+    }
+    score[key] = parseFloat(numVal.toFixed(1));
+  }
+
+  // Garantit la présence des clés de compatibilité pour le frontend
+  score.setup_quality = score.setup_quality != null ? Number(score.setup_quality) : score.execution;
+  score.risk_management = score.risk_management != null ? Number(score.risk_management) : score.discipline;
+
+  if (typeof parsed.verdict !== "string" || !parsed.verdict.trim()) {
+    const err = new Error("Réponse OpenAI invalide : le champ 'verdict' est manquant ou vide.");
+    err.isAiParseError = true;
+    throw err;
+  }
+
+  return parsed;
+}
+
+
 // ─── VALIDATION ───────────────────────────────────────────────────────────────
 
 const tradeValidation = [
@@ -605,16 +682,20 @@ function detectPatterns(notes, aiAnalysis) {
   return patterns;
 }
 
-async function updateUserProfile(userId, { aiScore, emotion, patterns, pair }) {
+async function updateUserProfile(userId, { aiScore, disciplineScore, psychologyScore, executionScore, emotion, patterns, pair }) {
   try {
     const profile = await getOrCreateProfile(userId);
     if (!profile) return;
 
     const total = (profile.total_trades_analyzed || 0) + 1;
     const newAvgScore = ((profile.avg_ai_score || 0) * (total - 1) + (aiScore || 0)) / total;
-    const newDiscipline = ((profile.discipline_score || 0) * (total - 1) + (aiScore >= 7 ? 8 : aiScore >= 4 ? 5 : 2)) / total;
-    const newPsychology = ((profile.psychology_score || 0) * (total - 1) + (["Confiant", "Neutre"].includes(emotion) ? 8 : 3)) / total;
-    const newExecution = ((profile.execution_score || 0) * (total - 1) + (aiScore || 5)) / total;
+    const curDiscipline = disciplineScore != null ? disciplineScore : (aiScore >= 7 ? 8 : aiScore >= 4 ? 5 : 2);
+    const curPsychology = psychologyScore != null ? psychologyScore : (["Confiant", "Neutre"].includes(emotion) ? 8 : 3);
+    const curExecution = executionScore != null ? executionScore : (aiScore || 5);
+    const newDiscipline = ((profile.discipline_score || 0) * (total - 1) + curDiscipline) / total;
+    const newPsychology = ((profile.psychology_score || 0) * (total - 1) + curPsychology) / total;
+    const newExecution = ((profile.execution_score || 0) * (total - 1) + curExecution) / total;
+
 
     const updates = {
       total_trades_analyzed: total,
@@ -668,9 +749,18 @@ async function updateUserProfile(userId, { aiScore, emotion, patterns, pair }) {
       updates.top_priority = priorityLabels[topPattern[0]];
     }
 
-    // Historique hebdo
+    // Historique hebdo — numéro de semaine ISO-8601 (1-53, basé sur le jeudi de la semaine)
     const now = new Date();
-    const weekKey = `${now.getFullYear()}-W${Math.ceil(now.getDate() / 7)}`;
+    function getISOWeekNumber(date) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7; // Lundi=1 … Dimanche=7
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum); // Aligner sur le jeudi
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+    const isoWeek = getISOWeekNumber(now);
+    const weekKey = `${now.getFullYear()}-W${String(isoWeek).padStart(2, "0")}`;
+
     const weekly = Array.isArray(profile.weekly_scores) ? [...profile.weekly_scores] : [];
     const weekIndex = weekly.findIndex(w => w.week === weekKey);
     if (weekIndex >= 0) {
@@ -722,7 +812,8 @@ En tenant compte de CE PROFIL SPÉCIFIQUE, adapte ton analyse. Si tu détectes u
 
   return `Analyse ce trade et retourne UNIQUEMENT ce JSON :
 {
-  "score": { "overall": <0-10>, "setup_quality": <0-10>, "risk_management": <0-10>, "psychology": <0-10> },
+  "score": { "overall": <0-10>, "discipline": <0-10>, "psychology": <0-10>, "execution": <0-10> },
+
   "verdict": "<phrase courte>",
   "main_mistake": "<erreur principale ou null>",
   "breakdown": { "setup": "<1-2 phrases>", "risk_management": "<1-2 phrases>", "psychology": "<1-2 phrases>" },
@@ -986,47 +1077,106 @@ app.post(
         messages: [
           {
             role: "system",
-            content: `Tu es un coach de trading professionnel spécialisé en SMC, Forex et psychologie du trader.
-Tu as accès à l'historique de ce trader. Utilise-le pour personnaliser ton analyse.
-Retourne UNIQUEMENT un JSON valide, sans markdown, sans texte autour.`,
+            content: `Tu es un coach de trading d'élite, spécialisé en Smart Money Concepts (SMC), Forex et gestion du risque institutionnel. Tu analyses les trades avec la rigueur d'un risk manager professionnel.
+
+## BARÈME DE NOTATION — applique-le sans dérogation
+
+### Discipline /10
+- Absence totale de Stop Loss défini → note MAXIMUM 3/10, quels que soient les autres facteurs.
+- R:R théorique < 1.5 sans justification explicite de scalp ciblé ou de setup asymétrique → pénalise de -2 points.
+- Écart manifeste entre le setup annoncé (ex: "Order Block H4") et les niveaux prix fournis → pénalise de -1 à -3 points selon la sévérité.
+- Risque par trade > 2% du capital sans mention d'une raison valide → pénalise de -1 point.
+
+### Psychologie /10
+- Analyse les mots-clés dans les notes et l'émotion déclarée : "FOMO", "peur de rater", "revenge", "rattraper", "précipitation", "doute", "hésitation", "impatience", "stress", "anxieux" → chaque signal détecté pénalise de -1.5 à -2.5 points selon l'intensité.
+- Émotion déclarée neutre ou confiante avec notes cohérentes → bonus possible jusqu'à 8/10.
+- Émotion déclarée négative (anxieux, stressé, frustré) → score psychologie plafonné à 5/10 même si le trade est techniquement bon.
+
+### Exécution /10
+- Late entry évident (entrée nettement après la zone idéale SMC) → -2 points.
+- Chasing du prix (entrée en momentum sans retrace) → -2 points.
+- Respect des zones SMC (Order Block, Fair Value Gap, liquidités, BOS/CHoCH) : si le setup mentionne un concept SMC, vérifie la cohérence interne des niveaux fournis. Incohérence → -1 à -2 points.
+- Taille de position mentionnée (size) cohérente avec le risque déclaré → +0.5 point si cohérent.
+
+### Overall /10
+Calcule OBLIGATOIREMENT : round(0.35 × discipline + 0.35 × psychologie + 0.30 × exécution, 1).
+N'arrondis pas à l'entier, retourne une valeur avec une décimale (ex: 6.4, 7.8).
+
+## RÈGLES DE CONTENU
+
+1. N'invente JAMAIS une métrique non fournie. Si le winrate, le capital ou d'autres données ne sont pas fournis, ignore-les. N'écris pas "votre winrate semble...".
+2. Ton : professionnel, direct, percutant. Phrases courtes. Zéro moralisation du type "il faut être discipliné" ou "le trading demande de la patience". Ces formules sont INTERDITES.
+3. Oriente vers l'ACTION concrète : ce que le trader doit FAIRE différemment, pas ce qu'il devrait PENSER.
+4. Si des données cruciales manquent (pas de notes, pas d'émotion, pas de setup), baisse les scores correspondants mais ne bloque pas l'analyse.
+5. Retourne UNIQUEMENT le JSON demandé. Aucun texte avant ou après. Aucun bloc markdown.`,
           },
           { role: "user", content: prompt },
         ],
         max_tokens: 1200,
         response_format: { type: "json_object" },
+        temperature: 0.2,
       });
 
-      const parsed = parseOpenAIJson(completion.choices?.[0]?.message?.content);
-
-      // Détecte patterns et met à jour profil en arrière-plan (non bloquant)
-      const patterns = detectPatterns(safeNotes, parsed);
-      updateUserProfile(userId, {
-        aiScore: parsed.score?.overall || 5,
-        emotion: safeEmotion || null,
-        patterns,
-        pair: safePair,
-      });
+      const rawContent = completion.choices?.[0]?.message?.content;
+      const parsed = parseOpenAIJson(rawContent);
+      const validated = validateAIResponse(parsed);
 
       trackEvent(userId, "trade_analyzed", {
         pair: safePair,
-        score: parsed.score?.overall,
+        score: validated.score.overall,
         rr,
         plan,
         has_history: (profile?.total_trades_analyzed || 0) > 0,
-        has_mistakes: (parsed.mistakes?.length || 0) > 0,
+        has_mistakes: (validated.mistakes?.length || 0) > 0,
       });
 
       await incrementAnalysisUsage(userId, req.analysisUsage?.date, req.analysisUsage?.currentCount || 0);
 
       log("info", "analysis_completed", { userId, pair: safePair, plan });
-      res.json({ ...parsed, is_limited: false, plan });
+      res.json({ ...validated, is_limited: false, plan });
     } catch (err) {
       log("error", "ai_analysis_error", { error: err.message, userId });
       captureBackendError(err, { route: "/api/analyzeTrade", userId, pair: safePair });
+      if (err.isAiParseError || err.message?.includes("Réponse OpenAI") || err.message?.includes("JSON")) {
+        return res.status(502).json({
+          error: "Erreur de format de l'analyse IA (502 Bad Gateway). Veuillez réessayer.",
+          details: err.message,
+        });
+      }
       res.status(500).json({ error: "Erreur lors de l'analyse IA." });
     }
   }
 );
+
+// Synchronisation du profil Coach IA (uniquement après validation/import effectif du trade)
+app.post("/api/profile/sync", requireAuth, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const { aiScore, disciplineScore, psychologyScore, executionScore, emotion, pair, notes, aiAnalysis } = req.body;
+    const safePair = sanitizeString(pair || "");
+    const safeEmotion = sanitizeString(emotion || "");
+    const safeNotes = sanitizeString(notes || "");
+
+    const patterns = detectPatterns(safeNotes, aiAnalysis);
+    await updateUserProfile(userId, {
+      aiScore: Number(aiScore),
+      disciplineScore: disciplineScore != null ? Number(disciplineScore) : undefined,
+      psychologyScore: psychologyScore != null ? Number(psychologyScore) : undefined,
+      executionScore: executionScore != null ? Number(executionScore) : undefined,
+      emotion: safeEmotion || null,
+      patterns,
+      pair: safePair,
+    });
+
+    log("info", "profile_synced", { userId, pair: safePair });
+    res.json({ ok: true });
+  } catch (err) {
+    log("warn", "profile_sync_error", { error: err.message, userId });
+    captureBackendError(err, { route: "/api/profile/sync", userId });
+    res.status(500).json({ error: "Erreur lors de la synchronisation du profil." });
+  }
+});
+
 
 // ─── EMAIL ROUTES ─────────────────────────────────────────────────────────────
 

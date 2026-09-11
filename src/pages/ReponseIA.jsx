@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { insertTrade } from "../lib/tradesService.js";
+import { apiFetch } from "../lib/supabase.js";
 import { analytics } from "../lib/analytics.js";
 import { usePlan } from "../context/PlanContext.jsx";
 import {
@@ -40,9 +41,18 @@ export default function ReponseIA() {
     );
   }
 
+  const rawScore = aiData.score || {};
   const safe = {
-    score: aiData.score || { overall: 0, setup_quality: 0, risk_management: 0, psychology: 0 },
+    score: {
+      overall: Number(rawScore.overall) || 0,
+      discipline: Number(rawScore.discipline ?? rawScore.risk_management) || 0,
+      execution: Number(rawScore.execution ?? rawScore.setup_quality) || 0,
+      psychology: Number(rawScore.psychology) || 0,
+      setup_quality: Number(rawScore.setup_quality ?? rawScore.execution) || 0,
+      risk_management: Number(rawScore.risk_management ?? rawScore.discipline) || 0,
+    },
     verdict: aiData.verdict || "Analyse non disponible.",
+
     main_mistake: aiData.main_mistake || null,
     breakdown: aiData.breakdown || {},
     mistakes: aiData.mistakes || [],
@@ -133,7 +143,27 @@ export default function ReponseIA() {
 
       setSavedTradeId(saved?.id || null);
 
+      // Synchronisation du profil Coach IA uniquement après validation et insertion effective du trade
+      try {
+        await apiFetch("/api/profile/sync", {
+          method: "POST",
+          body: JSON.stringify({
+            aiScore: safe.score.overall,
+            disciplineScore: safe.score.discipline,
+            psychologyScore: safe.score.psychology,
+            executionScore: safe.score.execution,
+            emotion: form.emotion || null,
+            pair: form.pair,
+            notes: form.notes || "",
+            aiAnalysis: aiData,
+          }),
+        });
+      } catch (syncErr) {
+        console.warn("[ProfileSync] Erreur lors de la synchronisation du profil:", syncErr);
+      }
+
       analytics.analysisSaved(form.pair, safe.score.overall);
+
       analytics.tradeCreated({
         pair: form.pair,
         direction: form.direction,

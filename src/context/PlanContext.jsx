@@ -28,14 +28,14 @@ export function PlanProvider({ children }) {
       const currentPlan = settings?.plan || "free";
       setPlanState(currentPlan);
 
+      // Enrichissement du profil PostHog avec le plan réel (distinct de l'événement app_opened
+      // qui est tracké une seule fois dans AuthContext au chargement de la session)
       identifyUser(user.id, {
         email: user.email,
         plan: currentPlan,
         trading_level: settings?.trading_level,
         main_market: settings?.main_market,
       });
-
-      analytics.appOpened(currentPlan);
     } catch {
       setPlanState("free");
     } finally {
