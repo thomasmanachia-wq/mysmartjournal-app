@@ -15,12 +15,12 @@ export default function ReponseIA() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const { plan } = usePlan();
-  const [acknowledged, setAcknowledged] = useState(false);
   const [reflections, setReflections] = useState({});
   const [importing, setImporting] = useState(false);
   const [importDone, setImportDone] = useState(false);
   const [importError, setImportError] = useState(null);
   const [savedTradeId, setSavedTradeId] = useState(null);
+
 
   if (!state?.aiData || !state?.form) {
     return <Navigate to="/analyse" replace />;
@@ -79,11 +79,7 @@ export default function ReponseIA() {
       : "—";
   })();
 
-  const allReflectionsAnswered = safe.reflection_questions.length === 0 ||
-    safe.reflection_questions.every((_, i) => (reflections[i] || "").trim().length > 10);
-
   async function handleImport() {
-    if (!acknowledged) return;
     setImporting(true);
     setImportError(null);
     try {
@@ -118,6 +114,11 @@ export default function ReponseIA() {
         question,
         answer: (reflections[index] || "").trim(),
       }));
+
+      const answeredCount = reflectionAnswers.filter((r) => r.answer.length > 0).length;
+      if (answeredCount > 0) {
+        analytics.reflectionCompleted(answeredCount);
+      }
 
       const saved = await insertTrade({
         pair: form.pair,
@@ -174,6 +175,11 @@ export default function ReponseIA() {
       });
 
       setImportDone(true);
+
+      // Redirection automatique vers le journal après un court délai visuel de feedback
+      setTimeout(() => {
+        navigate("/");
+      }, 1200);
     } catch (err) {
       analytics.errorOccurred("import_trade", err.message);
       setImportError("Erreur lors de l'import. Réessayez.");
@@ -182,11 +188,6 @@ export default function ReponseIA() {
     }
   }
 
-  function handleAcknowledge() {
-    if (!allReflectionsAnswered) return;
-    analytics.reflectionCompleted(safe.reflection_questions.length);
-    setAcknowledged(true);
-  }
 
   return (
     <div style={styles.page}>
@@ -318,15 +319,15 @@ export default function ReponseIA() {
       {/* REFLECTION QUESTIONS */}
       {safe.reflection_questions.length > 0 && (
         <>
-          <SectionTitle icon={<BookOpen size={13} color="#6B7FA3" />} label="Questions de réflexion" note="Répondez pour débloquer l'import" />
+          <SectionTitle icon={<BookOpen size={13} color="#6B7FA3" />} label="Questions de réflexion" note="(Facultatif)" />
           <div style={styles.card}>
-            <p style={styles.reflectionIntro}>Ces questions sont conçues pour approfondir votre compréhension. Répondez honnêtement — minimum 10 caractères par réponse.</p>
+            <p style={styles.reflectionIntro}>Ces questions sont facultatives mais vous aident à conscientiser vos forces et axes de progrès. Vous pouvez y répondre librement ou enregistrer directement votre trade ci-dessous.</p>
             {safe.reflection_questions.map((q, i) => (
               <div key={i} style={styles.questionBlock}>
                 <p style={styles.questionText}>{i + 1}. {q}</p>
                 <textarea
                   style={{ ...styles.textarea, borderColor: (reflections[i] || "").trim().length > 10 ? "#10B98155" : "#1E2D45" }}
-                  placeholder="Votre réflexion..."
+                  placeholder="Votre réflexion (facultatif)..."
                   value={reflections[i] || ""}
                   onChange={(e) => setReflections((prev) => ({ ...prev, [i]: e.target.value }))}
                   rows={3}
@@ -343,37 +344,25 @@ export default function ReponseIA() {
         </>
       )}
 
-      {/* ACKNOWLEDGE + IMPORT */}
+      {/* ACTION PRINCIPALE : ENREGISTRER DANS LE JOURNAL */}
       <div style={styles.ackSection}>
-        {!allReflectionsAnswered && safe.reflection_questions.length > 0 && (
-          <p style={styles.ackWarning}>Répondez à toutes les questions de réflexion pour continuer.</p>
-        )}
-        {!acknowledged ? (
-          <button onClick={handleAcknowledge} disabled={!allReflectionsAnswered} style={{ ...styles.ackBtn, opacity: allReflectionsAnswered ? 1 : 0.4, cursor: allReflectionsAnswered ? "pointer" : "not-allowed" }}>
-            <CheckCircle size={15} /> J'ai pris connaissance de cette analyse
-          </button>
-        ) : (
-          <div style={styles.ackDone}>
-            <CheckCircle size={13} color="#10B981" />
-            <span style={{ color: "#10B981", fontSize: "0.82rem", fontWeight: "500" }}>Analyse reconnue — vous pouvez importer ce trade</span>
-          </div>
-        )}
-        {importError && <p style={{ color: "#EF4444", fontSize: "0.82rem" }}>{importError}</p>}
+        {importError && <p style={{ color: "#EF4444", fontSize: "0.82rem", margin: "0 0 10px 0" }}>{importError}</p>}
         <button
           onClick={handleImport}
-          disabled={!acknowledged || importing || importDone}
+          disabled={importing || importDone}
           style={{
             ...styles.importBtn,
-            opacity: acknowledged && !importing && !importDone ? 1 : 0.4,
-            cursor: acknowledged && !importing && !importDone ? "pointer" : "not-allowed",
+            opacity: importing ? 0.7 : 1,
+            cursor: importing || importDone ? "default" : "pointer",
             backgroundColor: importDone ? "#064E3B" : "#10B981",
+            boxShadow: importDone ? "none" : "0 4px 20px rgba(16,185,129,0.3)",
           }}
         >
           {importDone
-            ? <><CheckCircle size={14} /> Importé dans le Journal</>
+            ? <><CheckCircle size={15} /> Trade enregistré ! Redirection vers le journal...</>
             : importing
-            ? <><Activity size={14} /> Import en cours...</>
-            : <><BookOpen size={14} /> Ajouter au Journal</>
+            ? <><Activity size={15} /> Enregistrement en cours...</>
+            : <><BookOpen size={15} /> Enregistrer dans mon journal</>
           }
         </button>
 
@@ -389,11 +378,12 @@ export default function ReponseIA() {
               onClick={() => navigate("/")}
               style={styles.goToJournalBtn}
             >
-              Voir mon journal →
+              Voir mon journal immédiatement →
             </button>
           </>
         )}
       </div>
+
     </div>
   );
 }

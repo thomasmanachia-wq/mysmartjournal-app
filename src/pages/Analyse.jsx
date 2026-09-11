@@ -33,6 +33,8 @@ const DEFAULT_INSTRUMENTS = {
 };
 
 const DEFAULT_ANALYSIS_TYPES = ["SMC", "ICT", "Price Action", "Supply & Demand", "Wyckoff", "Volume Profile"];
+const STANDARD_TIMEFRAMES = ["M1", "M5", "M15", "H1", "H4", "D1"];
+
 
 const DEFAULT_ANALYSIS_PREFS = {
   preferredMarket: "forex",
@@ -152,7 +154,9 @@ export default function Analyse() {
   const [customInputs, setCustomInputs] = useState({ instrument: "", setup: "", analysisType: "" });
   const [openAdd, setOpenAdd] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [showCustomTf, setShowCustomTf] = useState(false);
   const storageUserIdRef = useRef(null);
+
   const storageReadyRef = useRef(false);
   const formTouchedRef = useRef(false);
   const latestFormRef = useRef(createDefaultForm());
@@ -373,7 +377,9 @@ export default function Analyse() {
     return risk > 0 ? (reward / risk).toFixed(2) : null;
   })();
 
+  const isCustomTf = Boolean(form.timeframe && !STANDARD_TIMEFRAMES.includes(form.timeframe));
   const isDisabled = !form.pair || !form.entryPrice || !form.stopLoss || !form.takeProfit || loading;
+
   const hiddenInstruments = analysisPrefs.hiddenInstruments?.[form.market] || [];
   const instrumentOptions = uniqueList([
     ...(DEFAULT_INSTRUMENTS[form.market] || []),
@@ -540,7 +546,58 @@ export default function Analyse() {
               <Field label="Take-Profit"><input style={inputStyle("takeProfit")} type="number" step="any" name="takeProfit" value={form.takeProfit} onChange={handleChange} placeholder="Cible" {...fp("takeProfit")} /></Field>
               <Field label="Stop-Loss"><input style={inputStyle("stopLoss")} type="number" step="any" name="stopLoss" value={form.stopLoss} onChange={handleChange} placeholder="Protection" {...fp("stopLoss")} /></Field>
               <Field label="Taille (Lots)"><input style={inputStyle("size")} type="number" step="any" name="size" value={form.size} onChange={handleChange} placeholder="0.01" {...fp("size")} /></Field>
-              <Field label="Timeframe"><input style={inputStyle("timeframe")} name="timeframe" value={form.timeframe} onChange={handleChange} placeholder="H4, M15..." {...fp("timeframe")} /></Field>
+              <Field label="Timeframe">
+                <div style={styles.timeframesWrap}>
+                  <div style={styles.timeframeGrid}>
+                    {STANDARD_TIMEFRAMES.map((tf) => {
+                      const active = form.timeframe === tf;
+                      return (
+                        <button
+                          key={tf}
+                          type="button"
+                          onClick={() => {
+                            updateForm((p) => ({ ...p, timeframe: p.timeframe === tf ? "" : tf }));
+                            setShowCustomTf(false);
+                          }}
+                          style={{
+                            ...styles.timeframeBtn,
+                            backgroundColor: active ? "#1E3A5F" : "#121B2E",
+                            color: active ? "#60A5FA" : "#8A9BB8",
+                            border: active ? "1px solid #3B82F6" : "1px solid #1E2D45",
+                            boxShadow: active ? "0 0 10px rgba(59,130,246,0.18)" : "none",
+                          }}
+                        >
+                          {tf}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomTf((v) => !v)}
+                      style={{
+                        ...styles.timeframeBtn,
+                        backgroundColor: isCustomTf ? "#2E1065" : showCustomTf ? "#1E2D45" : "#121B2E",
+                        color: isCustomTf ? "#C4B5FD" : showCustomTf ? "#E8EDF5" : "#8A9BB8",
+                        border: isCustomTf ? "1px solid #8B5CF6" : "1px solid #1E2D45",
+                      }}
+                    >
+                      Autre
+                    </button>
+                  </div>
+                  {(showCustomTf || isCustomTf) && (
+                    <input
+                      style={{ ...inputStyle("timeframe"), marginTop: "6px", padding: "6px 10px", fontSize: "0.8rem" }}
+                      name="timeframe"
+                      value={form.timeframe}
+                      onChange={handleChange}
+                      placeholder="Ex: M3, M30, W1..."
+                      autoFocus={showCustomTf && !isCustomTf}
+                      {...fp("timeframe")}
+                    />
+                  )}
+                </div>
+              </Field>
+
               <Field label="Direction" style={{ gridColumn: "1 / -1" }}>
                 <div style={styles.dirWrapper}>
                   <button type="button" onClick={() => updateForm((p) => ({ ...p, direction: "long" }))} style={{ ...styles.dirBtn, backgroundColor: form.direction === "long" ? "#064E3B" : "#0D1421", color: form.direction === "long" ? "#10B981" : "#6B7FA3", border: form.direction === "long" ? "1px solid #10B98155" : "1px solid #1E2D45", boxShadow: form.direction === "long" ? "0 0 12px rgba(16,185,129,0.15)" : "none" }}>
@@ -823,7 +880,11 @@ const styles = {
   inlineConfirmBtn: { padding: "7px 10px", borderRadius: "7px", border: "1px solid #1E2D45", backgroundColor: "#1E3A5F44", color: "#60A5FA", fontSize: "0.72rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
   emotions: { display: "flex", flexWrap: "wrap", gap: "6px" },
   emotionBtn: { padding: "5px 12px", borderRadius: "6px", fontSize: "0.78rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s" },
+  timeframesWrap: { display: "flex", flexDirection: "column" },
+  timeframeGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "4px" },
+  timeframeBtn: { padding: "7px 4px", borderRadius: "6px", fontSize: "0.74rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif", textAlign: "center", transition: "all 0.15s" },
   dirWrapper: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" },
+
   dirBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "9px", borderRadius: "8px", fontWeight: "600", fontSize: "0.82rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.2s" },
   errorBanner: { backgroundColor: "#450A0A", border: "1px solid #EF444444", borderRadius: "8px", padding: "12px 16px", color: "#EF4444", fontSize: "0.85rem", marginBottom: "16px", textAlign: "center" },
   cta: { textAlign: "center" },
