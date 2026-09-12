@@ -26,34 +26,51 @@ export function initAnalytics() {
 
 export function identifyUser(userId, properties = {}) {
   if (!posthog.__loaded) return;
-  posthog.identify(userId, {
-    email: properties.email,
-    plan: properties.plan || "free",
-    created_at: properties.created_at,
-    trading_level: properties.trading_level,
-    main_market: properties.main_market,
-  });
+  try {
+    posthog.identify(userId, {
+      email: properties.email,
+      plan: properties.plan || "free",
+      created_at: properties.created_at,
+      trading_level: properties.trading_level,
+      main_market: properties.main_market,
+    });
+  } catch {
+    // Silent fail pour éviter tout impact sur l'application
+  }
 }
 
 export function resetUser() {
   if (!posthog.__loaded) return;
-  posthog.reset();
+  try {
+    posthog.reset();
+  } catch {
+    // Silent fail
+  }
 }
 
 export function updateUserProperties(properties = {}) {
   if (!posthog.__loaded) return;
-  posthog.people?.set(properties);
+  try {
+    posthog.people?.set(properties);
+  } catch {
+    // Silent fail
+  }
 }
 
 // ─── HELPER GÉNÉRIQUE ─────────────────────────────────────────────────────────
 
 function track(event, properties = {}) {
   if (!posthog.__loaded) return;
-  posthog.capture(event, {
-    timestamp: new Date().toISOString(),
-    ...properties,
-  });
+  try {
+    posthog.capture(event, {
+      timestamp: new Date().toISOString(),
+      ...properties,
+    });
+  } catch {
+    // Silent fail : aucune panne ou blocage de PostHog ne doit impacter l'UI
+  }
 }
+
 
 // ─── AUTH EVENTS ──────────────────────────────────────────────────────────────
 
@@ -96,14 +113,17 @@ export const analytics = {
     track("sample_trade_analyzed"),
 
   // Product — Trades
-  tradeCreated: (tradeData) =>
+  tradeCreated: (tradeData = {}) =>
     track("trade_created", {
       pair: tradeData.pair,
       direction: tradeData.direction,
       result: tradeData.result,
       rr: tradeData.rr,
-      has_setup: !!tradeData.setup,
-      has_emotion: !!tradeData.emotion,
+      has_setup: tradeData.has_setup !== undefined ? Boolean(tradeData.has_setup) : Boolean(tradeData.setup),
+      has_emotion: tradeData.has_emotion !== undefined ? Boolean(tradeData.has_emotion) : Boolean(tradeData.emotion),
+      ai_score: tradeData.ai_score,
+      plan: tradeData.plan,
+      has_reflections: Boolean(tradeData.has_reflections),
     }),
 
   tradeDeleted: () => track("trade_deleted"),
@@ -111,8 +131,14 @@ export const analytics = {
   tradeViewed: (pair) => track("trade_viewed", { pair }),
 
   // Product — Analyse IA
-  analysisStarted: (pair, direction) =>
-    track("analysis_started", { pair, direction }),
+  analysisStarted: (pairOrData, maybeDirection) => {
+    if (typeof pairOrData === "object" && pairOrData !== null) {
+      track("analysis_started", pairOrData);
+    } else {
+      track("analysis_started", { pair: pairOrData, direction: maybeDirection });
+    }
+  },
+
 
   analysisGenerated: (pair, score, plan, isLimited) =>
     track("analysis_generated", {

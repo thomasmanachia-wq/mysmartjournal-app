@@ -395,8 +395,19 @@ export default function Analyse() {
     if (isDisabled) return;
     setLoading(true);
     setError(null);
-    analytics.analysisStarted(form.pair, form.direction);
+    analytics.analysisStarted({
+      market: form.market,
+      pair: form.pair,
+      direction: form.direction,
+      timeframe: form.timeframe,
+      has_setup: Boolean(form.setup),
+      has_emotion: Boolean(form.emotion),
+      has_notes: Boolean(form.notes && form.notes.trim().length > 0),
+      has_exit_price: Boolean(form.exitPrice),
+    });
     const marketLabel = MARKETS.find((market) => market.value === form.market)?.label || form.market;
+
+
     const analysisContext = [
       marketLabel && `Marché: ${marketLabel}`,
       form.timeframe && `Timeframe: ${form.timeframe}`,

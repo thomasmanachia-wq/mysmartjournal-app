@@ -163,8 +163,6 @@ export default function ReponseIA() {
         console.warn("[ProfileSync] Erreur lors de la synchronisation du profil:", syncErr);
       }
 
-      analytics.analysisSaved(form.pair, safe.score.overall);
-
       analytics.tradeCreated({
         pair: form.pair,
         direction: form.direction,
@@ -172,7 +170,11 @@ export default function ReponseIA() {
         rr: storedRR,
         setup: form.setup,
         emotion: form.emotion,
+        ai_score: safe?.score?.overall,
+        plan,
+        has_reflections: answeredCount > 0,
       });
+
 
       setImportDone(true);
 

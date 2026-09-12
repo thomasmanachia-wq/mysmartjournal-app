@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTrades } from "../lib/tradesService.js";
+import { analytics } from "../lib/analytics.js";
 import InstrumentIcon from "../components/InstrumentIcon.jsx";
 
 const FILTERS = ["Tous", "Gagnants", "Perdants", "Ce mois"];
@@ -28,6 +29,7 @@ export default function Journal() {
   const [filter, setFilter] = useState("Tous");
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const viewedRef = useRef(false);
 
   useEffect(() => { loadTrades(); }, []);
 
@@ -41,12 +43,17 @@ export default function Journal() {
         takeProfit: t.take_profit,
         risk: t.risk_percent,
       })));
+      if (!viewedRef.current) {
+        viewedRef.current = true;
+        analytics.journalViewed(data?.length ?? 0);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
   }
+
 
   const filtered = trades.filter((t) => {
     const now = new Date();
