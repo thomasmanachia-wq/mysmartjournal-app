@@ -30,7 +30,7 @@ export default function CoachIA() {
     return (
       <div style={styles.centered}>
         <Brain size={24} color="#3B82F6" />
-        <p style={{ color: "#6B7FA3" }}>Chargement de votre profil IA...</p>
+        <p style={{ color: "#6B7FA3" }}>Loading AI trading profile...</p>
       </div>
     );
   }
@@ -41,9 +41,9 @@ export default function CoachIA() {
     return (
       <div style={styles.empty}>
         <Brain size={40} color="#1E2D45" />
-        <h2 style={styles.emptyTitle}>Profil IA en construction</h2>
+        <h2 style={styles.emptyTitle}>AI Profile in Progress</h2>
         <p style={styles.emptySub}>
-          Effectuez au moins 3 analyses IA pour débloquer votre profil de trading personnalisé.
+          Log and audit at least 3 trades to unlock your personalized trading profile.
         </p>
       </div>
     );
@@ -62,25 +62,25 @@ export default function CoachIA() {
       <div style={styles.header}>
         <div>
           <h1 style={styles.title}>AI Performance Coach</h1>
-          <p style={styles.subtitle}>Votre profil de trading basé sur {profile.total_trades_analyzed} analyses</p>
+          <p style={styles.subtitle}>Your trading profile based on {profile.total_trades_analyzed} audits</p>
         </div>
         <div style={styles.avgScore}>
           <span style={{ fontSize: "2rem", fontWeight: "800", color: profile.avg_ai_score >= 7 ? "#10B981" : profile.avg_ai_score >= 4 ? "#F59E0B" : "#EF4444" }}>
             {profile.avg_ai_score?.toFixed(1)}
           </span>
-          <span style={{ color: "#6B7FA3", fontSize: "0.8rem" }}>score moyen</span>
+          <span style={{ color: "#6B7FA3", fontSize: "0.8rem" }}>avg score</span>
         </div>
       </div>
 
       {/* Scores */}
       <div style={styles.scoresGrid}>
         <ScoreCard label="Discipline" value={profile.discipline_score} icon={<Shield size={15} color="#3B82F6" />} />
-        <ScoreCard label="Psychologie" value={profile.psychology_score} icon={<Brain size={15} color="#8B5CF6" />} />
-        <ScoreCard label="Exécution" value={profile.execution_score} icon={<Zap size={15} color="#F59E0B" />} />
+        <ScoreCard label="Psychology" value={profile.psychology_score} icon={<Brain size={15} color="#8B5CF6" />} />
+        <ScoreCard label="Execution" value={profile.execution_score} icon={<Zap size={15} color="#F59E0B" />} />
         {/* Consistance : affichée uniquement si le backend a calculé une valeur (non null) */}
         {profile.consistency_score != null
-          ? <ScoreCard label="Consistance" value={profile.consistency_score} icon={<Activity size={15} color="#10B981" />} />
-          : <ScoreCardPending label="Consistance" icon={<Activity size={15} color="#3B4B6B" />} />
+          ? <ScoreCard label="Consistency" value={profile.consistency_score} icon={<Activity size={15} color="#10B981" />} />
+          : <ScoreCardPending label="Consistency" icon={<Activity size={15} color="#3B4B6B" />} />
         }
       </div>
 
@@ -91,7 +91,7 @@ export default function CoachIA() {
           <div style={{ ...styles.insightCard, borderColor: "#10B98133" }}>
             <div style={styles.insightHeader}>
               <CheckCircle size={14} color="#10B981" />
-              <span style={{ color: "#10B981", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase" }}>Force principale</span>
+              <span style={{ color: "#10B981", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase" }}>Primary Strength</span>
             </div>
             <p style={styles.insightText}>{profile.main_strength}</p>
           </div>
@@ -100,7 +100,7 @@ export default function CoachIA() {
           <div style={{ ...styles.insightCard, borderColor: "#EF444433" }}>
             <div style={styles.insightHeader}>
               <AlertTriangle size={14} color="#EF4444" />
-              <span style={{ color: "#EF4444", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase" }}>Faiblesse principale</span>
+              <span style={{ color: "#EF4444", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase" }}>Primary Leak</span>
             </div>
             <p style={styles.insightText}>{profile.main_weakness}</p>
           </div>
@@ -109,7 +109,7 @@ export default function CoachIA() {
           <div style={{ ...styles.insightCard, borderColor: "#3B82F633", gridColumn: "1 / -1" }}>
             <div style={styles.insightHeader}>
               <Target size={14} color="#3B82F6" />
-              <span style={{ color: "#3B82F6", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase" }}>Priorité d'amélioration</span>
+              <span style={{ color: "#3B82F6", fontSize: "0.72rem", fontWeight: "700", textTransform: "uppercase" }}>Action Priority</span>
             </div>
             <p style={styles.insightText}>{profile.top_priority}</p>
           </div>
@@ -120,7 +120,7 @@ export default function CoachIA() {
       {topPatterns.length > 0 && (
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <AlertTriangle size={14} color="#F59E0B" /> Comportements détectés
+            <AlertTriangle size={14} color="#F59E0B" /> Detected Behavioral Patterns
           </h2>
           <div style={styles.patternsGrid}>
             {topPatterns.map(([pattern, count]) => (
@@ -134,7 +134,7 @@ export default function CoachIA() {
       {weekly.length > 1 && (
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>
-            <BarChart2 size={14} color="#6B7FA3" /> Évolution du score IA
+            <BarChart2 size={14} color="#6B7FA3" /> AI Score Trajectory
           </h2>
           <div style={styles.weeklyChart}>
             {weekly.slice(-8).map((w, i) => {
@@ -144,7 +144,7 @@ export default function CoachIA() {
                 <div key={i} style={styles.barWrap}>
                   <span style={{ color: "#6B7FA3", fontSize: "0.65rem" }}>{w.avg_score?.toFixed(1)}</span>
                   <div style={{ ...styles.bar, height: `${height}px`, backgroundColor: color }} />
-                  <span style={{ color: "#3B4B6B", fontSize: "0.6rem" }}>{w.week?.split("-W")[1] ? `S${w.week.split("-W")[1]}` : ""}</span>
+                  <span style={{ color: "#3B4B6B", fontSize: "0.6rem" }}>{w.week?.split("-W")[1] ? `W${w.week.split("-W")[1]}` : ""}</span>
                 </div>
               );
             })}
@@ -155,14 +155,14 @@ export default function CoachIA() {
       {/* Compteurs comportements */}
       <div style={styles.section}>
         <h2 style={styles.sectionTitle}>
-          <Activity size={14} color="#6B7FA3" /> Statistiques comportementales
+          <Activity size={14} color="#6B7FA3" /> Behavioral Metrics
         </h2>
         <div style={styles.statsGrid}>
-          <StatRow label="FOMO détecté" value={profile.fomo_count || 0} warn={profile.fomo_count > 3} />
-          <StatRow label="Revenge trading" value={profile.revenge_trading_count || 0} warn={profile.revenge_trading_count > 2} />
-          <StatRow label="Entrées tardives" value={profile.late_entry_count || 0} warn={profile.late_entry_count > 3} />
-          <StatRow label="Mauvaise gestion stop" value={profile.bad_stop_count || 0} warn={profile.bad_stop_count > 2} />
-          <StatRow label="Émotion dominante" value={profile.dominant_emotion || "—"} />
+          <StatRow label="FOMO Detected" value={profile.fomo_count || 0} warn={profile.fomo_count > 3} />
+          <StatRow label="Revenge Trading" value={profile.revenge_trading_count || 0} warn={profile.revenge_trading_count > 2} />
+          <StatRow label="Late Entries" value={profile.late_entry_count || 0} warn={profile.late_entry_count > 3} />
+          <StatRow label="Improper Stop Management" value={profile.bad_stop_count || 0} warn={profile.bad_stop_count > 2} />
+          <StatRow label="Dominant Emotion" value={profile.dominant_emotion || "—"} />
         </div>
       </div>
     </div>
@@ -194,18 +194,18 @@ function ScoreCardPending({ label, icon }) {
       <div style={styles.progressTrack}>
         <div style={{ ...styles.progressFill, width: "0%", backgroundColor: "#1E2D45" }} />
       </div>
-      <span style={{ fontSize: "0.65rem", color: "#3B4B6B", marginTop: "-4px" }}>Données insuffisantes</span>
+      <span style={{ fontSize: "0.65rem", color: "#3B4B6B", marginTop: "-4px" }}>Insufficient data</span>
     </div>
   );
 }
 
 const PATTERN_LABELS = {
-  fomo: { label: "FOMO", desc: "Entrées émotionnelles par peur de rater", color: "#EF4444" },
-  revenge_trading: { label: "Revenge Trading", desc: "Trades pris pour compenser une perte", color: "#EF4444" },
-  late_entry: { label: "Entrée tardive", desc: "Exécution après le point idéal", color: "#F59E0B" },
-  anxiety: { label: "Anxiété", desc: "État émotionnel négatif pré-trade", color: "#F59E0B" },
-  impatience: { label: "Impatience", desc: "Manque de patience sur le setup", color: "#F59E0B" },
-  bad_stop: { label: "Stop mal placé", desc: "Stop loss mal positionné", color: "#6366F1" },
+  fomo: { label: "FOMO", desc: "Emotional entries driven by fear of missing out", color: "#EF4444" },
+  revenge_trading: { label: "Revenge Trading", desc: "Impulsive entries after taking a loss", color: "#EF4444" },
+  late_entry: { label: "Late Entry", desc: "Chasing price after ideal trigger", color: "#F59E0B" },
+  anxiety: { label: "Anxiety", desc: "Negative or fearful pre-trade mindset", color: "#F59E0B" },
+  impatience: { label: "Impatience", desc: "Rushing setup before full confirmation", color: "#F59E0B" },
+  bad_stop: { label: "Poor Stop Placement", desc: "Stop loss placed too tight or invalidly", color: "#6366F1" },
 };
 
 function PatternCard({ pattern, count, total }) {
@@ -221,7 +221,7 @@ function PatternCard({ pattern, count, total }) {
       <div style={{ ...styles.progressTrack, marginTop: "8px" }}>
         <div style={{ ...styles.progressFill, width: `${Math.min(pct, 100)}%`, backgroundColor: info.color }} />
       </div>
-      <span style={{ color: "#3B4B6B", fontSize: "0.68rem" }}>{pct}% des trades</span>
+      <span style={{ color: "#3B4B6B", fontSize: "0.68rem" }}>{pct}% of trades</span>
     </div>
   );
 }

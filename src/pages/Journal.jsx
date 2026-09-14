@@ -4,7 +4,7 @@ import { getTrades } from "../lib/tradesService.js";
 import { analytics } from "../lib/analytics.js";
 import InstrumentIcon from "../components/InstrumentIcon.jsx";
 
-const FILTERS = ["Tous", "Gagnants", "Perdants", "Ce mois"];
+const FILTERS = ["All", "Winners", "Losers", "This Month"];
 
 function getSignedR(trade) {
   const result = (trade.result || "").toLowerCase();
@@ -26,7 +26,7 @@ function getResultLabel(result) {
 export default function Journal() {
   const [trades, setTrades] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("Tous");
+  const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const viewedRef = useRef(false);
@@ -58,9 +58,9 @@ export default function Journal() {
   const filtered = trades.filter((t) => {
     const now = new Date();
     const r = (t.result || "").toLowerCase();
-    if (filter === "Gagnants" && r !== "win") return false;
-    if (filter === "Perdants" && r !== "loss") return false;
-    if (filter === "Ce mois") {
+    if (filter === "Winners" && r !== "win") return false;
+    if (filter === "Losers" && r !== "loss") return false;
+    if (filter === "This Month") {
       const tradeDate = new Date(t.date);
       if (
         Number.isNaN(tradeDate.getTime()) ||
@@ -98,8 +98,8 @@ export default function Journal() {
   return (
     <div style={styles.page}>
       <div style={styles.hero}>
-        <h1 style={styles.heroTitle}>Décryptez vos performances et reproduisez vos meilleurs trades.</h1>
-        <p style={styles.heroSub}>Chaque trade est une leçon. Transformez vos données en insights actionnables.</p>
+        <h1 style={styles.heroTitle}>Decode your performance and replicate your best trades.</h1>
+        <p style={styles.heroSub}>Every trade is a lesson. Turn your execution data into actionable insights.</p>
       </div>
 
       <div style={styles.toolbar}>
@@ -120,21 +120,21 @@ export default function Journal() {
             style={styles.search}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher un trade..."
+            placeholder="Search trades..."
           />
           <button onClick={() => navigate("/analyse")} style={styles.addBtn}>
-            + Nouveau Trade
+            + New Trade
           </button>
         </div>
       </div>
 
       {loading ? (
-        <p style={{ color: "#6B7FA3", textAlign: "center", padding: "40px" }}>Chargement...</p>
+        <p style={{ color: "#6B7FA3", textAlign: "center", padding: "40px" }}>Loading...</p>
       ) : filtered.length === 0 ? (
         <div style={styles.empty}>
-          <p style={{ color: "#6B7FA3", margin: 0 }}>Aucun trade trouvé.</p>
+          <p style={{ color: "#6B7FA3", margin: 0 }}>No trades found.</p>
           <button onClick={() => navigate("/analyse")} style={styles.addBtn}>
-            + Loguer mon premier trade
+            + Log my first trade
           </button>
         </div>
       ) : (
@@ -142,7 +142,7 @@ export default function Journal() {
           <table style={styles.table}>
             <thead>
               <tr>
-                {["Date", "Paire", "Direction", "P&L", "Résultat", "Setup", "Score IA", "Détail"].map((h) => (
+                {["Date", "Pair", "Direction", "P&L", "Result", "Setup", "AI Score", "Details"].map((h) => (
                   <th key={h} style={styles.th}>{h}</th>
                 ))}
               </tr>
@@ -225,7 +225,7 @@ export default function Journal() {
           <div style={styles.statsFooter}>
             <StatFooter label="Total Trades" value={total} />
             <StatFooter label="Win Rate" value={`${winRate}%`} color={winRate >= 50 ? "#10B981" : "#EF4444"} />
-            <StatFooter label="P&L Total" value={`${totalR >= 0 ? "+" : ""}${totalR.toFixed(2)}R`} color={totalR >= 0 ? "#10B981" : "#EF4444"} />
+            <StatFooter label="Net P&L" value={`${totalR >= 0 ? "+" : ""}${totalR.toFixed(2)}R`} color={totalR >= 0 ? "#10B981" : "#EF4444"} />
             <StatFooter label="Avg R:R" value={avgRR === "—" ? "—" : `${avgRR}R`} />
           </div>
         </div>

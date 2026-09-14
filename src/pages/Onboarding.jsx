@@ -22,40 +22,40 @@ const SAMPLE_TRADE = {
   direction: "long",
   setup: "Order Block + BOS",
   analysisType: "SMC",
-  notes: "Entrée sur un OB en H4 après un BOS haussier. Contexte macro favorable.",
+  notes: "H4 entry on an Order Block following a bullish BOS. Favorable macro context.",
   risk: "1",
-  emotion: "Confiant",
+  emotion: "Confident",
   date: new Date().toISOString().split("T")[0],
 };
 
-const STEPS = ["Bienvenue", "Profil", "Style", "Objectif", "Premier Trade"];
+const STEPS = ["Welcome", "Profile", "Style", "Objective", "First Trade"];
 
 const STEP_META = [
-  { number: "01", title: "Profil", detail: "Orientation" },
-  { number: "02", title: "Trading", detail: "Expérience" },
-  { number: "03", title: "Objectifs", detail: "Style & marché" },
-  { number: "04", title: "Configuration IA", detail: "Priorité" },
-  { number: "05", title: "Premier Trade", detail: "Mise en action" },
+  { number: "01", title: "Profile", detail: "Calibration" },
+  { number: "02", title: "Trading", detail: "Experience" },
+  { number: "03", title: "Context", detail: "Style & Market" },
+  { number: "04", title: "AI Setup", detail: "Priority" },
+  { number: "05", title: "First Audit", detail: "Execution" },
 ];
 
 const LEVEL_OPTIONS = [
   {
     value: "débutant",
-    label: "Débutant",
-    desc: "Vous construisez encore vos bases de lecture et d'exécution.",
-    bullets: ["Explications plus pédagogiques", "Rappels de discipline", "Débriefs très guidés"],
+    label: "Beginner",
+    desc: "You are still building your analysis and execution foundations.",
+    bullets: ["Detailed pedagogical insights", "Discipline reminders", "Guided debriefs"],
   },
   {
     value: "intermédiaire",
-    label: "Intermédiaire",
-    desc: "Vous avez une méthode, mais la régularité reste à stabiliser.",
-    bullets: ["Feedback équilibré", "Erreurs récurrentes visibles", "Priorités de progression"],
+    label: "Intermediate",
+    desc: "You have a method, but consistency needs work.",
+    bullets: ["Balanced feedback", "Identifies recurring leaks", "Actionable priorities"],
   },
   {
     value: "avancé",
-    label: "Avancé",
-    desc: "Votre stratégie est posée, vous cherchez surtout de la précision.",
-    bullets: ["Analyse plus directe", "Focus exécution", "Optimisation du process"],
+    label: "Advanced",
+    desc: "Your strategy is proven, you are optimizing for elite precision.",
+    bullets: ["Direct institutional critique", "Execution focus", "Process optimization"],
   },
 ];
 
@@ -63,20 +63,20 @@ const STYLE_OPTIONS = [
   {
     value: "scalping",
     label: "Scalping",
-    desc: "Décisions rapides sur des fenêtres courtes.",
-    bullets: ["Timing d'entrée", "Gestion immédiate du risque", "Réactivité émotionnelle"],
+    desc: "Fast decisions on shorter timeframes.",
+    bullets: ["Entry precision", "Immediate risk management", "Emotional agility"],
   },
   {
     value: "intraday",
     label: "Intraday",
-    desc: "Trades construits et clôturés dans la journée.",
-    bullets: ["Contexte de session", "Zones clés", "Qualité du scénario"],
+    desc: "Positions planned and closed within the session.",
+    bullets: ["Session context", "Key liquidity levels", "Narrative quality"],
   },
   {
     value: "swing",
     label: "Swing",
-    desc: "Positions portées sur plusieurs jours.",
-    bullets: ["Patience", "Planification", "Gestion multi-sessions"],
+    desc: "Positions held over multiple days.",
+    bullets: ["Patience", "Higher timeframe planning", "Multi-session management"],
   },
 ];
 
@@ -84,19 +84,19 @@ const MARKET_OPTIONS = [
   {
     value: "forex",
     label: "Forex",
-    desc: "Paires majeures, gold, sessions Londres/New York.",
+    desc: "Major pairs, metals, London & NY sessions.",
     bullets: ["EUR/USD", "GBP/USD", "XAU/USD"],
   },
   {
     value: "crypto",
     label: "Crypto",
-    desc: "Marché continu, volatilité élevée, exécution stricte.",
+    desc: "24/7 market, high volatility, strict invalidation.",
     bullets: ["BTC", "ETH", "Altcoins"],
   },
   {
     value: "indices",
     label: "Indices",
-    desc: "Ouvertures de marché et mouvements directionnels.",
+    desc: "Market opens and directional momentum.",
     bullets: ["US30", "NAS100", "SPX"],
   },
 ];
@@ -105,20 +105,20 @@ const OBJECTIVE_OPTIONS = [
   {
     value: "discipline",
     label: "Discipline",
-    desc: "Respecter votre plan même quand le marché accélère.",
-    bullets: ["Règles d'entrée", "Patience", "Checklist"],
+    desc: "Stick to your plan even when market volatility spikes.",
+    bullets: ["Strict entry criteria", "Patience & waiting", "Execution checklist"],
   },
   {
     value: "psychologie",
-    label: "Psychologie",
-    desc: "Identifier les émotions qui dégradent vos décisions.",
-    bullets: ["FOMO", "Revenge trading", "Impulsivité"],
+    label: "Psychology",
+    desc: "Isolate emotional biases degrading your decision-making.",
+    bullets: ["FOMO", "Revenge trading", "Impatience"],
   },
   {
     value: "performance",
     label: "Performance",
-    desc: "Améliorer la qualité moyenne de vos trades.",
-    bullets: ["Win rate", "R:R", "Meilleurs setups"],
+    desc: "Maximize the average quality and R:R of your setups.",
+    bullets: ["Win rate", "Risk/Reward ratio", "A+ setups only"],
   },
 ];
 
@@ -151,7 +151,7 @@ export default function Onboarding() {
       await completeOnboarding();
       navigate("/");
     } catch (err) {
-      setSaveError(err.message || "Impossible de terminer l'onboarding pour le moment.");
+      setSaveError(err.message || "Unable to complete onboarding right now.");
     }
   }
 
@@ -169,7 +169,7 @@ export default function Onboarding() {
       return true;
     } catch (err) {
       console.error(err);
-      setSaveError(err.message || "Impossible de sauvegarder votre profil pour le moment.");
+      setSaveError(err.message || "Unable to save your profile right now.");
       return false;
     }
   }
@@ -196,7 +196,7 @@ export default function Onboarding() {
       analytics.analysisGenerated(SAMPLE_TRADE.pair, data?.score?.overall, "free", data?.is_limited);
     } catch (err) {
       analytics.aiError(SAMPLE_TRADE.pair, err.message);
-      setAiError("Erreur lors de l'analyse. Réessayez.");
+      setAiError("Error during analysis. Please try again.");
     } finally {
       setLoadingAI(false);
     }
@@ -209,7 +209,7 @@ export default function Onboarding() {
       await completeOnboarding();
       navigate("/");
     } catch (err) {
-      setSaveError(err.message || "Impossible de terminer l'onboarding pour le moment.");
+      setSaveError(err.message || "Unable to complete onboarding right now.");
     }
   }
 
@@ -220,7 +220,7 @@ export default function Onboarding() {
       await completeOnboarding();
       navigate("/analyse");
     } catch (err) {
-      setSaveError(err.message || "Impossible de terminer l'onboarding pour le moment.");
+      setSaveError(err.message || "Unable to complete onboarding right now.");
     }
   }
 
@@ -231,7 +231,7 @@ export default function Onboarding() {
       await completeOnboarding();
       navigate("/dashboard");
     } catch (err) {
-      setSaveError(err.message || "Impossible de terminer l'onboarding pour le moment.");
+      setSaveError(err.message || "Unable to complete onboarding right now.");
     }
   }
 
@@ -244,11 +244,11 @@ export default function Onboarding() {
           <div style={styles.brandMark}><BookOpen size={18} /></div>
           <div>
             <p style={styles.brandName}>MySmartJournal</p>
-            <p style={styles.brandSub}>Calibrage du coach IA</p>
+            <p style={styles.brandSub}>AI Coach Calibration</p>
           </div>
         </div>
         <button onClick={handleSkip} style={styles.skipBtn}>
-          <SkipForward size={14} /> Passer
+          <SkipForward size={14} /> Skip
         </button>
       </header>
 
@@ -264,10 +264,10 @@ export default function Onboarding() {
             {step === 1 && (
               <QuestionStep
                 icon={<User size={18} />}
-                eyebrow="Profil trader"
-                title="Quel niveau doit adopter votre coach ?"
-                desc="Cette réponse règle le niveau de détail des analyses : pédagogie, vocabulaire, exigence et profondeur du feedback."
-                note="Le but n'est pas d'évaluer votre valeur de trader, mais d'adapter la façon dont l'IA vous parle."
+                eyebrow="Trader Profile"
+                title="What level should your coach adapt to?"
+                desc="This sets the detail level of your audits: pedagogical depth, vocabulary, rigor, and feedback precision."
+                note="This does not evaluate your trading worth—it simply customizes how the AI speaks to you."
               >
                 <div className="onboarding-option-grid" style={styles.optionGrid}>
                   {LEVEL_OPTIONS.map(({ value, label, desc, bullets }) => (
@@ -284,14 +284,14 @@ export default function Onboarding() {
             {step === 2 && (
               <QuestionStep
                 icon={<SlidersHorizontal size={18} />}
-                eyebrow="Cadre de trading"
-                title="Dans quel contexte l'IA doit-elle vous analyser ?"
-                desc="Un scalp EUR/USD et un swing sur indice ne se jugent pas avec les mêmes critères. Ce cadrage rend le feedback plus juste."
-                note="Ces choix servent uniquement à contextualiser les analyses, pas à limiter les trades que vous pourrez enregistrer."
+                eyebrow="Trading Framework"
+                title="In what context should the AI audit your execution?"
+                desc="An EUR/USD scalp and an index swing trade are evaluated differently. This calibration ensures accurate feedback."
+                note="These choices only provide context for your audits; you can log any instrument or style."
               >
                 <div style={styles.sectionHeader}>
-                  <span>Style principal</span>
-                  <small>Votre rythme de décision</small>
+                  <span>Primary Style</span>
+                  <small>Decision timeframe</small>
                 </div>
                 <div className="onboarding-option-grid" style={styles.optionGrid}>
                   {STYLE_OPTIONS.map(({ value, label, desc, bullets }) => (
@@ -302,8 +302,8 @@ export default function Onboarding() {
                   ))}
                 </div>
                 <div style={styles.sectionHeader}>
-                  <span>Marché principal</span>
-                  <small>Votre terrain habituel</small>
+                  <span>Primary Market</span>
+                  <small>Usual trading asset</small>
                 </div>
                 <div className="onboarding-option-grid" style={styles.optionGrid}>
                   {MARKET_OPTIONS.map(({ value, label, desc, bullets }) => (
@@ -320,10 +320,10 @@ export default function Onboarding() {
             {step === 3 && (
               <QuestionStep
                 icon={<Target size={18} />}
-                eyebrow="Configuration IA"
-                title="Quelle priorité guidera vos débriefs IA ?"
-                desc="Le coach mettra ce sujet au premier plan pour transformer chaque analyse en une action claire à appliquer sur le trade suivant."
-                note="Vous pourrez faire évoluer cette préférence plus tard depuis les paramètres."
+                eyebrow="AI Configuration"
+                title="What priority should guide your AI debriefs?"
+                desc="The coach will prioritize this topic, turning every audit into a concrete rule for your next trade."
+                note="You can modify this preference anytime in Settings."
               >
                 <div className="onboarding-option-grid" style={styles.optionGrid}>
                   {OBJECTIVE_OPTIONS.map(({ value, label, desc, bullets }) => (
@@ -340,7 +340,7 @@ export default function Onboarding() {
                     if (saved) next();
                   }}
                   nextDisabled={!answers.main_objective}
-                  nextLabel="Sauvegarder & Continuer"
+                  nextLabel="Save & Continue"
                 />
               </QuestionStep>
             )}
@@ -349,40 +349,40 @@ export default function Onboarding() {
               !aiData ? (
                 <QuestionStep
                   icon={<Zap size={18} />}
-                  eyebrow="Premier feedback"
-                  title="Lancez un premier diagnostic IA"
-                  desc="Ce trade exemple vous montre immédiatement le type de lecture que MySmartJournal apporte : score, erreurs, points forts et actions concrètes."
-                  note="Vous pourrez ensuite analyser votre propre trade depuis la page Analyse."
+                  eyebrow="First Audit"
+                  title="Run a sample AI trade diagnosis"
+                  desc="This sample trade shows you the exact audit MySmartJournal delivers: discipline score, identified leaks, strengths, and institutional action items."
+                  note="You can audit your own real trades right after on the Audit page."
                 >
                   <div style={styles.sampleCard}>
                     <div style={styles.sampleHeader}>
                       <div>
-                        <p style={styles.sampleTitle}>Trade exemple</p>
-                        <p style={styles.sampleSub}>Order Block + BOS, contexte haussier H4</p>
+                        <p style={styles.sampleTitle}>Sample Trade</p>
+                        <p style={styles.sampleSub}>Order Block + BOS, H4 bullish context</p>
                       </div>
                       <span style={styles.sampleBadge}>EUR/USD</span>
                     </div>
                     <div className="onboarding-sample-grid" style={styles.sampleGrid}>
-                      <SampleRow label="Paire" value="EUR/USD" />
+                      <SampleRow label="Pair" value="EUR/USD" />
                       <SampleRow label="Direction" value="LONG" valueColor="#10B981" />
-                      <SampleRow label="Entrée" value="1.08500" />
+                      <SampleRow label="Entry" value="1.08500" />
                       <SampleRow label="Stop Loss" value="1.08200" valueColor="#EF4444" />
                       <SampleRow label="Take Profit" value="1.09100" valueColor="#10B981" />
                       <SampleRow label="Setup" value="Order Block + BOS" />
                       <SampleRow label="R:R" value="2:1" valueColor="#818CF8" />
-                      <SampleRow label="Émotion" value="Confiant" valueColor="#10B981" />
+                      <SampleRow label="Emotion" value="Confident" valueColor="#10B981" />
                     </div>
                   </div>
                   {aiError && <p style={styles.errorText}>{aiError}</p>}
                   <div style={styles.finalActions}>
                     <button onClick={handleSampleAnalysis} disabled={loadingAI} className="onboarding-primary" style={{ ...styles.primaryBtn, opacity: loadingAI ? 0.7 : 1 }}>
                       {loadingAI
-                        ? <><Loader size={15} style={{ animation: "spin 1s linear infinite" }} /> Analyse en cours...</>
-                        : <><Zap size={15} /> Lancer l'analyse IA</>
+                        ? <><Loader size={15} style={{ animation: "spin 1s linear infinite" }} /> Running audit...</>
+                        : <><Zap size={15} /> Run AI Risk Audit</>
                       }
                     </button>
                     <button onClick={handleGoAnalyse} style={styles.secondaryBtn} className="onboarding-secondary">
-                      Analyser mon propre trade <ArrowRight size={13} />
+                      Audit my own trade <ArrowRight size={13} />
                     </button>
                   </div>
                 </QuestionStep>
@@ -449,20 +449,20 @@ function WelcomeStep({ onNext }) {
   return (
     <div style={styles.welcome}>
       <div style={styles.heroIcon}><Brain size={26} /></div>
-      <p style={styles.eyebrow}>Onboarding intelligent</p>
-      <h1 style={styles.heroTitle}>Construisons votre profil de trading.</h1>
+      <p style={styles.eyebrow}>Intelligent Onboarding</p>
+      <h1 style={styles.heroTitle}>Let's build your trading profile.</h1>
       <p style={styles.heroDesc}>
-        MySmartJournal ne vous donne pas une réponse générique. Le coach IA calibre son niveau d'exigence, son vocabulaire et ses priorités à partir de votre profil.
+        MySmartJournal doesn't offer generic feedback. Your AI Coach calibrates its standards, vocabulary, and priority focus directly to your trading profile.
       </p>
 
       <div style={styles.signalGrid}>
-        <SignalCard icon={<Gauge size={16} />} title="Niveau" text="Pour choisir le bon degré de pédagogie." />
-        <SignalCard icon={<TrendingUp size={16} />} title="Style" text="Pour juger vos trades dans le bon rythme." />
-        <SignalCard icon={<Target size={16} />} title="Objectif" text="Pour prioriser les corrections utiles." />
+        <SignalCard icon={<Gauge size={16} />} title="Level" text="To calibrate the right level of depth and terminology." />
+        <SignalCard icon={<TrendingUp size={16} />} title="Style" text="To assess your trades within your operational timeframe." />
+        <SignalCard icon={<Target size={16} />} title="Objective" text="To prioritize actionable improvements." />
       </div>
 
       <button onClick={onNext} className="onboarding-primary" style={{ ...styles.primaryBtn, alignSelf: "center", minWidth: "260px" }}>
-        Commencer le calibrage <ChevronRight size={16} />
+        Start Calibration <ChevronRight size={16} />
       </button>
     </div>
   );
@@ -504,7 +504,7 @@ function Stepper({ step, progress }) {
   return (
     <div style={styles.stepperWrap}>
       <div style={styles.stepperTop}>
-        <span style={styles.progressText}>Étape {step + 1} sur {STEPS.length}</span>
+        <span style={styles.progressText}>Step {step + 1} of {STEPS.length}</span>
         <div style={styles.progressInline}>
           <div style={styles.progressTrack}>
             <div style={{ ...styles.progressFill, width: `${progress}%` }} />
@@ -551,13 +551,13 @@ function ProfileSummary({ answers, progress, step }) {
       <div style={styles.summaryTop}>
         <div style={styles.summaryIcon}><Brain size={18} /></div>
         <div>
-          <p style={styles.summaryTitle}>Profil IA</p>
-          <p style={styles.summarySub}>{completed}/4 signaux renseignés</p>
+          <p style={styles.summaryTitle}>AI Profile</p>
+          <p style={styles.summarySub}>{completed}/4 signals calibrated</p>
         </div>
       </div>
 
       <div style={styles.summaryProgress}>
-        <span>Calibrage</span>
+        <span>Calibration</span>
         <strong>{Math.round(progress)}%</strong>
       </div>
       <div style={styles.summaryTrack}>
@@ -565,22 +565,22 @@ function ProfileSummary({ answers, progress, step }) {
       </div>
 
       <div style={styles.summaryRows}>
-        <SummaryRow icon={<User size={14} />} label="Niveau" value={formatAnswer(answers.trading_level)} />
+        <SummaryRow icon={<User size={14} />} label="Level" value={formatAnswer(answers.trading_level)} />
         <SummaryRow icon={<TrendingUp size={14} />} label="Style" value={formatAnswer(answers.style_de_trading)} />
-        <SummaryRow icon={<Compass size={14} />} label="Marché" value={formatAnswer(answers.main_market)} />
-        <SummaryRow icon={<Target size={14} />} label="Objectif" value={formatAnswer(answers.main_objective)} />
+        <SummaryRow icon={<Compass size={14} />} label="Market" value={formatAnswer(answers.main_market)} />
+        <SummaryRow icon={<Target size={14} />} label="Objective" value={formatAnswer(answers.main_objective)} />
       </div>
 
       <div style={styles.summaryFooter}>
         <CheckCircle2 size={15} />
-        <span style={styles.summaryFooterText}>{step < 4 ? "Le profil se construit au fil de vos réponses." : "Coach prêt pour le premier diagnostic."}</span>
+        <span style={styles.summaryFooterText}>{step < 4 ? "Your profile updates dynamically with your responses." : "AI Coach ready for your first audit."}</span>
       </div>
     </aside>
   );
 }
 
 function SummaryRow({ icon, label, value }) {
-  const isEmpty = value === "À définir";
+  const isEmpty = value === "Pending" || value === "À définir";
   return (
     <div style={styles.summaryRow}>
       <div style={styles.summaryRowLeft}>
@@ -626,10 +626,10 @@ function OptionCard({ label, desc, bullets = [], selected, onClick }) {
   );
 }
 
-function NavButtons({ onPrev, onNext, nextDisabled, nextLabel = "Continuer" }) {
+function NavButtons({ onPrev, onNext, nextDisabled, nextLabel = "Continue" }) {
   return (
     <div className="onboarding-nav" style={styles.navBtns}>
-      <button onClick={onPrev} style={styles.backBtn} className="onboarding-secondary"><ChevronLeft size={14} /> Retour</button>
+      <button onClick={onPrev} style={styles.backBtn} className="onboarding-secondary"><ChevronLeft size={14} /> Back</button>
       <button onClick={onNext} disabled={nextDisabled} className="onboarding-primary" style={{ ...styles.primaryBtn, opacity: nextDisabled ? 0.45 : 1, cursor: nextDisabled ? "not-allowed" : "pointer", margin: 0 }}>
         {nextLabel} <ChevronRight size={14} />
       </button>
@@ -649,23 +649,23 @@ function SampleRow({ label, value, valueColor }) {
 function AIResult({ aiData, answers, onFinish, onGoAnalyse, onGoDashboard }) {
   const score = aiData?.score?.overall ?? 0;
   const scoreColor = score >= 7 ? "#10B981" : score >= 4 ? "#F59E0B" : "#EF4444";
-  const scoreLabel = score >= 7 ? "BON TRADE" : score >= 4 ? "ACCEPTABLE" : "À ÉVITER";
+  const scoreLabel = score >= 7 ? "SOLID TRADE" : score >= 4 ? "ACCEPTABLE" : "LEAK DETECTED";
 
   return (
     <div style={styles.aiResult}>
       <div style={styles.readyBox}>
         <div style={styles.readyIcon}><Check size={20} /></div>
         <div>
-          <p style={styles.readyLabel}>Profil configuré</p>
-          <h3 style={styles.readyTitle}>Coach IA prêt</h3>
-          <p style={styles.readyText}>Votre profil est calibré pour des analyses plus contextualisées.</p>
+          <p style={styles.readyLabel}>Profile Configured</p>
+          <h3 style={styles.readyTitle}>AI Coach Ready</h3>
+          <p style={styles.readyText}>Your profile is calibrated for sharp, contextual trade audits.</p>
         </div>
       </div>
 
       <div style={styles.finalProfileGrid}>
-        <SummaryMini label="Niveau" value={formatAnswer(answers.trading_level)} />
+        <SummaryMini label="Level" value={formatAnswer(answers.trading_level)} />
         <SummaryMini label="Style" value={formatAnswer(answers.style_de_trading)} />
-        <SummaryMini label="Objectif" value={formatAnswer(answers.main_objective)} />
+        <SummaryMini label="Objective" value={formatAnswer(answers.main_objective)} />
       </div>
 
       <div style={styles.aiScoreRow}>
@@ -685,7 +685,7 @@ function AIResult({ aiData, answers, onFinish, onGoAnalyse, onGoDashboard }) {
       )}
       {aiData.mistakes?.length > 0 && (
         <div style={styles.aiSection}>
-          <p style={styles.aiSectionTitle}>Erreurs identifiées</p>
+          <p style={styles.aiSectionTitle}>Identified Leaks</p>
           {aiData.mistakes.map((m, i) => (
             <div key={i} style={styles.aiListItem}>
               <div style={styles.aiDot} />
@@ -696,7 +696,7 @@ function AIResult({ aiData, answers, onFinish, onGoAnalyse, onGoDashboard }) {
       )}
       {aiData.action_plan?.length > 0 && (
         <div style={styles.aiSection}>
-          <p style={styles.aiSectionTitle}>Plan d'action</p>
+          <p style={styles.aiSectionTitle}>Action Plan</p>
           {aiData.action_plan.map((a, i) => (
             <div key={i} style={styles.aiActionItem}>
               <div style={styles.aiActionNum}>{i + 1}</div>
@@ -706,11 +706,11 @@ function AIResult({ aiData, answers, onFinish, onGoAnalyse, onGoDashboard }) {
         </div>
       )}
       <div style={styles.ctaGroup}>
-        <p style={styles.ctaTitle}>Prochaine étape</p>
+        <p style={styles.ctaTitle}>Next Step</p>
         <div style={styles.ctaButtons}>
-          <button onClick={onGoAnalyse} className="onboarding-primary" style={styles.primaryBtn}><Zap size={14} /> Créer mon premier trade</button>
-          <button onClick={onGoDashboard} style={styles.secondaryBtn} className="onboarding-secondary"><BarChart2 size={14} /> Voir le Dashboard</button>
-          <button onClick={onFinish} style={styles.ghostBtn}><BookOpen size={14} /> Aller au Journal</button>
+          <button onClick={onGoAnalyse} className="onboarding-primary" style={styles.primaryBtn}><Zap size={14} /> Log My First Trade</button>
+          <button onClick={onGoDashboard} style={styles.secondaryBtn} className="onboarding-secondary"><BarChart2 size={14} /> View Dashboard</button>
+          <button onClick={onFinish} style={styles.ghostBtn}><BookOpen size={14} /> Go to Journal</button>
         </div>
       </div>
     </div>
@@ -727,19 +727,23 @@ function SummaryMini({ label, value }) {
 }
 
 function formatAnswer(value) {
-  if (!value) return "À définir";
+  if (!value) return "Pending";
   const labels = {
-    "débutant": "Débutant",
-    "intermédiaire": "Intermédiaire",
-    "avancé": "Avancé",
+    "débutant": "Beginner",
+    "intermédiaire": "Intermediate",
+    "avancé": "Advanced",
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
     scalping: "Scalping",
     intraday: "Intraday",
-    swing: "Swing",
+    swing: "Swing Trading",
     forex: "Forex",
     crypto: "Crypto",
     indices: "Indices",
     discipline: "Discipline",
-    psychologie: "Psychologie",
+    psychologie: "Psychology",
+    psychology: "Psychology",
     performance: "Performance",
   };
   return labels[value] || value;

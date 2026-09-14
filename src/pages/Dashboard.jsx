@@ -14,7 +14,7 @@ import {
 const R_BIN_CENTERS = [-3, -2, -1, 0, 1, 2, 3, 4];
 
 function getPeriodTrades(trades, timeFilter) {
-  const days = timeFilter === "HEBDO" ? 7 : timeFilter === "MENSUEL" ? 30 : 365;
+  const days = timeFilter === "WEEKLY" ? 7 : timeFilter === "MONTHLY" ? 30 : 365;
   const cutoff = new Date();
   cutoff.setHours(0, 0, 0, 0);
   cutoff.setDate(cutoff.getDate() - days + 1);
@@ -114,7 +114,7 @@ function buildRDistribution(trades) {
 
 export default function Dashboard() {
   const [trades, setTrades] = useState([]);
-  const [timeFilter, setTimeFilter] = useState("HEBDO");
+  const [timeFilter, setTimeFilter] = useState("WEEKLY");
 
   useEffect(() => {
     getTrades().then((data) => {
@@ -169,11 +169,11 @@ export default function Dashboard() {
     const d = payload[0].payload;
     return (
       <div style={styles.tooltip}>
-        <p style={styles.tooltipPair}>Tranche {d.label}</p>
+        <p style={styles.tooltipPair}>Bucket {d.label}</p>
         <p style={{ ...styles.tooltipVal, color: d.side === "loss" ? "#F87171" : d.side === "gain" ? "#34D399" : "#94A3B8" }}>
           {d.count} trade{d.count > 1 ? "s" : ""}
         </p>
-        <p style={styles.tooltipPct}>{d.pct}% de la période</p>
+        <p style={styles.tooltipPct}>{d.pct}% of period</p>
       </div>
     );
   };
@@ -182,8 +182,8 @@ export default function Dashboard() {
     return (
       <div style={styles.empty}>
         <BarChart2 size={40} color="#1E2D45" />
-        <h2 style={styles.emptyTitle}>Aucune donnée disponible</h2>
-        <p style={styles.emptySub}>Commence par logger des trades pour voir tes performances.</p>
+        <h2 style={styles.emptyTitle}>No data available</h2>
+        <p style={styles.emptySub}>Start logging trades to track and analyze your execution.</p>
       </div>
     );
   }
@@ -191,9 +191,9 @@ export default function Dashboard() {
   return (
     <div style={styles.page}>
       <div style={styles.metricsGrid}>
-        <MetricCard label="Total P&L" value={`${totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)}R`} sub={`Sur ${total} trades`} icon={<TrendingUp size={14} color={totalPnl >= 0 ? "#10B981" : "#EF4444"} />} color={totalPnl >= 0 ? "#10B981" : "#EF4444"} trend={totalPnl >= 0 ? "up" : "down"} />
+        <MetricCard label="Total P&L" value={`${totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)}R`} sub={`Across ${total} trades`} icon={<TrendingUp size={14} color={totalPnl >= 0 ? "#10B981" : "#EF4444"} />} color={totalPnl >= 0 ? "#10B981" : "#EF4444"} trend={totalPnl >= 0 ? "up" : "down"} />
         <MetricCard label="Win Rate" value={`${winRate}%`} sub={`${wins}W · ${losses}L`} icon={<Target size={14} color={winRate >= 50 ? "#10B981" : "#EF4444"} />} color={winRate >= 50 ? "#10B981" : "#EF4444"} trend={winRate >= 50 ? "up" : "down"} />
-        <MetricCard label="Profit Factor" value={profitFactor} sub="Ratio gains / pertes" icon={<Award size={14} color="#6366F1" />} color={isStrongProfitFactor ? "#10B981" : "#F59E0B"} trend={isPositiveProfitFactor ? "up" : "down"} />
+        <MetricCard label="Profit Factor" value={profitFactor} sub="Gross win / loss ratio" icon={<Award size={14} color="#6366F1" />} color={isStrongProfitFactor ? "#10B981" : "#F59E0B"} trend={isPositiveProfitFactor ? "up" : "down"} />
         <MetricCard label="Avg R:R" value={avgRR === "—" ? "—" : `${avgRR}R`} sub={`${closedTotal} trades`} icon={<Activity size={14} color="#6366F1" />} color="#6366F1" trend="neutral" />
       </div>
 
@@ -201,11 +201,11 @@ export default function Dashboard() {
         <div style={styles.chartCard}>
           <div style={styles.chartHeader}>
             <div>
-              <p style={styles.sectionLabel}>RÉPARTITION DES GAINS & PERTES (R)</p>
-              <p style={styles.chartSub}>Distribution des trades par R-multiple</p>
+              <p style={styles.sectionLabel}>P&L DISTRIBUTION (R-MULTIPLE)</p>
+              <p style={styles.chartSub}>Trade distribution by R-multiple</p>
             </div>
             <div style={styles.timeFilters}>
-              {["HEBDO", "MENSUEL", "ANNUEL"].map((f) => (
+              {["WEEKLY", "MONTHLY", "YEARLY"].map((f) => (
                 <button key={f} onClick={() => setTimeFilter(f)} style={{ ...styles.timeBtn, backgroundColor: timeFilter === f ? "#1E2D45" : "transparent", color: timeFilter === f ? "#E8EDF5" : "#6B7FA3" }}>
                   {f}
                 </button>
@@ -268,7 +268,7 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.sideCard}>
-          <p style={{ ...styles.sectionLabel, textAlign: "center" }}>TOP PAIRES</p>
+          <p style={{ ...styles.sectionLabel, textAlign: "center" }}>TOP PAIRS</p>
           <div style={styles.pairsList}>
             {topPairs.map(({ pair, count, pct }) => (
               <div key={pair} style={styles.pairRow}>
@@ -293,7 +293,7 @@ export default function Dashboard() {
 
       <div style={styles.bottomGrid}>
         <div style={styles.sideCard}>
-          <p style={{ ...styles.sectionLabel, textAlign: "center" }}>ACTIVITÉ RÉCENTE</p>
+          <p style={{ ...styles.sectionLabel, textAlign: "center" }}>RECENT ACTIVITY</p>
           <div style={styles.recentList}>
             {recent.map((t) => {
               const meta = getRecentTradeMeta(t);
@@ -314,7 +314,7 @@ export default function Dashboard() {
         </div>
 
         <div style={styles.sideCard}>
-          <p style={{ ...styles.sectionLabel, textAlign: "center" }}>STATISTIQUES CLÉS</p>
+          <p style={{ ...styles.sectionLabel, textAlign: "center" }}>KEY METRICS</p>
           <div style={styles.statsGrid}>
             <StatBox icon={<TrendingUp size={12} color="#10B981" />} label="AVG WIN" value={avgWin === "—" ? "—" : `+${avgWin}R`} color="#10B981" />
             <StatBox icon={<TrendingDown size={12} color="#EF4444" />} label="AVG LOSS" value={avgLoss === "—" ? "—" : `-${avgLoss}R`} color="#EF4444" />

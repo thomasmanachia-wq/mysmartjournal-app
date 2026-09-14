@@ -15,7 +15,7 @@ export default function UpgradeButton({ style, source = "upgrade_button" }) {
     analytics.premiumClicked(source);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Veuillez vous reconnecter.");
+      if (!user) throw new Error("Please sign in again.");
 
       const data = await apiFetch("/create-checkout-session", {
         method: "POST",
@@ -26,7 +26,7 @@ export default function UpgradeButton({ style, source = "upgrade_button" }) {
         analytics.checkoutStarted();
         window.location.href = data.url;
       } else {
-        throw new Error("URL Stripe introuvable.");
+        throw new Error("Stripe checkout URL not found.");
       }
     } catch (err) {
       analytics.errorOccurred("checkout", err.message, { source });
@@ -39,7 +39,7 @@ export default function UpgradeButton({ style, source = "upgrade_button" }) {
     return (
       <div style={{ ...styles.premiumBadge, ...style }}>
         <Zap size={13} color="#F59E0B" />
-        Premium actif
+        Pro Active
       </div>
     );
   }
@@ -48,8 +48,8 @@ export default function UpgradeButton({ style, source = "upgrade_button" }) {
     <div>
       <button onClick={handleUpgrade} disabled={loading} style={{ ...styles.btn, ...style }}>
         {loading
-          ? <><Loader size={13} style={{ animation: "spin 1s linear infinite" }} /> Redirection...</>
-          : <><Zap size={13} /> Passer au Premium</>
+          ? <><Loader size={13} style={{ animation: "spin 1s linear infinite" }} /> Redirecting...</>
+          : <><Zap size={13} /> Upgrade to Pro</>
         }
       </button>
       {error && <p style={styles.error}>{error}</p>}

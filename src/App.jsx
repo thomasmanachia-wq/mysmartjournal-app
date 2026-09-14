@@ -165,9 +165,9 @@ function NavBar() {
 
       {/* ── Nav centrale */}
       <div style={navStyles.center}>
-        <NavLink label="Journal"   path="/"          active={isActive("/")} />
-        <NavLink label="Analyse"   path="/analyse"   active={isActive("/analyse")} />
-        <NavLink label="Dashboard" path="/dashboard" active={isActive("/dashboard")} />
+        <NavLink label="Journal"     path="/"          active={isActive("/")} />
+        <NavLink label="Audit Trade" path="/analyse"   active={isActive("/analyse")} />
+        <NavLink label="Dashboard"   path="/dashboard" active={isActive("/dashboard")} />
       </div>
 
       {/* ── Profil */}
@@ -227,12 +227,12 @@ function NavBar() {
             <div style={navStyles.sep} />
 
             <DropdownItem
-              label="Mon compte"
+              label="Account Settings"
               icon={User}
               onClick={() => goTo("/settings")}
             />
             <DropdownItem
-              label="Facturation"
+              label="Billing"
               icon={CreditCard}
               onClick={() => goTo("/settings?section=facturation")}
             />
@@ -249,7 +249,7 @@ function NavBar() {
               <>
                 <div style={navStyles.sep} />
                 <DropdownItem
-                  label="Admin — Feedbacks"
+                  label="Admin — Feedback"
                   icon={Shield}
                   onClick={() => goTo("/admin/feedback")}
                   muted
@@ -260,7 +260,7 @@ function NavBar() {
             <div style={navStyles.sep} />
 
             <DropdownItem
-              label="Déconnexion"
+              label="Sign Out"
               icon={LogOut}
               onClick={onSignOut}
               danger

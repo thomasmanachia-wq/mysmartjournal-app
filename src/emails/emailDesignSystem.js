@@ -162,13 +162,13 @@ export function renderEmailLayout({
   preheader,
   content,
   category = EMAIL_CATEGORIES.LIFECYCLE,
-  locale = "fr",
+  locale = "en",
 }) {
   const isTransactional = category === EMAIL_CATEGORIES.TRANSACTIONAL;
   const unsubscribeUrl = getUnsubscribeUrl();
   const preferenceLabel = isTransactional
-    ? locale === "en" ? "Account preferences" : "Préférences du compte"
-    : locale === "en" ? "Email preferences" : "Préférences email";
+    ? locale === "fr" ? "Préférences du compte" : "Account preferences"
+    : locale === "fr" ? "Préférences email" : "Email preferences";
 
   return `
 <!DOCTYPE html>
@@ -209,7 +209,7 @@ export function renderEmailLayout({
                   <td width="34" height="34" align="center" valign="middle" style="${css(styles.logoMark)}">M</td>
                   <td style="${css(styles.logoTextCell)}">
                     <p class="msj-logo-text" style="${css(styles.product)}">${escapeHtml(PRODUCT.name)}</p>
-                    <p style="${css(styles.tagline)}">${escapeHtml(PRODUCT.tagline[locale] || PRODUCT.tagline.fr)}</p>
+                    <p style="${css(styles.tagline)}">${escapeHtml(PRODUCT.tagline[locale] || PRODUCT.tagline.en)}</p>
                   </td>
                 </tr>
               </table>
@@ -222,15 +222,15 @@ export function renderEmailLayout({
           </tr>
           <tr>
             <td style="${css(styles.footer)}">
-              <p style="${css(styles.footerText)}">${escapeHtml(PRODUCT.disclaimer[locale] || PRODUCT.disclaimer.fr)}</p>
+              <p style="${css(styles.footerText)}">${escapeHtml(PRODUCT.disclaimer[locale] || PRODUCT.disclaimer.en)}</p>
               <p class="msj-footer-links" style="${css(styles.footerLinks)}">
                 <a href="${escapeHtml(URLS.supportMailto)}" style="${css(styles.footerLink)}">Support</a>
                 <span style="${css(styles.footerDot)}">·</span>
                 <a href="${escapeHtml(unsubscribeUrl)}" style="${css(styles.footerLink)}">${escapeHtml(preferenceLabel)}</a>
                 <span style="${css(styles.footerDot)}">·</span>
-                <a href="${escapeHtml(URLS.privacy)}" style="${css(styles.footerLink)}">Confidentialité</a>
+                <a href="${escapeHtml(URLS.privacy)}" style="${css(styles.footerLink)}">${locale === "fr" ? "Confidentialité" : "Privacy"}</a>
                 <span style="${css(styles.footerDot)}">·</span>
-                <a href="${escapeHtml(URLS.terms)}" style="${css(styles.footerLink)}">Mentions légales</a>
+                <a href="${escapeHtml(URLS.terms)}" style="${css(styles.footerLink)}">${locale === "fr" ? "Mentions légales" : "Terms"}</a>
               </p>
               <p style="${css(styles.footerBrand)}">© ${new Date().getFullYear()} ${escapeHtml(PRODUCT.name)} · ${escapeHtml(EMAILS.support)}</p>
             </td>

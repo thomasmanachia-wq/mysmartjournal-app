@@ -12,12 +12,12 @@ import {
 } from "lucide-react";
 
 const SECTIONS = [
-  { id: "compte",      label: "Compte",       desc: "Profil et sécurité",      icon: User },
-  { id: "trading",     label: "Trading",      desc: "Trades et profil trader", icon: TrendingUp },
-  { id: "ia",          label: "IA",           desc: "Coach et analyses",       icon: Brain },
-  { id: "app",         label: "Application",  desc: "Affichage et emails",     icon: SettingsIcon },
-  { id: "facturation", label: "Abonnement",   desc: "Plan et facturation",     icon: CreditCard },
-  { id: "support",     label: "Support",      desc: "Contact et feedback",     icon: MessageSquare },
+  { id: "compte",      label: "Account",      desc: "Profile and security",      icon: User },
+  { id: "trading",     label: "Trading",      desc: "Trades and risk profile",   icon: TrendingUp },
+  { id: "ia",          label: "AI Coach",     desc: "Coach and audit settings",  icon: Brain },
+  { id: "app",         label: "Application",  desc: "Display and notifications", icon: SettingsIcon },
+  { id: "facturation", label: "Billing",      desc: "Plan and subscription",     icon: CreditCard },
+  { id: "support",     label: "Support",      desc: "Contact and feedback",      icon: MessageSquare },
 ];
 
 export default function Settings() {
@@ -51,7 +51,7 @@ export default function Settings() {
     return (
       <div style={s.centered}>
         <Loader size={20} color="#3B82F6" />
-        <p style={{ color: "#6B7FA3", margin: 0, fontSize: "0.875rem" }}>Chargement...</p>
+        <p style={{ color: "#6B7FA3", margin: 0, fontSize: "0.875rem" }}>Loading...</p>
       </div>
     );
   }
@@ -60,25 +60,25 @@ export default function Settings() {
     <div style={s.page}>
       <div style={s.pageHeader}>
         <div>
-          <h1 style={s.pageTitle}>Centre de contrôle</h1>
-          <p style={s.pageSubtitle}>Compte, préférences de trading, IA et abonnement au même endroit.</p>
+          <h1 style={s.pageTitle}>Settings</h1>
+          <p style={s.pageSubtitle}>Account, trading preferences, AI coach, and billing in one place.</p>
         </div>
       </div>
 
       <div style={s.summaryGrid}>
         <SummaryItem
           icon={<User size={14} color="#60A5FA" />}
-          label="Compte"
-          value={user?.email || "Utilisateur connecté"}
+          label="Account"
+          value={user?.email || "Signed in"}
         />
         <SummaryItem
           icon={<Star size={14} color={settings?.plan === "premium" ? "#F59E0B" : "#60A5FA"} />}
           label="Plan"
-          value={settings?.plan === "premium" ? "Premium" : "Gratuit"}
+          value={settings?.plan === "premium" ? "Pro" : "Free Tier"}
         />
         <SummaryItem
           icon={<Gauge size={14} color="#10B981" />}
-          label="Profil trading"
+          label="Trading Profile"
           value={settings?.style_de_trading || "intraday"}
         />
       </div>
@@ -112,12 +112,12 @@ export default function Settings() {
             })}
           </div>
 
-          {/* Lien documents légaux */}
+          {/* Legal documents link */}
           <div style={s.sidebarLegal}>
             <p style={s.sidebarLegalTitle}>Documents</p>
-            <LegalLink label="Conditions d'utilisation" href="/terms" />
-            <LegalLink label="Confidentialité" href="/privacy" />
-            <LegalLink label="Disclaimer Trading" href="/disclaimer" />
+            <LegalLink label="Terms of Service" href="/terms" />
+            <LegalLink label="Privacy Policy" href="/privacy" />
+            <LegalLink label="Trading Disclaimer" href="/disclaimer" />
           </div>
         </aside>
 
@@ -186,7 +186,7 @@ function CompteSection({ user }) {
     try {
       const { error } = await supabase.auth.updateUser({ email });
       if (error) throw error;
-      setEmailStatus({ type: "success", msg: "Vérifiez votre boîte mail pour confirmer." });
+      setEmailStatus({ type: "success", msg: "Check your inbox to confirm your new email." });
       return true;
     } catch (err) {
       setEmailStatus({ type: "error", msg: err.message });
@@ -196,17 +196,17 @@ function CompteSection({ user }) {
 
   async function handleUpdatePassword() {
     if (newPassword !== confirmPassword) {
-      setPasswordStatus({ type: "error", msg: "Les mots de passe ne correspondent pas." });
+      setPasswordStatus({ type: "error", msg: "Passwords do not match." });
       return false;
     }
     if (newPassword.length < 6) {
-      setPasswordStatus({ type: "error", msg: "Minimum 6 caractères." });
+      setPasswordStatus({ type: "error", msg: "Minimum 6 characters." });
       return false;
     }
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      setPasswordStatus({ type: "success", msg: "Mot de passe mis à jour." });
+      setPasswordStatus({ type: "success", msg: "Password updated successfully." });
       setNewPassword("");
       setConfirmPassword("");
       return true;
@@ -218,7 +218,7 @@ function CompteSection({ user }) {
 
   return (
     <div style={s.sections}>
-      <SectionHeader title="Compte" subtitle="Profil utilisateur, email et sécurité de connexion" />
+      <SectionHeader title="Account" subtitle="User profile, email, and authentication security" />
 
       <Card>
         <div style={s.profilePanel}>
@@ -226,12 +226,12 @@ function CompteSection({ user }) {
             <User size={18} color="#60A5FA" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <p style={s.profileTitle}>Profil utilisateur</p>
-            <p style={s.profileMeta}>{user?.email || "Email non disponible"}</p>
+            <p style={s.profileTitle}>User Profile</p>
+            <p style={s.profileMeta}>{user?.email || "Email unavailable"}</p>
           </div>
           <div style={s.securityBadge}>
             <Shield size={12} />
-            Session sécurisée
+            Secure session
           </div>
         </div>
       </Card>
@@ -243,12 +243,12 @@ function CompteSection({ user }) {
               <KeyRound size={15} color="#3B82F6" />
             </div>
             <div>
-              <p style={s.cardRowTitle}>Identifiants</p>
-              <p style={s.cardRowDesc}>Email de connexion et mot de passe</p>
+              <p style={s.cardRowTitle}>Credentials</p>
+              <p style={s.cardRowDesc}>Account email and password</p>
             </div>
           </div>
           <div style={{ marginTop: "16px" }}>
-            <Field label="Adresse email">
+            <Field label="Email address">
               <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                 <input
                   style={s.input}
@@ -263,15 +263,15 @@ function CompteSection({ user }) {
           </div>
           <div style={s.localDivider} />
           <div style={s.twoCol}>
-            <Field label="Nouveau mot de passe">
+            <Field label="New Password">
               <input style={s.input} type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="••••••••" />
             </Field>
-            <Field label="Confirmer">
+            <Field label="Confirm Password">
               <input style={s.input} type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" />
             </Field>
           </div>
           <SaveButton
-            label="Mettre à jour le mot de passe"
+            label="Update Password"
             onClick={handleUpdatePassword}
             style={{ display: "flex", justifyContent: "center", margin: "12px auto 0" }}
           />
@@ -279,32 +279,32 @@ function CompteSection({ user }) {
         </div>
       </Card>
 
-      {/* Zone dangereuse — isolée */}
+      {/* Danger zone */}
       <div style={s.dangerZone}>
         <div style={s.dangerZoneHeader}>
           <Trash2 size={14} color="#EF4444" />
-          <span style={s.dangerZoneTitle}>Zone dangereuse</span>
+          <span style={s.dangerZoneTitle}>Danger Zone</span>
         </div>
         <div style={s.dangerZoneBody}>
           <div>
-            <p style={s.dangerZoneLabel}>Demande de suppression</p>
+            <p style={s.dangerZoneLabel}>Account Deletion</p>
             <p style={s.dangerZoneDesc}>
-              Une demande manuelle permet de vérifier l'identité avant suppression définitive.
+              A manual verification request is required to confirm identity before permanent deletion.
             </p>
           </div>
           {!deleteConfirm ? (
             <button onClick={() => setDeleteConfirm(true)} style={s.dangerBtn}>
-              Demander
+              Request Deletion
             </button>
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <button
-                onClick={() => window.open("mailto:support@mysmartjournal.org?subject=Suppression%20de%20compte", "_blank")}
+                onClick={() => window.open("mailto:support@mysmartjournal.org?subject=Account%20Deletion%20Request", "_blank")}
                 style={s.dangerBtn}
               >
-                Envoyer la demande
+                Send Request
               </button>
-              <button onClick={() => setDeleteConfirm(false)} style={s.cancelBtn}>Annuler</button>
+              <button onClick={() => setDeleteConfirm(false)} style={s.cancelBtn}>Cancel</button>
             </div>
           )}
         </div>
@@ -342,7 +342,7 @@ function TradingSection({ settings, onUpdate }) {
     try {
       const updated = await updateSettings(form);
       onUpdate(updated);
-      setStatus({ type: "success", msg: "Préférences sauvegardées." });
+      setStatus({ type: "success", msg: "Trading preferences saved." });
       return true;
     } catch (err) {
       setStatus({ type: "error", msg: err.message });
@@ -352,14 +352,14 @@ function TradingSection({ settings, onUpdate }) {
 
   const styles_trading = ["scalping", "intraday", "swing"];
   const styleLabels = {
-    scalping: { label: "Scalping", desc: "Minutes à quelques heures" },
-    intraday: { label: "Intraday", desc: "Ouvert et fermé dans la journée" },
-    swing: { label: "Swing", desc: "Positions sur plusieurs jours" },
+    scalping: { label: "Scalping", desc: "Minutes to a few hours" },
+    intraday: { label: "Intraday", desc: "Opened and closed within the session" },
+    swing: { label: "Swing", desc: "Positions held over multiple days" },
   };
 
   return (
     <div style={s.sections}>
-      <SectionHeader title="Trading" subtitle="Configurez votre profil de trader" />
+      <SectionHeader title="Trading Preferences" subtitle="Configure your risk parameters and trader profile" />
 
       <Card>
         <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -368,12 +368,12 @@ function TradingSection({ settings, onUpdate }) {
               <Gauge size={15} color="#3B82F6" />
             </div>
             <div>
-              <p style={s.cardRowTitle}>Paramètres de risque</p>
-              <p style={s.cardRowDesc}>Capital et risque de référence pour vos trades</p>
+              <p style={s.cardRowTitle}>Risk Parameters</p>
+              <p style={s.cardRowDesc}>Account balance and baseline risk per trade</p>
             </div>
           </div>
           <div style={s.twoCol}>
-            <Field label="Capital initial (€)">
+            <Field label="Initial Balance ($ / €)">
               <input
                 style={s.input}
                 type="number"
@@ -381,7 +381,7 @@ function TradingSection({ settings, onUpdate }) {
                 onChange={(e) => setForm((p) => ({ ...p, capital_initial: parseFloat(e.target.value) }))}
               />
             </Field>
-            <Field label="Risque par trade (%)">
+            <Field label="Risk per Trade (%)">
               <input
                 style={s.input}
                 type="number"
@@ -396,7 +396,7 @@ function TradingSection({ settings, onUpdate }) {
 
       <Card>
         <div style={{ padding: "20px" }}>
-          <p style={s.cardSectionLabel}>Style de trading</p>
+          <p style={s.cardSectionLabel}>Trading Style</p>
           <OptionGrid
             options={styles_trading.map((style) => ({
               value: style,
@@ -411,7 +411,7 @@ function TradingSection({ settings, onUpdate }) {
 
       <Card>
         <div style={{ padding: "20px" }}>
-          <p style={s.cardSectionLabel}>Paires & instruments favoris</p>
+          <p style={s.cardSectionLabel}>Favorite Pairs & Assets</p>
           <div style={{ display: "flex", gap: "8px", marginTop: "12px", marginBottom: "10px" }}>
             <input
               style={{ ...s.input, flex: 1 }}
@@ -420,7 +420,7 @@ function TradingSection({ settings, onUpdate }) {
               onKeyDown={(e) => e.key === "Enter" && addPair()}
               placeholder="EUR/USD, BTC, US30..."
             />
-            <button onClick={addPair} style={s.addBtn}>Ajouter</button>
+            <button onClick={addPair} style={s.addBtn}>Add</button>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
             {form.paires_favorites.map((pair) => (
@@ -433,12 +433,12 @@ function TradingSection({ settings, onUpdate }) {
             ))}
           </div>
           <div style={s.inlineNote}>
-            Ces préférences servent à contextualiser les analyses et les vues de performance.
+            These preferences help contextualize AI risk audits and performance metrics.
           </div>
         </div>
       </Card>
 
-      <SaveButton label="Sauvegarder les préférences trading" onClick={handleSave} fullWidth />
+      <SaveButton label="Save Trading Preferences" onClick={handleSave} fullWidth />
       <StatusMsg status={status} />
     </div>
   );
@@ -457,7 +457,7 @@ function IASection({ settings, onUpdate }) {
     try {
       const updated = await updateSettings(form);
       onUpdate(updated);
-      setStatus({ type: "success", msg: "Préférences IA sauvegardées." });
+      setStatus({ type: "success", msg: "AI preferences saved." });
       return true;
     } catch (err) {
       setStatus({ type: "error", msg: err.message });
@@ -466,26 +466,26 @@ function IASection({ settings, onUpdate }) {
   }
 
   const coachOptions = [
-    { value: "strict", label: "Strict", desc: "Direct, exigeant, zéro complaisance." },
-    { value: "normal", label: "Équilibré", desc: "Rigueur et encouragement." },
-    { value: "encourageant", label: "Bienveillant", desc: "Focus sur la progression." },
+    { value: "strict", label: "Strict", desc: "Direct, institutional standards, zero tolerance for rule-breaking." },
+    { value: "normal", label: "Balanced", desc: "Rigorous execution review with constructive encouragement." },
+    { value: "encourageant", label: "Supportive", desc: "Growth-focused, highlights psychological resilience and progress." },
   ];
 
   const focusOptions = [
-    { value: "technique", label: "Technique", desc: "Setup, entrée, SL/TP, R:R" },
-    { value: "psychologie", label: "Psychologie", desc: "Émotions et biais cognitifs" },
-    { value: "discipline", label: "Discipline", desc: "Consistency et respect du plan" },
+    { value: "technique", label: "Technical Execution", desc: "Setup quality, entry, SL/TP, R:R, and structural invalidation" },
+    { value: "psychologie", label: "Trading Psychology", desc: "Emotions, FOMO, overtrading, and cognitive biases" },
+    { value: "discipline", label: "Discipline & Process", desc: "Consistency, trade checklist, and risk plan adherence" },
   ];
 
   return (
     <div style={s.sections}>
-      <SectionHeader title="Intelligence Artificielle" subtitle="Personnalisez le comportement de votre coach IA" />
+      <SectionHeader title="Artificial Intelligence" subtitle="Customize your AI coach behavior and review style" />
 
       <Card>
         <div style={{ padding: "20px" }}>
-          <p style={s.cardSectionLabel}>Ton du coaching</p>
+          <p style={s.cardSectionLabel}>Coaching Tone</p>
           <p style={{ color: "#3B4B6B", fontSize: "0.78rem", margin: "4px 0 14px" }}>
-            Définit la rigueur et le style de feedback de l'IA sur vos trades.
+            Defines the rigor and feedback style of the AI on your trades.
           </p>
           <OptionGrid
             options={coachOptions}
@@ -497,9 +497,9 @@ function IASection({ settings, onUpdate }) {
 
       <Card>
         <div style={{ padding: "20px" }}>
-          <p style={s.cardSectionLabel}>Domaine de focus prioritaire</p>
+          <p style={s.cardSectionLabel}>Priority Focus Area</p>
           <p style={{ color: "#3B4B6B", fontSize: "0.78rem", margin: "4px 0 14px" }}>
-            L'IA mettra l'accent sur ce domaine dans chaque analyse.
+            The AI will prioritize this area during each trade audit.
           </p>
           <OptionGrid
             options={focusOptions}
@@ -509,7 +509,7 @@ function IASection({ settings, onUpdate }) {
         </div>
       </Card>
 
-      <SaveButton label="Sauvegarder les préférences IA" onClick={handleSave} fullWidth />
+      <SaveButton label="Save AI Preferences" onClick={handleSave} fullWidth />
       <StatusMsg status={status} />
     </div>
   );
@@ -533,7 +533,7 @@ function AppSection({ settings, onUpdate }) {
         email_frequency: form.email_frequency,
       });
       onUpdate(updated);
-      setStatus({ type: "success", msg: "Paramètres sauvegardés." });
+      setStatus({ type: "success", msg: "Settings saved." });
       return true;
     } catch (err) {
       setStatus({ type: "error", msg: err.message });
@@ -543,17 +543,17 @@ function AppSection({ settings, onUpdate }) {
 
   return (
     <div style={s.sections}>
-      <SectionHeader title="Application" subtitle="Préférences d'affichage et de communication" />
+      <SectionHeader title="Application" subtitle="Display and communication preferences" />
 
       <Card>
         <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "0" }}>
-          {/* Thème */}
+          {/* Theme */}
           <div style={s.settingRow}>
             <div style={s.settingRowLeft}>
               <Moon size={15} color="#3B82F6" />
               <div>
-                <p style={s.settingRowTitle}>Thème</p>
-                <p style={s.settingRowDesc}>Thème clair disponible prochainement</p>
+                <p style={s.settingRowTitle}>Theme</p>
+                <p style={s.settingRowDesc}>Light theme coming soon</p>
               </div>
             </div>
             <div style={{
@@ -565,7 +565,7 @@ function AppSection({ settings, onUpdate }) {
               fontSize: "0.75rem",
               fontWeight: "600",
             }}>
-              Sombre
+              Dark
             </div>
           </div>
         </div>
@@ -573,14 +573,14 @@ function AppSection({ settings, onUpdate }) {
 
       <Card>
         <div style={{ padding: "20px" }}>
-          <p style={s.cardSectionLabel}>Emails & communications</p>
+          <p style={s.cardSectionLabel}>Emails & Communications</p>
           <div style={{ marginTop: "14px", display: "flex", flexDirection: "column", gap: "0" }}>
             <div style={s.settingRow}>
               <div style={s.settingRowLeft}>
                 <Mail size={15} color="#3B82F6" />
                 <div>
-                  <p style={s.settingRowTitle}>Emails de rétention</p>
-                  <p style={s.settingRowDesc}>Rappels, conseils et séquence d'onboarding</p>
+                  <p style={s.settingRowTitle}>Retention & Coaching Emails</p>
+                  <p style={s.settingRowDesc}>Reminders, edge optimization, and onboarding sequence</p>
                 </div>
               </div>
               <Toggle
@@ -593,15 +593,15 @@ function AppSection({ settings, onUpdate }) {
               <div style={s.settingRowLeft}>
                 <Clock size={15} color="#3B82F6" />
                 <div>
-                  <p style={s.settingRowTitle}>Fréquence</p>
-                  <p style={s.settingRowDesc}>Cadence des emails automatiques</p>
+                  <p style={s.settingRowTitle}>Frequency</p>
+                  <p style={s.settingRowDesc}>Automated email cadence</p>
                 </div>
               </div>
               <div style={{ display: "flex", gap: "6px" }}>
                 {[
                   { value: "normal", label: "Normal" },
                   { value: "minimal", label: "Minimal" },
-                  { value: "none", label: "Aucun" },
+                  { value: "none", label: "None" },
                 ].map(({ value, label }) => (
                   <button
                     key={value}
@@ -628,7 +628,7 @@ function AppSection({ settings, onUpdate }) {
         </div>
       </Card>
 
-      <SaveButton label="Sauvegarder" onClick={handleSave} fullWidth />
+      <SaveButton label="Save Changes" onClick={handleSave} fullWidth />
       <StatusMsg status={status} />
     </div>
   );
@@ -645,14 +645,14 @@ function FacturationSection({ settings, onUpdate }) {
 
   const cancellationScheduled = settings?.cancel_at_period_end === true;
   const periodEnd = settings?.subscription_current_period_end
-    ? new Date(settings.subscription_current_period_end).toLocaleDateString("fr-FR")
+    ? new Date(settings.subscription_current_period_end).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : null;
   const scheduledStatus = cancellationScheduled
     ? {
         type: "success",
         msg: periodEnd
-          ? `Annulation planifiée. Votre accès Premium reste actif jusqu'au ${periodEnd}.`
-          : "Annulation planifiée. Votre accès Premium reste actif jusqu'à la fin de la période.",
+          ? `Cancellation scheduled. Your Pro access remains active until ${periodEnd}.`
+          : "Cancellation scheduled. Your Pro access remains active until the end of the billing period.",
       }
     : null;
 
@@ -674,8 +674,8 @@ function FacturationSection({ settings, onUpdate }) {
       setCancelStatus({
         type: "success",
         msg: nextPeriodEnd
-          ? `Annulation planifiée. Votre accès Premium reste actif jusqu'au ${new Date(nextPeriodEnd).toLocaleDateString("fr-FR")}.`
-          : "Annulation planifiée. Votre accès Premium reste actif jusqu'à la fin de la période.",
+          ? `Cancellation scheduled. Your Pro access remains active until ${new Date(nextPeriodEnd).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.`
+          : "Cancellation scheduled. Your Pro access remains active until the end of the billing period.",
       });
     } catch (err) {
       setCancelStatus({ type: "error", msg: err.message });
@@ -692,7 +692,7 @@ function FacturationSection({ settings, onUpdate }) {
         method: "POST",
         body: JSON.stringify({}),
       });
-      if (!data?.url) throw new Error("URL Stripe introuvable.");
+      if (!data?.url) throw new Error("Stripe billing portal URL not found.");
       window.location.href = data.url;
     } catch (err) {
       setPortalStatus({ type: "error", msg: err.message });
@@ -703,9 +703,9 @@ function FacturationSection({ settings, onUpdate }) {
 
   return (
     <div style={s.sections}>
-      <SectionHeader title="Abonnement" subtitle="Gérez votre plan et vos accès" />
+      <SectionHeader title="Billing" subtitle="Manage your plan and billing details" />
 
-      {/* Plan actuel */}
+      {/* Current plan */}
       <Card>
         <div style={{ padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -724,10 +724,10 @@ function FacturationSection({ settings, onUpdate }) {
               </div>
               <div>
                 <p style={{ color: "#E8EDF5", fontWeight: "700", fontSize: "0.95rem", margin: "0 0 2px" }}>
-                  {isPremium ? "MySmartJournal Premium" : "Plan Gratuit"}
+                  {isPremium ? "MySmartJournal Pro" : "Free Tier"}
                 </p>
                 <p style={{ color: "#4B607A", fontSize: "0.78rem", margin: 0 }}>
-                  {isPremium ? "Toutes les fonctionnalités débloquées" : "3 analyses IA par jour"}
+                  {isPremium ? "All features unlocked" : "3 AI audits per day"}
                 </p>
               </div>
             </div>
@@ -741,7 +741,7 @@ function FacturationSection({ settings, onUpdate }) {
               border: `1px solid ${isPremium ? "#F59E0B44" : "#1A274044"}`,
               color: isPremium ? "#F59E0B" : "#3B82F6",
             }}>
-              {isPremium ? "PREMIUM" : "GRATUIT"}
+              {isPremium ? "PRO" : "FREE"}
             </span>
           </div>
 
@@ -750,10 +750,10 @@ function FacturationSection({ settings, onUpdate }) {
               <div style={{ ...s.rowDivider, marginTop: "16px", marginBottom: "16px" }} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
                 {[
-                  "Analyses IA Premium",
-                  "Questions de réflexion personnalisées",
-                  "Plan d'action détaillé",
-                  "Support prioritaire",
+                  "Unlimited AI Trade Audits",
+                  "Tailored Reflection Questions",
+                  "Institutional Action Plan",
+                  "Priority Trader Support",
                 ].map((f) => (
                   <div key={f} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <div style={{ width: "16px", height: "16px", borderRadius: "50%", backgroundColor: "#10B98120", border: "1px solid #10B98133", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -776,7 +776,7 @@ function FacturationSection({ settings, onUpdate }) {
                   disabled={portalLoading}
                   style={{ ...s.cancelBtn, minWidth: "180px" }}
                 >
-                  {portalLoading ? "Ouverture..." : "Gérer la facturation"}
+                  {portalLoading ? "Opening..." : "Manage Billing & Invoices"}
                 </button>
               )}
               <button
@@ -784,14 +784,14 @@ function FacturationSection({ settings, onUpdate }) {
                 disabled={cancelling || cancellationScheduled}
                 style={s.ghostDangerBtn}
               >
-                {cancellationScheduled ? "Annulation planifiée" : cancelling ? "Annulation..." : "Annuler l'abonnement"}
+                {cancellationScheduled ? "Cancellation Scheduled" : cancelling ? "Cancelling..." : "Cancel Subscription"}
               </button>
             </div>
           )}
         </div>
       </Card>
 
-      {/* CTA Upgrade si Free */}
+      {/* Upgrade CTA if Free */}
       {!isPremium && (
         <div style={s.upgradeCard}>
           <div style={s.upgradeCardGlow} />
@@ -802,26 +802,26 @@ function FacturationSection({ settings, onUpdate }) {
               </div>
               <div>
                 <p style={{ color: "#E8EDF5", fontWeight: "700", fontSize: "0.95rem", margin: 0 }}>
-                  Passer à Premium
+                  Upgrade to Pro
                 </p>
                 <p style={{ color: "#6B7FA3", fontSize: "0.75rem", margin: 0 }}>
-                  Débloquez tout le potentiel de votre journal
+                  Unlock institutional-grade trade auditing
                 </p>
               </div>
               <div style={{ marginLeft: "auto" }}>
-                <span style={{ color: "#F59E0B", fontSize: "1.4rem", fontWeight: "800" }}>7.99€</span>
-                <span style={{ color: "#4B607A", fontSize: "0.75rem" }}> /mois</span>
+                <span style={{ color: "#F59E0B", fontSize: "1.4rem", fontWeight: "800" }}>$7.99</span>
+                <span style={{ color: "#4B607A", fontSize: "0.75rem" }}> /month</span>
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "20px" }}>
               {[
-                "Analyses IA Premium",
-                "Questions de réflexion",
-                "Plan d'action détaillé",
-                "Coach IA personnalisé",
-                "Support prioritaire",
-                "Export bientôt disponible",
+                "Unlimited AI Trade Audits",
+                "Reflection Questions",
+                "Detailed Action Plan",
+                "Customized AI Coach",
+                "Priority Trader Support",
+                "CSV/PDF Export included",
               ].map((f) => (
                 <div key={f} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
                   <Check size={11} color="#10B981" />
@@ -843,40 +843,40 @@ function FacturationSection({ settings, onUpdate }) {
 function SupportSection() {
   return (
     <div style={s.sections}>
-      <SectionHeader title="Support" subtitle="Nous sommes là pour vous aider" />
+      <SectionHeader title="Support" subtitle="We are here to support your trading journey" />
 
       <Card>
         <div style={{ padding: "4px 0" }}>
           <SupportRow
             icon={<Headphones size={15} color="#3B82F6" />}
-            title="Contacter le support"
-            desc="Réponse sous 24h"
+            title="Contact Support"
+            desc="Response within 24 hours"
             action={() => window.open("mailto:support@mysmartjournal.org", "_blank")}
-            actionLabel="Envoyer un email"
+            actionLabel="Send Email"
           />
           <div style={s.rowDivider} />
           <SupportRow
             icon={<Bug size={15} color="#F59E0B" />}
-            title="Signaler un bug"
-            desc="Aidez-nous à améliorer l'application"
+            title="Report a Bug"
+            desc="Help us improve application performance"
             action={() => window.open("mailto:bugs@mysmartjournal.org?subject=Bug Report", "_blank")}
-            actionLabel="Signaler"
+            actionLabel="Report"
           />
           <div style={s.rowDivider} />
           <SupportRow
             icon={<MessageSquare size={15} color="#10B981" />}
-            title="Feedback produit"
-            desc="Partager un retour sur l'expérience"
+            title="Product Feedback"
+            desc="Share your experience and thoughts"
             action={() => window.open("mailto:feedback@mysmartjournal.org?subject=Feedback%20MySmartJournal", "_blank")}
-            actionLabel="Partager"
+            actionLabel="Share"
           />
           <div style={s.rowDivider} />
           <SupportRow
             icon={<Lightbulb size={15} color="#A78BFA" />}
-            title="Suggestion d'amélioration"
-            desc="Proposer une idée pour le produit"
-            action={() => window.open("mailto:ideas@mysmartjournal.org?subject=Suggestion", "_blank")}
-            actionLabel="Suggérer"
+            title="Feature Request"
+            desc="Suggest an idea or tool improvement"
+            action={() => window.open("mailto:ideas@mysmartjournal.org?subject=Feature%20Suggestion", "_blank")}
+            actionLabel="Suggest"
           />
         </div>
       </Card>
@@ -884,7 +884,7 @@ function SupportSection() {
       <div style={{ padding: "16px 20px", backgroundColor: "#080E1A", borderRadius: "10px", border: "1px solid #0F1E30" }}>
         <p style={{ color: "#3B4B6B", fontSize: "0.75rem", lineHeight: "1.6", margin: 0, textAlign: "center" }}>
           MySmartJournal v1.0 · mysmartjournal.org<br />
-          Ce service ne constitue pas un conseil financier. Trading involves risk of loss.
+          This service does not constitute financial advice. Trading involves substantial risk of loss.
         </p>
       </div>
     </div>
@@ -1044,7 +1044,7 @@ function Field({ label, children }) {
   );
 }
 
-function SaveButton({ label = "Sauvegarder", onClick, fullWidth, compact, style: extraStyle }) {
+function SaveButton({ label = "Save Changes", onClick, fullWidth, compact, style: extraStyle }) {
   const [saved, setSaved] = useState(false);
   async function handle() {
     const result = await onClick();
@@ -1074,7 +1074,7 @@ function SaveButton({ label = "Sauvegarder", onClick, fullWidth, compact, style:
         ...extraStyle,
       }}
     >
-      {saved ? <><Check size={13} /> Sauvegardé</> : label}
+      {saved ? <><Check size={13} /> Saved</> : label}
     </button>
   );
 }

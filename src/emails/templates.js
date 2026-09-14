@@ -11,28 +11,28 @@ import {
   keyValueRows,
 } from "./emailDesignSystem.js";
 
-function render({ preheader, content, category, locale = "fr" }) {
+function render({ preheader, content, category, locale = "en" }) {
   return renderEmailLayout({ preheader, content, category, locale });
 }
 
 export const templates = {
   welcome: ({ firstName } = {}) => ({
-    subject: "Bienvenue dans MySmartJournal",
+    subject: "Welcome to MySmartJournal",
     html: render({
-      preheader: "Votre coach de progression est prêt à être configuré.",
+      preheader: "Your AI trade performance coach is ready to calibrate.",
       content: `
         ${card(`
-          ${heading(`Bienvenue${firstName ? `, ${firstName}` : ""}`, { eyebrow: "Démarrage" })}
-          ${paragraph("MySmartJournal est conçu pour vous aider à mieux lire vos décisions de trading : exécution, discipline, contexte et progression.")}
-          ${paragraph("La première étape utile est simple : renseigner un trade proprement, puis laisser l'IA vous retourner un diagnostic exploitable.")}
-          ${button({ label: "Analyser un premier trade", href: URLS.analyse })}
+          ${heading(`Welcome${firstName ? `, ${firstName}` : ""}`, { eyebrow: "Getting Started" })}
+          ${paragraph("MySmartJournal is built to help you master your trading execution: risk parameters, discipline, psychological state, and consistency.")}
+          ${paragraph("Your first step is simple: log a clean trade, then let the AI generate an institutional-grade diagnostic.")}
+          ${button({ label: "Audit Your First Trade", href: URLS.analyse })}
         `)}
         ${card(`
-          ${paragraph("<strong style=\"color:#E8EDF5;\">Ce que le coach va construire avec vous</strong>")}
+          ${paragraph("<strong style=\"color:#E8EDF5;\">What your AI Coach helps you build</strong>")}
           ${list([
-            "Un historique structuré de vos trades.",
-            "Des retours sur vos erreurs récurrentes.",
-            "Des axes de progression orientés discipline, exécution et réflexion.",
+            "A structured, institutional log of your trades.",
+            "Instant feedback detecting recurring behavioral leaks.",
+            "Concrete action plans tailored to your setup rules.",
           ])}
         `)}
       `,
@@ -41,24 +41,24 @@ export const templates = {
   }),
 
   firstAnalysisCompleted: ({ pair, score } = {}) => ({
-    subject: "Votre première analyse IA est prête",
+    subject: "Your First AI Trade Audit is Ready",
     html: render({
-      preheader: "Un premier point de repère pour améliorer votre prochain trade.",
+      preheader: "A clear benchmark to optimize your next execution.",
       content: `
         ${card(`
-          ${heading("Votre premier diagnostic est prêt", { eyebrow: "Analyse IA" })}
-          ${paragraph("Vous avez maintenant un premier point de repère. L'objectif n'est pas de juger un trade isolé, mais d'identifier ce qui mérite d'être répété ou corrigé dès la prochaine exécution.")}
+          ${heading("Your First Diagnostic is Ready", { eyebrow: "AI Audit" })}
+          ${paragraph("You now have an objective baseline. The goal isn't to judge a single trade in isolation, but to identify what to repeat and what leaks to eliminate immediately.")}
           ${pair || score ? metricGrid([
-            ...(pair ? [{ value: pair, label: "Instrument" }] : []),
-            ...(score ? [{ value: `${score}/10`, label: "Score IA" }] : []),
-            { value: "1", label: "Analyse" },
+            ...(pair ? [{ value: pair, label: "Asset / Pair" }] : []),
+            ...(score ? [{ value: `${score}/10`, label: "AI Score" }] : []),
+            { value: "1", label: "Audits" },
           ]) : ""}
-          ${paragraph("Relisez surtout le plan d'action : c'est la partie qui transforme l'analyse en progression concrète.")}
-          ${button({ label: "Voir mon journal", href: URLS.journal })}
+          ${paragraph("Review your Action Plan carefully: this is where audit feedback translates into tangible execution gains.")}
+          ${button({ label: "View Trading Journal", href: URLS.journal })}
         `)}
         ${card(`
-          ${paragraph("<strong style=\"color:#E8EDF5;\">Question utile avant le prochain trade</strong>")}
-          ${paragraph("Quelle condition précise doit être validée avant votre prochaine entrée ? Si la réponse n'est pas claire, le trade mérite probablement d'attendre.")}
+          ${paragraph("<strong style=\"color:#E8EDF5;\">Pre-flight checklist before your next trade</strong>")}
+          ${paragraph("What specific criteria must be verified before pulling the trigger? If you cannot formulate your entry thesis in one clear sentence, the trade is not worth taking.")}
         `)}
       `,
       category: "lifecycle",
@@ -66,44 +66,44 @@ export const templates = {
   }),
 
   premiumActivated: () => ({
-    subject: "Premium activé — votre accès est prêt",
+    subject: "Pro Plan Activated — Full Access Unlocked",
     html: render({
-      preheader: "Votre accès Premium MySmartJournal est maintenant actif.",
+      preheader: "Your MySmartJournal Pro membership is now active.",
       content: `
         ${card(`
-          ${heading("Votre espace Premium est actif", { eyebrow: "Abonnement" })}
-          ${paragraph("Votre accès Premium est confirmé. Vous pouvez continuer à analyser vos trades avec davantage de profondeur et un quota Premium pensé pour un usage intensif.")}
+          ${heading("Your Pro Workspace is Active", { eyebrow: "Subscription" })}
+          ${paragraph("Your Pro membership has been confirmed. You can now audit trades with maximum depth, institutional rubrics, and high-volume limits.")}
           ${list([
-            "Analyses IA étendues pour approfondir vos décisions.",
-            "Questions de réflexion pour renforcer la discipline.",
-            "Plans d'action plus complets après chaque trade.",
-            "Accès prioritaire au support.",
+            "In-depth AI audits with institutional SMC/Prop-Firm rubrics.",
+            "Optional psychological reflection prompts.",
+            "Full multi-step action plans after every trade.",
+            "Priority developer support.",
           ])}
-          ${button({ label: "Lancer une analyse", href: URLS.analyse, variant: "success" })}
+          ${button({ label: "Audit a Trade", href: URLS.analyse, variant: "success" })}
         `)}
-        ${notice("Les analyses restent éducatives : elles vous aident à structurer votre réflexion, sans fournir de conseil financier.", "info")}
+        ${notice("All audits are strictly educational: they structure your decision-making without providing financial advice.", "info")}
       `,
       category: "transactional",
     }),
   }),
 
   paymentFailed: () => ({
-    subject: "Action requise — paiement non validé",
+    subject: "Action Required — Payment Failed",
     html: render({
-      preheader: "Votre dernier paiement Premium n'a pas pu être traité.",
+      preheader: "Your latest subscription payment could not be processed.",
       content: `
         ${card(`
-          ${heading("Paiement non validé", { eyebrow: "Facturation" })}
-          ${paragraph("Stripe nous a indiqué que le dernier paiement de votre abonnement Premium n'a pas pu être traité. Votre accès n'est pas rétrogradé immédiatement : Stripe peut retenter le paiement selon la configuration de facturation.")}
-          ${paragraph("Pour éviter une interruption future, vérifiez votre moyen de paiement depuis votre espace de facturation.")}
-          ${button({ label: "Ouvrir la facturation", href: URLS.billing, variant: "danger" })}
+          ${heading("Payment Processing Issue", { eyebrow: "Billing" })}
+          ${paragraph("Stripe notified us that your recent Pro renewal payment could not be processed. Your access is not immediately revoked — Stripe will retry automatically according to billing policies.")}
+          ${paragraph("To avoid any service interruption, please update your payment method in your billing portal.")}
+          ${button({ label: "Manage Billing", href: URLS.billing, variant: "danger" })}
         `)}
         ${card(`
-          ${paragraph("<strong style=\"color:#E8EDF5;\">À vérifier en priorité</strong>")}
+          ${paragraph("<strong style=\"color:#E8EDF5;\">Common causes</strong>")}
           ${list([
-            "Carte expirée ou remplacée.",
-            "Authentification bancaire demandée.",
-            "Limite de paiement ou fonds indisponibles.",
+            "Expired or replaced credit card.",
+            "3D Secure bank authentication required.",
+            "Daily limit reached or insufficient funds.",
           ])}
         `)}
       `,
@@ -112,19 +112,19 @@ export const templates = {
   }),
 
   onboardingDay1: () => ({
-    subject: "Votre journal devient utile dès le premier trade",
+    subject: "Your Journal Delivers Value from Trade #1",
     html: render({
-      preheader: "Une habitude simple pour rendre vos décisions plus lisibles.",
+      preheader: "A simple habit to gain total clarity on your execution.",
       content: `
         ${card(`
-          ${heading("Commencez par un trade propre", { eyebrow: "Jour 1" })}
-          ${paragraph("Un journal de trading n'a pas besoin d'être long pour être utile. Il doit surtout capturer les éléments qui expliquent votre décision : contexte, niveau de risque, émotion, exécution.")}
-          ${paragraph("Le premier objectif est de créer une trace fiable. La progression viendra ensuite de la répétition et de la comparaison.")}
-          ${button({ label: "Loguer un trade", href: URLS.analyse })}
+          ${heading("Start with One Clean Trade", { eyebrow: "Day 1" })}
+          ${paragraph("A trading journal doesn't need to be overwhelming to be effective. It just needs to capture what drove your decision: setup context, risk parameters, pre-trade emotions, and execution quality.")}
+          ${paragraph("Your immediate goal is to establish a reliable baseline. Consistency emerges from routine and comparative review.")}
+          ${button({ label: "Log a Trade", href: URLS.analyse })}
         `)}
         ${card(`
-          ${paragraph("<strong style=\"color:#E8EDF5;\">Repère simple</strong>")}
-          ${paragraph("Avant d'entrer en position, essayez de pouvoir formuler votre raison d'entrée en une phrase. Si elle est confuse, votre exécution le sera souvent aussi.")}
+          ${paragraph("<strong style=\"color:#E8EDF5;\">Execution rule</strong>")}
+          ${paragraph("Before entering a position, make sure you can articulate your edge in a single sentence. If it sounds convoluted, your execution will likely follow suit.")}
         `)}
       `,
       category: "lifecycle",
@@ -132,15 +132,15 @@ export const templates = {
   }),
 
   onboardingDay3: () => ({
-    subject: "Ce que vos émotions disent de votre exécution",
+    subject: "What Pre-Trade Emotions Reveal About Your Execution",
     html: render({
-      preheader: "Un point de lecture utile pour vos prochains trades.",
+      preheader: "An essential psychological insight for your next trade.",
       content: `
         ${card(`
-          ${heading("Observez le contexte mental", { eyebrow: "Jour 3" })}
-          ${paragraph("Une bonne analyse technique peut être dégradée par une mauvaise condition d'exécution : précipitation, frustration, peur de rater le mouvement, envie de se refaire.")}
-          ${paragraph("Noter l'émotion pré-trade ne sert pas à se juger. Cela sert à repérer les situations où votre prise de décision devient moins stable.")}
-          ${button({ label: "Analyser un trade", href: URLS.analyse })}
+          ${heading("Audit Your Psychological State", { eyebrow: "Day 3" })}
+          ${paragraph("Flawless technical setups often fall apart due to compromised execution: FOMO, anxiety, rushing entries, or revenge trading after a loss.")}
+          ${paragraph("Tracking your pre-trade state isn't about self-judgment. It's about spotting conditions where your decision-making becomes volatile.")}
+          ${button({ label: "Audit a Trade", href: URLS.analyse })}
         `)}
       `,
       category: "lifecycle",
@@ -148,22 +148,22 @@ export const templates = {
   }),
 
   onboardingDay5: ({ hasAnalysis }) => ({
-    subject: hasAnalysis ? "Transformez l'analyse en plan d'action" : "Votre première analyse peut servir de point de départ",
+    subject: hasAnalysis ? "Turn AI Feedback into an Actionable Game Plan" : "Log Your First Trade to Establish Your Baseline",
     html: render({
-      preheader: "Une analyse utile doit améliorer la prochaine exécution.",
+      preheader: "Every audit should refine your next execution.",
       content: `
         ${card(`
-          ${heading(hasAnalysis ? "Passez de l'observation à l'action" : "Créez un premier point de repère", { eyebrow: "Progression" })}
+          ${heading(hasAnalysis ? "Move from Analysis to Action" : "Establish Your Baseline", { eyebrow: "Progression" })}
           ${paragraph(hasAnalysis
-            ? "Vous avez déjà généré une analyse. Le plus important maintenant est de choisir une correction simple à appliquer sur le prochain trade."
-            : "Si vous n'avez pas encore testé l'analyse IA, commencez avec un trade récent. L'objectif est d'obtenir un diagnostic clair, pas parfait."
+            ? "You've audited your execution. The most impactful step now is selecting one specific correction to apply on your very next trade."
+            : "If you haven't run an AI audit yet, start with a recent trade. The objective is clarity, not perfection."
           )}
           ${list([
-            "Identifier une erreur prioritaire.",
-            "Définir une règle d'exécution simple.",
-            "Comparer le prochain trade avec cette règle.",
+            "Isolate your top behavioral leak.",
+            "Define a clear, non-negotiable execution rule.",
+            "Compare your next trade against this rule.",
           ])}
-          ${button({ label: hasAnalysis ? "Revoir mes paramètres" : "Lancer une analyse", href: hasAnalysis ? URLS.billing : URLS.analyse, variant: hasAnalysis ? "warning" : "primary" })}
+          ${button({ label: hasAnalysis ? "Review Account Settings" : "Audit a Trade", href: hasAnalysis ? URLS.billing : URLS.analyse, variant: hasAnalysis ? "warning" : "primary" })}
         `)}
       `,
       category: "marketing",
@@ -171,20 +171,20 @@ export const templates = {
   }),
 
   onboardingDay7: ({ tradesCount = 0, firstFocus = "discipline" } = {}) => ({
-    subject: "Votre premier bilan de progression",
+    subject: "Your 7-Day Performance Review",
     html: render({
-      preheader: "Une semaine suffit pour commencer à observer vos patterns.",
+      preheader: "One week is enough to spot execution patterns.",
       content: `
         ${card(`
-          ${heading("Un premier bilan vaut mieux qu'une impression", { eyebrow: "Jour 7" })}
-          ${paragraph("Après quelques jours, l'objectif n'est pas encore d'avoir beaucoup de données. L'objectif est de commencer à reconnaître vos conditions de bonne et de mauvaise exécution.")}
+          ${heading("Hard Data Beats Gut Feelings", { eyebrow: "Day 7" })}
+          ${paragraph("After a week of journaling, the goal is recognizing the exact conditions behind your best and worst trades.")}
           ${metricGrid([
-            { value: String(tradesCount), label: "Trades suivis" },
-            { value: firstFocus, label: "Axe à observer" },
-            { value: "7j", label: "Fenêtre" },
+            { value: String(tradesCount), label: "Logged Trades" },
+            { value: firstFocus, label: "Priority Focus" },
+            { value: "7d", label: "Window" },
           ])}
-          ${paragraph("Cette semaine, choisissez un seul point à surveiller : attendre le setup complet, respecter le risque, ou éviter les entrées impulsives.")}
-          ${button({ label: "Ouvrir mon dashboard", href: URLS.dashboard })}
+          ${paragraph("This week, focus on one key rule: wait for full confirmation, respect invalidation, or eliminate impulse entries.")}
+          ${button({ label: "Open Dashboard", href: URLS.dashboard })}
         `)}
       `,
       category: "lifecycle",
@@ -192,15 +192,15 @@ export const templates = {
   }),
 
   retentionInactive: ({ daysSinceLogin, tradesCount }) => ({
-    subject: "Reprendre le fil de votre journal",
+    subject: "Pick Up Where You Left Off in Your Journal",
     html: render({
-      preheader: "Quelques minutes suffisent pour remettre votre historique à jour.",
+      preheader: "A few minutes are all it takes to bring your record up to date.",
       content: `
         ${card(`
-          ${heading("Votre journal gagne en précision avec la régularité", { eyebrow: "Suivi" })}
-          ${paragraph(`Vous n'avez pas ouvert MySmartJournal depuis <strong style="color:#E8EDF5;">${daysSinceLogin} jours</strong>. Revenir au journal ne demande pas de tout rattraper : commencez par le dernier trade dont vous vous souvenez clairement.`)}
-          ${tradesCount > 0 ? keyValueRows([{ label: "Trades déjà suivis", value: String(tradesCount) }]) : ""}
-          ${button({ label: "Reprendre mon journal", href: URLS.journal })}
+          ${heading("Consistency Breeds Edge", { eyebrow: "Review" })}
+          ${paragraph(`You haven't opened MySmartJournal in <strong style="color:#E8EDF5;">${daysSinceLogin} days</strong>. Getting back on track doesn't require catching up on everything: start with your most recent trade.`)}
+          ${tradesCount > 0 ? keyValueRows([{ label: "Logged Trades", value: String(tradesCount) }]) : ""}
+          ${button({ label: "Resume Journaling", href: URLS.journal })}
         `)}
       `,
       category: "marketing",
@@ -208,15 +208,15 @@ export const templates = {
   }),
 
   retentionNoAnalysis: () => ({
-    subject: "Un diagnostic IA peut clarifier votre prochain axe de travail",
+    subject: "AI Diagnostics Bring Instant Clarity to Your Edge",
     html: render({
-      preheader: "Utilisez l'analyse IA comme point de départ, pas comme verdict.",
+      preheader: "Use AI audits as a diagnostic tool, not an opinion.",
       content: `
         ${card(`
-          ${heading("Essayez une analyse sur un trade réel", { eyebrow: "Coach IA" })}
-          ${paragraph("L'analyse IA est plus utile lorsqu'elle part d'un trade concret : entrée, stop, cible, contexte et émotion. Elle vous aide ensuite à isoler ce qui doit être répété ou corrigé.")}
-          ${paragraph("Même une seule analyse peut révéler une règle simple à appliquer au prochain trade.")}
-          ${button({ label: "Analyser un trade", href: URLS.analyse })}
+          ${heading("Run an Audit on a Real Trade", { eyebrow: "AI Coach" })}
+          ${paragraph("AI audits deliver maximum value on concrete trade parameters: entry, stop, take profit, market context, and emotions. They highlight what to repeat and what to cut.")}
+          ${paragraph("Even a single audit can uncover a crucial leak to fix before your next session.")}
+          ${button({ label: "Audit a Trade", href: URLS.analyse })}
         `)}
       `,
       category: "marketing",

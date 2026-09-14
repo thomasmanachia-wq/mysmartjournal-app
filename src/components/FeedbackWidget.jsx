@@ -95,7 +95,7 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
       if (!user) return;
 
       // Met à jour avec le commentaire
-      if (!feedbackId) throw new Error("Feedback introuvable.");
+      if (!feedbackId) throw new Error("Feedback not found.");
 
       const { error } = await supabase
         .from("analysis_feedback")
@@ -134,7 +134,7 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
     return (
       <div style={styles.submitted}>
         <Check size={14} color="#10B981" />
-        <span style={{ color: "#10B981", fontSize: "0.82rem" }}>Merci pour votre retour</span>
+        <span style={{ color: "#10B981", fontSize: "0.82rem" }}>Thank you for your feedback</span>
       </div>
     );
   }
@@ -142,7 +142,7 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
   return (
     <div style={styles.wrapper}>
       <div style={styles.ratingRow}>
-        <span style={styles.question}>Cette analyse vous a-t-elle aidé ?</span>
+        <span style={styles.question}>Was this trade audit helpful?</span>
         <div style={styles.buttons}>
           <button
             onClick={() => handleRating("positive")}
@@ -154,7 +154,7 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
             }}
           >
             <ThumbsUp size={14} />
-            <span>Utile</span>
+            <span>Helpful</span>
           </button>
           <button
             onClick={() => handleRating("negative")}
@@ -166,7 +166,7 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
             }}
           >
             <ThumbsDown size={14} />
-            <span>Peu utile</span>
+            <span>Not helpful</span>
           </button>
         </div>
       </div>
@@ -174,14 +174,14 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
       {/* Formulaire optionnel */}
       {rating && !expanded && (
         <button onClick={() => setExpanded(true)} style={styles.expandBtn}>
-          <ChevronDown size={13} /> Détailler votre retour (optionnel)
+          <ChevronDown size={13} /> Add details (optional)
         </button>
       )}
 
       {expanded && (
         <div style={styles.form}>
           <div style={styles.formHeader}>
-            <span style={styles.formTitle}>Détaillez votre retour</span>
+            <span style={styles.formTitle}>Share your feedback</span>
             <button onClick={handleSkip} style={styles.skipBtn}>
               <X size={13} />
             </button>
@@ -189,8 +189,8 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
 
           {rating === "positive" && (
             <TextArea
-              label="Qu'est-ce qui était particulièrement utile ?"
-              placeholder="Ex: Le plan d'action était précis, l'analyse du setup était pertinente..."
+              label="What was particularly useful?"
+              placeholder="e.g. Action plan was precise, setup breakdown was spot-on..."
               value={form.what_was_useful}
               onChange={(v) => setForm((p) => ({ ...p, what_was_useful: v }))}
             />
@@ -198,24 +198,24 @@ export default function FeedbackWidget({ tradeId, aiScore, pair, plan = "free" }
 
           {rating === "negative" && (
             <TextArea
-              label="Qu'est-ce qui manquait ou était incorrect ?"
-              placeholder="Ex: L'analyse ne correspondait pas au contexte de marché..."
+              label="What was missing or inaccurate?"
+              placeholder="e.g. Analysis missed the broader market context..."
               value={form.what_was_missing}
               onChange={(v) => setForm((p) => ({ ...p, what_was_missing: v }))}
             />
           )}
 
           <TextArea
-            label="Suggestions d'amélioration (optionnel)"
-            placeholder="Comment pourrions-nous améliorer cette analyse ?"
+            label="Suggestions for improvement (optional)"
+            placeholder="How can we make this audit more actionable?"
             value={form.suggestions}
             onChange={(v) => setForm((p) => ({ ...p, suggestions: v }))}
           />
 
           <div style={styles.formActions}>
-            <button onClick={handleSkip} style={styles.cancelBtn}>Passer</button>
+            <button onClick={handleSkip} style={styles.cancelBtn}>Skip</button>
             <button onClick={handleSubmit} disabled={loading} style={styles.submitBtn}>
-              {loading ? "Envoi..." : "Envoyer"}
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

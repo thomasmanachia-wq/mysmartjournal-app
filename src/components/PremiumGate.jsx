@@ -2,7 +2,7 @@ import { usePlan } from "../context/PlanContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 
-export default function PremiumGate({ children, feature = "cette fonctionnalité" }) {
+export default function PremiumGate({ children, feature = "This feature" }) {
   const { isPremium, loading } = usePlan();
   const navigate = useNavigate();
 
@@ -14,12 +14,12 @@ export default function PremiumGate({ children, feature = "cette fonctionnalité
         <div style={styles.lockIcon}>
           <Lock size={24} color="#F59E0B" />
         </div>
-        <h3 style={styles.title}>Fonctionnalité Premium</h3>
+        <h3 style={styles.title}>Pro Feature</h3>
         <p style={styles.desc}>
-          {feature} est disponible uniquement avec MySmartJournal Premium.
+          {feature} is exclusively available with MySmartJournal Pro.
         </p>
-        <button onClick={() => navigate("/settings?section=facturation")} style={styles.btn}>
-          Passer au Premium — 7.99€/mois
+        <button onClick={() => navigate("/settings?section=billing")} style={styles.btn}>
+          Upgrade to Pro — $7.99/mo
         </button>
       </div>
     );

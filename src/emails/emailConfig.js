@@ -37,7 +37,7 @@ export const URLS = {
   analyse: `${APP_URL}/analyse`,
   dashboard: `${APP_URL}/dashboard`,
   settings: `${APP_URL}/settings`,
-  billing: `${APP_URL}/settings?section=facturation`,
+  billing: `${APP_URL}/settings?section=billing`,
   emailPreferences: `${APP_URL}/settings?section=app`,
   privacy: `${APP_URL}/privacy`,
   terms: `${APP_URL}/terms`,
@@ -50,21 +50,21 @@ export function getUnsubscribeUrl() {
 }
 
 export const EMAIL_TYPE_META = {
-  welcome: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "fr" },
-  first_analysis_completed: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "fr" },
-  premium_activated: { category: EMAIL_CATEGORIES.TRANSACTIONAL, locale: "fr" },
-  payment_failed: { category: EMAIL_CATEGORIES.TRANSACTIONAL, locale: "fr" },
-  onboarding_day1: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "fr" },
-  onboarding_day3: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "fr" },
-  onboarding_day5: { category: EMAIL_CATEGORIES.MARKETING, locale: "fr" },
-  onboarding_day7: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "fr" },
-  retention_inactive: { category: EMAIL_CATEGORIES.MARKETING, locale: "fr" },
-  retention_no_analysis: { category: EMAIL_CATEGORIES.MARKETING, locale: "fr" },
+  welcome: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "en" },
+  first_analysis_completed: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "en" },
+  premium_activated: { category: EMAIL_CATEGORIES.TRANSACTIONAL, locale: "en" },
+  payment_failed: { category: EMAIL_CATEGORIES.TRANSACTIONAL, locale: "en" },
+  onboarding_day1: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "en" },
+  onboarding_day3: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "en" },
+  onboarding_day5: { category: EMAIL_CATEGORIES.MARKETING, locale: "en" },
+  onboarding_day7: { category: EMAIL_CATEGORIES.LIFECYCLE, locale: "en" },
+  retention_inactive: { category: EMAIL_CATEGORIES.MARKETING, locale: "en" },
+  retention_no_analysis: { category: EMAIL_CATEGORIES.MARKETING, locale: "en" },
 };
 
 export function getEmailMeta(emailType) {
   return EMAIL_TYPE_META[emailType] || {
     category: EMAIL_CATEGORIES.LIFECYCLE,
-    locale: "fr",
+    locale: "en",
   };
 }

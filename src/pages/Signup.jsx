@@ -17,15 +17,15 @@ export default function Signup() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (password !== confirm) { setError("Les mots de passe ne correspondent pas."); return; }
-    if (!terms) { setError("Veuillez accepter les conditions d'utilisation."); return; }
+    if (password !== confirm) { setError("Passwords do not match."); return; }
+    if (!terms) { setError("Please accept the Terms of Service."); return; }
     setLoading(true);
     setError(null);
     setSuccess(null);
     try {
       const result = await signUp(email, password, { full_name: fullName.trim() || null });
       if (result?.requiresEmailConfirmation) {
-        setSuccess("Compte créé. Vérifiez votre email pour confirmer votre inscription.");
+        setSuccess("Account created. Please check your email to confirm your registration.");
         return;
       }
       navigate("/");
@@ -42,11 +42,11 @@ export default function Signup() {
         {/* Logo */}
         <img src={logo} alt="Logo" style={{ display: "block", margin: "0 auto 24px auto", height: "65px", width: "auto" }} />
 
-        <h1 style={styles.title}>Créer un compte</h1>
-        <p style={styles.subtitle}>Rejoignez les traders qui maîtrisent leurs données.</p>
+        <h1 style={styles.title}>Create an Account</h1>
+        <p style={styles.subtitle}>Join elite traders auditing their execution.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          <Field label="Nom complet">
+          <Field label="Full Name">
             <input
               style={styles.input}
               type="text"
@@ -56,18 +56,18 @@ export default function Signup() {
             />
           </Field>
 
-          <Field label="Email">
+          <Field label="Email address">
             <input
               style={styles.input}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="nom@exemple.com"
+              placeholder="name@example.com"
               required
             />
           </Field>
 
-          <Field label="Mot de passe">
+          <Field label="Password">
             <input
               style={styles.input}
               type="password"
@@ -79,7 +79,7 @@ export default function Signup() {
             />
           </Field>
 
-          <Field label="Confirmer le mot de passe">
+          <Field label="Confirm Password">
             <input
               style={styles.input}
               type="password"
@@ -98,8 +98,8 @@ export default function Signup() {
               style={styles.checkbox}
             />
             <span style={styles.checkLabel}>
-              J'accepte les{" "}
-              <Link to="/terms" style={styles.link}>conditions d'utilisation</Link>
+              I agree to the{" "}
+              <Link to="/terms" style={styles.link}>Terms of Service</Link>
             </span>
           </label>
 
@@ -107,13 +107,13 @@ export default function Signup() {
           {success && <p style={styles.success}>{success}</p>}
 
           <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? "Création..." : "S'inscrire"}
+            {loading ? "Creating account..." : "Get Started"}
           </button>
         </form>
 
         <p style={styles.switchText}>
-          Déjà un compte ?{" "}
-          <Link to="/login" style={styles.link}>Se connecter</Link>
+          Already have an account?{" "}
+          <Link to="/login" style={styles.link}>Sign In</Link>
         </p>
 
         <LegalFooter />
@@ -134,8 +134,8 @@ function Field({ label, children }) {
 function LegalFooter() {
   return (
     <div style={styles.legalLinks}>
-      <Link to="/terms" style={styles.legalLink}>Conditions</Link>
-      <Link to="/privacy" style={styles.legalLink}>Confidentialité</Link>
+      <Link to="/terms" style={styles.legalLink}>Terms</Link>
+      <Link to="/privacy" style={styles.legalLink}>Privacy</Link>
       <Link to="/disclaimer" style={styles.legalLink}>Disclaimer</Link>
     </div>
   );

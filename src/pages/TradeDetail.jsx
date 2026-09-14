@@ -52,7 +52,7 @@ export default function TradeDetail() {
     async function fetchTrade() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Utilisateur non authentifié.");
+        if (!user) throw new Error("User not authenticated.");
 
         const { data, error } = await supabase
           .from("trades")
@@ -63,7 +63,7 @@ export default function TradeDetail() {
         if (error) throw error;
         setTrade(data);
       } catch {
-        setError("Trade introuvable.");
+        setError("Trade not found.");
       } finally {
         setLoading(false);
       }
@@ -75,7 +75,7 @@ export default function TradeDetail() {
     return (
       <div style={styles.centered}>
         <Activity size={24} color="#3B82F6" />
-        <p style={{ color: "#6B7FA3", margin: 0 }}>Chargement...</p>
+        <p style={{ color: "#6B7FA3", margin: 0 }}>Loading...</p>
       </div>
     );
   }
@@ -84,9 +84,9 @@ export default function TradeDetail() {
     return (
       <div style={styles.centered}>
         <AlertCircle size={24} color="#EF4444" />
-        <p style={{ color: "#EF4444", margin: 0 }}>{error || "Trade introuvable."}</p>
+        <p style={{ color: "#EF4444", margin: 0 }}>{error || "Trade not found."}</p>
         <button onClick={() => navigate("/")} style={styles.backBtn}>
-          <ArrowLeft size={14} /> Retour au Journal
+          <ArrowLeft size={14} /> Back to Journal
         </button>
       </div>
     );
@@ -121,17 +121,21 @@ export default function TradeDetail() {
     : trade.ai_score >= 5 ? "C" : "D";
 
   const emotionColor = {
-    Confiant: "#10B981", Neutre: "#3B82F6",
-    Anxieux: "#F59E0B", FOMO: "#EF4444", Revenge: "#8B5CF6",
+    Confident: "#10B981", Confiant: "#10B981",
+    Calm: "#3B82F6", Neutre: "#3B82F6",
+    Anxious: "#F59E0B", Anxieux: "#F59E0B",
+    FOMO: "#EF4444", "FOMO / Rushed": "#EF4444",
+    Revenge: "#8B5CF6", "Frustrated / Revenge": "#8B5CF6",
+    Bored: "#64748B",
   }[trade.emotion] || "#6B7FA3";
 
   return (
     <div style={styles.page}>
 
-      {/* Bouton retour */}
+      {/* Back button */}
       <button onClick={() => navigate("/")} style={styles.backBtn}>
         <ArrowLeft size={14} />
-        Retour au Journal
+        Back to Journal
       </button>
 
       {/* SECTION 1 — Header */}
@@ -165,17 +169,17 @@ export default function TradeDetail() {
         </div>
 
         <div style={styles.heroRight}>
-          {/* Badge résultat */}
+          {/* Result badge */}
           <div style={{ ...styles.resultBadge, backgroundColor: resultBg, border: `1px solid ${resultColor}44` }}>
             <span style={{ color: resultColor, fontSize: "1.1rem", fontWeight: "800", letterSpacing: "0.05em" }}>
               {resultLabel}
             </span>
           </div>
 
-          {/* Score IA */}
+          {/* AI Score */}
           {trade.ai_score && (
             <div style={styles.scoreBox}>
-              <span style={styles.scoreLabel}>Score IA</span>
+              <span style={styles.scoreLabel}>AI Score</span>
               <span style={{ color: scoreColor, fontSize: "1.4rem", fontWeight: "700" }}>
                 {trade.ai_score}<span style={{ fontSize: "0.75rem", color: "#6B7FA3" }}>/10</span>
               </span>
@@ -187,11 +191,11 @@ export default function TradeDetail() {
         </div>
       </div>
 
-      {/* SECTION 2 — Métriques */}
+      {/* SECTION 2 — Metrics */}
       <div style={styles.metricsGrid}>
         <MetricBox
           icon={<Zap size={14} color="#3B82F6" />}
-          label="Prix d'Entrée"
+          label="Entry Price"
           value={trade.entry}
           color="#E8EDF5"
         />
@@ -224,23 +228,23 @@ export default function TradeDetail() {
         {trade.risk_percent && (
           <MetricBox
             icon={<AlertCircle size={14} color="#F59E0B" />}
-            label="Risque (%)"
+            label="Risk (%)"
             value={`${trade.risk_percent}%`}
             color="#F59E0B"
           />
         )}
       </div>
 
-      {/* SECTION 3 — Analyse IA & Psychologie */}
+      {/* SECTION 3 — Strategy & Psychology */}
       <div style={styles.bottomGrid}>
 
-        {/* Stratégie */}
+        {/* Strategy */}
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardIconWrap}>
               <Zap size={13} color="#3B82F6" />
             </div>
-            <h2 style={styles.cardTitle}>Stratégie & Setup</h2>
+            <h2 style={styles.cardTitle}>Strategy & Setup</h2>
           </div>
 
           {trade.setup && (
@@ -261,7 +265,7 @@ export default function TradeDetail() {
 
           {trade.size && (
             <div style={styles.infoRow}>
-              <span style={styles.infoLabel}>Taille (Lots)</span>
+              <span style={styles.infoLabel}>Position Size (Lots)</span>
               <span style={styles.infoValue}>{trade.size}</span>
             </div>
           )}
@@ -270,7 +274,7 @@ export default function TradeDetail() {
             <div style={styles.notesBox}>
               {analysisType && (
                 <>
-                  <p style={styles.notesLabel}>Type d'Analyse</p>
+                  <p style={styles.notesLabel}>Analysis Type</p>
                   <p style={styles.notesText}>{analysisType}</p>
                 </>
               )}
@@ -284,22 +288,22 @@ export default function TradeDetail() {
           )}
 
           {!trade.setup && !trade.timeframe && !analysisType && !trade.notes && (
-            <p style={styles.emptySection}>Aucune donnée de stratégie renseignée.</p>
+            <p style={styles.emptySection}>No strategy data provided.</p>
           )}
         </div>
 
-        {/* Psychologie */}
+        {/* Psychology */}
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardIconWrap}>
               <Brain size={13} color="#3B82F6" />
             </div>
-            <h2 style={styles.cardTitle}>Psychologie & Mental</h2>
+            <h2 style={styles.cardTitle}>Psychology & Mindset</h2>
           </div>
 
           {trade.emotion ? (
             <>
-              <p style={styles.infoLabel}>Émotion Pré-Trade</p>
+              <p style={styles.infoLabel}>Pre-Trade State</p>
               <div style={{
                 ...styles.emotionBadge,
                 backgroundColor: emotionColor + "15",
@@ -311,23 +315,24 @@ export default function TradeDetail() {
 
               <div style={styles.emotionDesc}>
                 <p style={styles.notesText}>
-                  {trade.emotion === "Confiant" && "État mental optimal — confiance rationnelle basée sur l'analyse."}
-                  {trade.emotion === "Neutre" && "État neutre — absence de biais émotionnel fort."}
-                  {trade.emotion === "Anxieux" && "Présence d'anxiété — vigilance accrue recommandée."}
-                  {trade.emotion === "FOMO" && "Fear Of Missing Out détecté — risque de sur-trading."}
-                  {trade.emotion === "Revenge" && "Trading de revanche — risque élevé de décision impulsive."}
+                  {(trade.emotion === "Confiant" || trade.emotion === "Confident") && "Optimal mental state — rational confidence backed by technical confirmation."}
+                  {(trade.emotion === "Neutre" || trade.emotion === "Calm") && "Neutral state — balanced execution without emotional bias."}
+                  {(trade.emotion === "Anxieux" || trade.emotion === "Anxious") && "Heightened anxiety — strict risk management and patience advised."}
+                  {(trade.emotion === "FOMO" || trade.emotion === "FOMO / Rushed") && "Fear Of Missing Out detected — elevated risk of chasing and overtrading."}
+                  {(trade.emotion === "Revenge" || trade.emotion === "Frustrated / Revenge") && "Revenge trading warning — high probability of impulsive entries."}
+                  {trade.emotion === "Bored" && "Boredom detected — risk of taking low-quality setups."}
                 </p>
               </div>
             </>
           ) : (
-            <p style={styles.emptySection}>Aucune émotion renseignée pour ce trade.</p>
+            <p style={styles.emptySection}>No emotion logged for this trade.</p>
           )}
 
-          {/* Score IA détail */}
+          {/* AI score detail */}
           {trade.ai_score && (
             <div style={styles.scoreDetail}>
               <div style={styles.scoreBar}>
-                <span style={styles.infoLabel}>Score IA global</span>
+                <span style={styles.infoLabel}>Overall AI Score</span>
                 <span style={{ color: scoreColor, fontWeight: "700" }}>{trade.ai_score}/10</span>
               </div>
               <div style={styles.scoreTrack}>
@@ -343,11 +348,11 @@ export default function TradeDetail() {
         </div>
       </div>
 
-      {/* Bouton analyser à nouveau */}
+      {/* Reanalyze button */}
       <div style={styles.ctaRow}>
         <button onClick={() => navigate("/analyse")} style={styles.reanalyzeBtn}>
           <Activity size={14} />
-          Analyser un nouveau trade
+          Audit a new trade
         </button>
       </div>
     </div>

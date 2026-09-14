@@ -4,15 +4,15 @@ import { ThumbsUp, ThumbsDown, MessageSquare, TrendingUp, Filter, Mail, Send } f
 
 const EMAIL_TEST_OPTIONS = [
   { value: "welcome", label: "Welcome" },
-  { value: "premium_activated", label: "Premium Activated" },
+  { value: "premium_activated", label: "Pro Activated" },
   { value: "first_analysis_completed", label: "First Analysis Completed" },
-  { value: "onboarding_day1", label: "J+1 Onboarding" },
+  { value: "onboarding_day1", label: "Day 1 Onboarding" },
   { value: "payment_failed", label: "Payment Failed" },
-  { value: "onboarding_day7", label: "J+7 Onboarding" },
-  { value: "onboarding_day3", label: "J+3 Onboarding" },
-  { value: "onboarding_day5", label: "J+5 Onboarding" },
-  { value: "retention_inactive", label: "Réactivation inactive" },
-  { value: "retention_no_analysis", label: "Réactivation sans analyse" },
+  { value: "onboarding_day7", label: "Day 7 Onboarding" },
+  { value: "onboarding_day3", label: "Day 3 Onboarding" },
+  { value: "onboarding_day5", label: "Day 5 Onboarding" },
+  { value: "retention_inactive", label: "Inactive Retention" },
+  { value: "retention_no_analysis", label: "No Analysis Retention" },
 ];
 
 export default function AdminFeedback() {
@@ -57,19 +57,19 @@ export default function AdminFeedback() {
 
       setEmailStatus({
         type: "success",
-        message: `Email test envoyé à ${result.to}.`,
+        message: `Test email sent to ${result.to}.`,
       });
     } catch (err) {
       setEmailStatus({
         type: "error",
-        message: err.message || "Impossible d'envoyer l'email test.",
+        message: err.message || "Failed to send test email.",
       });
     } finally {
       setEmailSending(false);
     }
   }
 
-  if (loading) return <div style={styles.centered}><p style={{ color: "#6B7FA3" }}>Chargement...</p></div>;
+  if (loading) return <div style={styles.centered}><p style={{ color: "#6B7FA3" }}>Loading...</p></div>;
 
   const { stats, feedbacks } = data || {};
 
@@ -77,28 +77,28 @@ export default function AdminFeedback() {
     <div style={styles.page}>
       <div style={styles.header}>
         <h1 style={styles.title}>AI Feedback Dashboard</h1>
-        <p style={styles.subtitle}>Retours utilisateurs sur les analyses IA</p>
+        <p style={styles.subtitle}>User feedback on AI trade audits</p>
       </div>
 
       {/* Stats */}
       <div style={styles.statsGrid}>
         <StatCard icon={<MessageSquare size={16} color="#3B82F6" />} label="Total Feedbacks" value={stats?.total || 0} color="#3B82F6" />
         <StatCard icon={<TrendingUp size={16} color="#10B981" />} label="Satisfaction Rate" value={`${stats?.satisfaction_rate || 0}%`} color={parseFloat(stats?.satisfaction_rate) >= 70 ? "#10B981" : "#F59E0B"} />
-        <StatCard icon={<ThumbsUp size={16} color="#10B981" />} label="Positifs" value={stats?.positive || 0} color="#10B981" />
-        <StatCard icon={<ThumbsDown size={16} color="#EF4444" />} label="Négatifs" value={stats?.negative || 0} color="#EF4444" />
+        <StatCard icon={<ThumbsUp size={16} color="#10B981" />} label="Positive" value={stats?.positive || 0} color="#10B981" />
+        <StatCard icon={<ThumbsDown size={16} color="#EF4444" />} label="Negative" value={stats?.negative || 0} color="#EF4444" />
       </div>
 
       {/* Filtres */}
       <div style={styles.filtersBar}>
         <Filter size={14} color="#6B7FA3" />
         <select style={styles.select} value={filters.plan} onChange={(e) => setFilters((p) => ({ ...p, plan: e.target.value }))}>
-          <option value="">Tous les plans</option>
+          <option value="">All plans</option>
           <option value="free">Free</option>
-          <option value="premium">Premium</option>
+          <option value="premium">Pro</option>
         </select>
-        <input style={styles.dateInput} type="date" value={filters.from} onChange={(e) => setFilters((p) => ({ ...p, from: e.target.value }))} placeholder="Depuis" />
-        <input style={styles.dateInput} type="date" value={filters.to} onChange={(e) => setFilters((p) => ({ ...p, to: e.target.value }))} placeholder="Jusqu'à" />
-        <button onClick={loadFeedback} style={styles.filterBtn}>Filtrer</button>
+        <input style={styles.dateInput} type="date" value={filters.from} onChange={(e) => setFilters((p) => ({ ...p, from: e.target.value }))} placeholder="From" />
+        <input style={styles.dateInput} type="date" value={filters.to} onChange={(e) => setFilters((p) => ({ ...p, to: e.target.value }))} placeholder="To" />
+        <button onClick={loadFeedback} style={styles.filterBtn}>Filter</button>
       </div>
 
       <div style={styles.emailTestCard}>
@@ -106,8 +106,8 @@ export default function AdminFeedback() {
           <div style={styles.emailTestTitleWrap}>
             <Mail size={16} color="#3B82F6" />
             <div>
-              <h2 style={styles.sectionTitle}>Test email</h2>
-              <p style={styles.emailTestSubtitle}>Envoyer un template réel vers votre boîte admin ou une adresse de test.</p>
+              <h2 style={styles.sectionTitle}>Email Testing</h2>
+              <p style={styles.emailTestSubtitle}>Send a live email template to your admin inbox or test address.</p>
             </div>
           </div>
           {emailStatus && (
@@ -136,7 +136,7 @@ export default function AdminFeedback() {
             type="email"
             value={emailTest.to}
             onChange={(e) => setEmailTest((current) => ({ ...current, to: e.target.value }))}
-            placeholder="Adresse optionnelle, sinon email admin"
+            placeholder="Optional address, defaults to admin email"
           />
           <button onClick={sendEmailTest} disabled={emailSending} style={{
             ...styles.emailSendBtn,
@@ -144,16 +144,16 @@ export default function AdminFeedback() {
             cursor: emailSending ? "not-allowed" : "pointer",
           }}>
             <Send size={14} />
-            {emailSending ? "Envoi..." : "Envoyer un test"}
+            {emailSending ? "Sending..." : "Send Test"}
           </button>
         </div>
       </div>
 
       {/* Liste feedbacks */}
       <div style={styles.feedbackList}>
-        <h2 style={styles.sectionTitle}>Commentaires récents</h2>
+        <h2 style={styles.sectionTitle}>Recent Feedback</h2>
         {feedbacks?.length === 0 && (
-          <p style={{ color: "#3B4B6B", fontSize: "0.85rem" }}>Aucun feedback pour l'instant.</p>
+          <p style={{ color: "#3B4B6B", fontSize: "0.85rem" }}>No feedback yet.</p>
         )}
         {feedbacks?.map((fb) => (
           <div key={fb.id} style={styles.feedbackCard}>
@@ -164,24 +164,24 @@ export default function AdminFeedback() {
                   backgroundColor: fb.rating === "positive" ? "#064E3B" : "#450A0A",
                   color: fb.rating === "positive" ? "#10B981" : "#EF4444",
                 }}>
-                  {fb.rating === "positive" ? "👍 Positif" : "👎 Négatif"}
+                  {fb.rating === "positive" ? "👍 Positive" : "👎 Negative"}
                 </span>
                 {fb.pair && <span style={styles.pairTag}>{fb.pair}</span>}
                 {fb.ai_score && <span style={styles.scoreTag}>Score: {fb.ai_score}/10</span>}
                 {fb.plan && <span style={styles.planTag}>{fb.plan.toUpperCase()}</span>}
               </div>
-              <span style={styles.date}>{new Date(fb.created_at).toLocaleDateString("fr-FR")}</span>
+              <span style={styles.date}>{new Date(fb.created_at).toLocaleDateString("en-US")}</span>
             </div>
 
             {fb.what_was_useful && (
               <div style={styles.commentBlock}>
-                <span style={styles.commentLabel}>Ce qui était utile</span>
+                <span style={styles.commentLabel}>What was useful</span>
                 <p style={styles.commentText}>{fb.what_was_useful}</p>
               </div>
             )}
             {fb.what_was_missing && (
               <div style={styles.commentBlock}>
-                <span style={styles.commentLabel}>Ce qui manquait</span>
+                <span style={styles.commentLabel}>What was missing</span>
                 <p style={styles.commentText}>{fb.what_was_missing}</p>
               </div>
             )}
@@ -192,7 +192,7 @@ export default function AdminFeedback() {
               </div>
             )}
             {!fb.what_was_useful && !fb.what_was_missing && !fb.suggestions && (
-              <p style={{ color: "#3B4B6B", fontSize: "0.78rem", margin: "8px 0 0 0", fontStyle: "italic" }}>Aucun commentaire</p>
+              <p style={{ color: "#3B4B6B", fontSize: "0.78rem", margin: "8px 0 0 0", fontStyle: "italic" }}>No comments provided</p>
             )}
           </div>
         ))}

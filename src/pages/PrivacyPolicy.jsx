@@ -7,71 +7,71 @@ export default function PrivacyPolicy() {
   return (
     <div style={styles.page}>
       <button onClick={() => navigate(-1)} style={styles.back}>
-        <ArrowLeft size={14} /> Retour
+        <ArrowLeft size={14} /> Back
       </button>
 
       <div style={styles.header}>
         <Lock size={28} color="#3B82F6" />
-        <h1 style={styles.title}>Politique de Confidentialité</h1>
-        <p style={styles.date}>Dernière mise à jour : Mai 2025</p>
+        <h1 style={styles.title}>Privacy Policy</h1>
+        <p style={styles.date}>Last updated: May 2025</p>
       </div>
 
       <div style={styles.content}>
-        <Section title="1. Données collectées">
-          <p>Nous collectons uniquement les données nécessaires au fonctionnement du service :</p>
+        <Section title="1. Data Collected">
+          <p>We only collect data strictly necessary to provide and operate the service:</p>
           <ul>
-            <li><strong>Données de compte :</strong> email, mot de passe (chiffré)</li>
-            <li><strong>Données de trading :</strong> trades, notes, analyses que vous saisissez</li>
-            <li><strong>Données de paiement :</strong> gérées exclusivement par Stripe (nous ne stockons pas vos données bancaires)</li>
-            <li><strong>Données d'utilisation :</strong> nombre d'analyses effectuées</li>
+            <li><strong>Account data:</strong> email address, encrypted credentials</li>
+            <li><strong>Trading data:</strong> logged trades, entry/exit prices, notes, setups, and reflections</li>
+            <li><strong>Payment data:</strong> managed exclusively by Stripe (we never store banking or card details)</li>
+            <li><strong>Usage data:</strong> audit counters, feature interaction telemetry</li>
           </ul>
         </Section>
 
-        <Section title="2. Utilisation des données">
-          <p>Vos données sont utilisées exclusivement pour :</p>
+        <Section title="2. Use of Data">
+          <p>Your data is used exclusively to:</p>
           <ul>
-            <li>Fournir les fonctionnalités de MySmartJournal</li>
-            <li>Générer des analyses IA personnalisées</li>
-            <li>Gérer votre abonnement</li>
-            <li>Améliorer nos services (données anonymisées uniquement)</li>
+            <li>Deliver core MySmartJournal logging and journal features</li>
+            <li>Generate contextual AI trade audits and performance feedback</li>
+            <li>Manage account access and subscription status</li>
+            <li>Maintain platform reliability and security (anonymized telemetry only)</li>
           </ul>
-          <p><strong>Nous ne vendons jamais vos données à des tiers.</strong></p>
+          <p><strong>We never sell or rent your personal or trading data to third parties.</strong></p>
         </Section>
 
-        <Section title="3. Stockage et sécurité">
-          <p>Vos données sont stockées de manière sécurisée via Supabase (infrastructure PostgreSQL). Nous appliquons :</p>
+        <Section title="3. Storage and Security">
+          <p>Your data is securely stored via Supabase on encrypted cloud infrastructure (PostgreSQL). We enforce:</p>
           <ul>
-            <li>Chiffrement des données en transit (HTTPS/TLS)</li>
-            <li>Row Level Security (RLS) — chaque utilisateur n'accède qu'à ses propres données</li>
-            <li>Authentification sécurisée via Supabase Auth</li>
-          </ul>
-        </Section>
-
-        <Section title="4. Services tiers">
-          <ul>
-            <li><strong>Supabase :</strong> base de données et authentification</li>
-            <li><strong>Stripe :</strong> traitement des paiements</li>
-            <li><strong>OpenAI :</strong> analyses IA (vos données de trade sont envoyées pour analyse)</li>
+            <li>Encryption in transit via HTTPS / TLS 1.3</li>
+            <li>Strict Row Level Security (RLS) — each trader can only read and write their own data</li>
+            <li>Secure session token authentication via Supabase Auth</li>
           </ul>
         </Section>
 
-        <Section title="5. Vos droits (RGPD)">
-          <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+        <Section title="4. Third-Party Services">
           <ul>
-            <li><strong>Droit d'accès :</strong> obtenir une copie de vos données</li>
-            <li><strong>Droit de rectification :</strong> corriger vos données</li>
-            <li><strong>Droit à l'effacement :</strong> supprimer votre compte et toutes vos données</li>
-            <li><strong>Droit à la portabilité :</strong> exporter vos données</li>
+            <li><strong>Supabase:</strong> database hosting and authentication</li>
+            <li><strong>Stripe:</strong> secure subscription and payment processing</li>
+            <li><strong>AI Providers (OpenAI / Anthropic):</strong> contextual trade analysis processing</li>
           </ul>
-          <p>Pour exercer ces droits : support@mysmartjournal.com</p>
         </Section>
 
-        <Section title="6. Cookies">
-          <p>Nous utilisons uniquement des cookies techniques nécessaires au fonctionnement du service (session d'authentification). Aucun cookie publicitaire ou de tracking.</p>
+        <Section title="5. Your Rights (GDPR & CCPA)">
+          <p>In accordance with data protection regulations, you hold the following rights:</p>
+          <ul>
+            <li><strong>Right of access:</strong> request an export or copy of your personal data</li>
+            <li><strong>Right to rectification:</strong> modify and correct your data at any time</li>
+            <li><strong>Right to erasure:</strong> permanently delete your account and all associated trades</li>
+            <li><strong>Right to portability:</strong> export your trade records</li>
+          </ul>
+          <p>To exercise any of these rights: support@mysmartjournal.com</p>
         </Section>
 
-        <Section title="7. Contact DPO">
-          <p>Délégué à la Protection des Données : dpo@mysmartjournal.com</p>
+        <Section title="6. Cookies & Tracking">
+          <p>We strictly use essential cookies required for session persistence and authentication. We do not use third-party tracking or advertising ad-tech cookies.</p>
+        </Section>
+
+        <Section title="7. Data Protection Officer">
+          <p>Data Protection contact: dpo@mysmartjournal.com</p>
         </Section>
       </div>
     </div>

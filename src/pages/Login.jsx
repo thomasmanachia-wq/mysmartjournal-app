@@ -32,7 +32,7 @@ export default function Login() {
     setError(null);
     setResetStatus(null);
     if (!email) {
-      setError("Renseignez votre email pour recevoir le lien de réinitialisation.");
+      setError("Please enter your email to receive a password reset link.");
       return;
     }
     try {
@@ -40,7 +40,7 @@ export default function Login() {
         redirectTo: `${window.location.origin}/settings?section=compte`,
       });
       if (error) throw error;
-      setResetStatus("Lien de réinitialisation envoyé.");
+      setResetStatus("Password reset link sent to your email.");
     } catch (err) {
       setError(err.message);
     }
@@ -52,22 +52,22 @@ export default function Login() {
         {/* Logo */}
         <img src={logo} alt="Logo" style={{ display: "block", margin: "0 auto 24px auto", height: "65px", width: "auto" }} />
 
-        <h1 style={styles.title}>Bon retour parmi nous</h1>
-        <p style={styles.subtitle}>Connectez-vous à votre espace MySmartJournal</p>
+        <h1 style={styles.title}>Welcome Back</h1>
+        <p style={styles.subtitle}>Sign in to your MySmartJournal account</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          <Field label="Email">
+          <Field label="Email address">
             <input
               style={styles.input}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="nom@exemple.com"
+              placeholder="name@example.com"
               required
             />
           </Field>
 
-          <Field label="Mot de passe">
+          <Field label="Password">
             <input
               style={styles.input}
               type="password"
@@ -78,7 +78,7 @@ export default function Login() {
             />
             <div style={styles.forgotRow}>
               <button type="button" onClick={handleForgotPassword} style={styles.forgot}>
-                Mot de passe oublié ?
+                Forgot password?
               </button>
             </div>
           </Field>
@@ -90,25 +90,25 @@ export default function Login() {
               onChange={(e) => setRemember(e.target.checked)}
               style={styles.checkbox}
             />
-            <span style={styles.checkLabel}>Se souvenir de moi</span>
+            <span style={styles.checkLabel}>Remember me</span>
           </label>
 
           {error && <p style={styles.error}>{error}</p>}
           {resetStatus && <p style={styles.success}>{resetStatus}</p>}
 
           <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? "Connexion..." : "Se connecter"}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <p style={styles.switchText}>
-          Pas encore de compte ?{" "}
-          <Link to="/signup" style={styles.link}>Créer un compte</Link>
+          Don't have an account?{" "}
+          <Link to="/signup" style={styles.link}>Create an Account</Link>
         </p>
 
         <LegalFooter />
 
-        <p style={styles.footer}>© 2025 MySmartJournal. Tous droits réservés.</p>
+        <p style={styles.footer}>© 2025 MySmartJournal. All rights reserved.</p>
       </div>
     </div>
   );
@@ -117,8 +117,8 @@ export default function Login() {
 function LegalFooter() {
   return (
     <div style={styles.legalLinks}>
-      <Link to="/terms" style={styles.legalLink}>Conditions</Link>
-      <Link to="/privacy" style={styles.legalLink}>Confidentialité</Link>
+      <Link to="/terms" style={styles.legalLink}>Terms</Link>
+      <Link to="/privacy" style={styles.legalLink}>Privacy</Link>
       <Link to="/disclaimer" style={styles.legalLink}>Disclaimer</Link>
     </div>
   );

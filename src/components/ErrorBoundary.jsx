@@ -27,27 +27,27 @@ class ErrorBoundaryClass extends Component {
             <div style={styles.iconWrap}>
               <AlertTriangle size={32} color="#F59E0B" />
             </div>
-            <h1 style={styles.title}>Une erreur est survenue</h1>
+            <h1 style={styles.title}>Something went wrong</h1>
             <p style={styles.desc}>
-              Notre équipe a été automatiquement notifiée et travaille à résoudre le problème.
-              Vous pouvez rafraîchir la page ou retourner à l'accueil.
+              Our team has been automatically notified and is looking into the issue.
+              You can refresh the page or return to the home screen.
             </p>
             {this.state.eventId && (
-              <p style={styles.eventId}>Référence : {this.state.eventId}</p>
+              <p style={styles.eventId}>Reference ID: {this.state.eventId}</p>
             )}
             <div style={styles.actions}>
               <button onClick={() => window.location.reload()} style={styles.primaryBtn}>
-                <RefreshCw size={14} /> Rafraîchir la page
+                <RefreshCw size={14} /> Refresh Page
               </button>
               <button onClick={() => window.location.href = "/"} style={styles.secondaryBtn}>
-                <Home size={14} /> Retour à l'accueil
+                <Home size={14} /> Back to Home
               </button>
             </div>
             <button
               onClick={() => Sentry.showReportDialog({ eventId: this.state.eventId })}
               style={styles.reportBtn}
             >
-              Signaler ce problème
+              Report this issue
             </button>
           </div>
         </div>
@@ -66,17 +66,17 @@ export default Sentry.withErrorBoundary(ErrorBoundaryClass, {
         <div style={styles.iconWrap}>
           <AlertTriangle size={32} color="#F59E0B" />
         </div>
-        <h1 style={styles.title}>Une erreur est survenue</h1>
+        <h1 style={styles.title}>Something went wrong</h1>
         <p style={styles.desc}>
-          Notre équipe a été automatiquement notifiée.
-          Vous pouvez réessayer ou retourner à l'accueil.
+          Our team has been automatically notified.
+          You can retry or return to the home screen.
         </p>
         <div style={styles.actions}>
           <button onClick={resetError} style={styles.primaryBtn}>
-            <RefreshCw size={14} /> Réessayer
+            <RefreshCw size={14} /> Try Again
           </button>
           <button onClick={() => window.location.href = "/"} style={styles.secondaryBtn}>
-            <Home size={14} /> Retour à l'accueil
+            <Home size={14} /> Back to Home
           </button>
         </div>
       </div>
@@ -92,10 +92,10 @@ export function SectionErrorBoundary({ children, fallback }) {
         <div style={styles.sectionError}>
           <AlertTriangle size={16} color="#F59E0B" />
           <span style={{ color: "#6B7FA3", fontSize: "0.85rem" }}>
-            Cette section a rencontré une erreur.
+            This section encountered an error.
           </span>
           <button onClick={() => window.location.reload()} style={styles.smallBtn}>
-            Rafraîchir
+            Refresh
           </button>
         </div>
       )}
