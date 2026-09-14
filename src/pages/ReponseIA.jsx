@@ -32,10 +32,10 @@ export default function ReponseIA() {
     return (
       <div style={styles.errorPage}>
         <AlertCircle size={32} color="#EF4444" />
-        <h2 style={{ color: "#E8EDF5", margin: 0 }}>Erreur d'analyse</h2>
+        <h2 style={{ color: "#E8EDF5", margin: 0 }}>Analysis Error</h2>
         <p style={{ color: "#6B7FA3" }}>{aiData.error}</p>
         <button onClick={() => navigate("/analyse")} style={styles.backBtn}>
-          <ArrowLeft size={13} /> Réessayer
+          <ArrowLeft size={13} /> Retry
         </button>
       </div>
     );
@@ -51,7 +51,7 @@ export default function ReponseIA() {
       setup_quality: Number(rawScore.setup_quality ?? rawScore.execution) || 0,
       risk_management: Number(rawScore.risk_management ?? rawScore.discipline) || 0,
     },
-    verdict: aiData.verdict || "Analyse non disponible.",
+    verdict: aiData.verdict || "Analysis unavailable.",
 
     main_mistake: aiData.main_mistake || null,
     breakdown: aiData.breakdown || {},
@@ -65,7 +65,7 @@ export default function ReponseIA() {
 
   const overall = safe.score.overall;
   const scoreColor = overall >= 7 ? "#10B981" : overall >= 4 ? "#F59E0B" : "#EF4444";
-  const scoreLabel = overall >= 7 ? "BON TRADE" : overall >= 4 ? "ACCEPTABLE" : "À ÉVITER";
+  const scoreLabel = overall >= 7 ? "SOLID TRADE" : overall >= 4 ? "ACCEPTABLE" : "HIGH RISK";
   const hasLongTermProgress = Boolean(safe.recurring_pattern || safe.progress_note);
 
   const rr = (() => {
@@ -184,7 +184,7 @@ export default function ReponseIA() {
       }, 1200);
     } catch (err) {
       analytics.errorOccurred("import_trade", err.message);
-      setImportError("Erreur lors de l'import. Réessayez.");
+      setImportError("Error logging trade. Please try again.");
     } finally {
       setImporting(false);
     }
@@ -194,7 +194,7 @@ export default function ReponseIA() {
   return (
     <div style={styles.page}>
       <button onClick={() => navigate("/analyse")} style={styles.backBtn}>
-        <ArrowLeft size={13} /> Modifier le trade
+        <ArrowLeft size={13} /> Edit Trade
       </button>
 
       {/* HERO SCORE */}
@@ -220,27 +220,27 @@ export default function ReponseIA() {
             </div>
           )}
           <div style={styles.subscores}>
-            <ScoreBar label="Setup" value={safe.score.setup_quality} icon={<Zap size={11} color="#6B7FA3" />} />
-            <ScoreBar label="Risk Mgmt" value={safe.score.risk_management} icon={<ShieldCheck size={11} color="#6B7FA3" />} />
-            <ScoreBar label="Psychologie" value={safe.score.psychology} icon={<Brain size={11} color="#6B7FA3" />} />
+            <ScoreBar label="Discipline" value={safe.score.discipline} icon={<ShieldCheck size={11} color="#6B7FA3" />} />
+            <ScoreBar label="Psychology" value={safe.score.psychology} icon={<Brain size={11} color="#6B7FA3" />} />
+            <ScoreBar label="Execution" value={safe.score.execution} icon={<Zap size={11} color="#6B7FA3" />} />
           </div>
         </div>
 
         <div style={styles.tradeSummary}>
-          <p style={styles.summaryTitle}>Trade</p>
-          <SummaryRow label="Paire" value={form.pair?.toUpperCase()} />
+          <p style={styles.summaryTitle}>Trade Summary</p>
+          <SummaryRow label="Pair / Asset" value={form.pair?.toUpperCase()} />
           <SummaryRow label="Direction" value={form.direction === "long" ? "LONG" : "SHORT"} valueColor={form.direction === "long" ? "#10B981" : "#EF4444"} />
           <SummaryRow label="R:R" value={`1:${rr}`} valueColor="#6366F1" />
-          {form.emotion && <SummaryRow label="Émotion" value={form.emotion} />}
+          {form.emotion && <SummaryRow label="Pre-trade State" value={form.emotion} />}
         </div>
       </div>
 
       {/* BREAKDOWN */}
-      <SectionTitle icon={<Activity size={13} color="#6B7FA3" />} label="Analyse détaillée" />
+      <SectionTitle icon={<Activity size={13} color="#6B7FA3" />} label="Score Breakdown" />
       <div style={styles.breakdownGrid}>
-        <BreakdownCard icon={<Zap size={14} color="#3B82F6" />} label="Setup" text={safe.breakdown.setup} score={safe.score.setup_quality} />
-        <BreakdownCard icon={<ShieldCheck size={14} color="#3B82F6" />} label="Risk Management" text={safe.breakdown.risk_management} score={safe.score.risk_management} />
-        <BreakdownCard icon={<Brain size={14} color="#3B82F6" />} label="Psychologie" text={safe.breakdown.psychology} score={safe.score.psychology} />
+        <BreakdownCard icon={<ShieldCheck size={14} color="#3B82F6" />} label="Discipline" text={safe.breakdown.risk_management} score={safe.score.discipline} />
+        <BreakdownCard icon={<Brain size={14} color="#3B82F6" />} label="Psychology" text={safe.breakdown.psychology} score={safe.score.psychology} />
+        <BreakdownCard icon={<Zap size={14} color="#3B82F6" />} label="Execution" text={safe.breakdown.setup} score={safe.score.execution} />
       </div>
 
       {/* MISTAKES + STRENGTHS */}
@@ -248,10 +248,10 @@ export default function ReponseIA() {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <XCircle size={14} color="#EF4444" />
-            <h3 style={styles.cardTitle}>Erreurs identifiées</h3>
+            <h3 style={styles.cardTitle}>Identified Leaks</h3>
           </div>
           {safe.mistakes.length === 0
-            ? <p style={styles.emptyText}>Aucune erreur majeure détectée.</p>
+            ? <p style={styles.emptyText}>No major leaks identified.</p>
             : safe.mistakes.map((m, i) => (
               <div key={i} style={styles.listItem}>
                 <div style={{ ...styles.listDot, backgroundColor: "#EF444422", border: "1px solid #EF444433" }}>
@@ -264,10 +264,10 @@ export default function ReponseIA() {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <CheckCircle size={14} color="#10B981" />
-            <h3 style={styles.cardTitle}>Points forts</h3>
+            <h3 style={styles.cardTitle}>Strengths</h3>
           </div>
           {safe.strengths.length === 0
-            ? <p style={styles.emptyText}>Aucun point fort identifié.</p>
+            ? <p style={styles.emptyText}>No specific strengths highlighted.</p>
             : safe.strengths.map((s, i) => (
               <div key={i} style={styles.listItem}>
                 <div style={{ ...styles.listDot, backgroundColor: "#10B98122", border: "1px solid #10B98133" }}>
@@ -282,7 +282,7 @@ export default function ReponseIA() {
       {/* ACTION PLAN */}
       {safe.action_plan.length > 0 && (
         <>
-          <SectionTitle icon={<Target size={13} color="#6B7FA3" />} label="Plan d'action" />
+          <SectionTitle icon={<Target size={13} color="#6B7FA3" />} label="Action Plan" />
           <div style={styles.card}>
             {safe.action_plan.map((action, i) => (
               <div key={i} style={styles.actionItem}>
@@ -298,18 +298,18 @@ export default function ReponseIA() {
       {/* LONG-TERM PROGRESS */}
       {hasLongTermProgress && (
         <>
-          <SectionTitle icon={<Activity size={13} color="#6B7FA3" />} label="Progression long terme" />
+          <SectionTitle icon={<Activity size={13} color="#6B7FA3" />} label="Long-Term Progress" />
           <div style={styles.progressCard}>
             {safe.recurring_pattern && (
               <ProgressInsight
-                label="Pattern récurrent"
+                label="Recurring Pattern"
                 text={safe.recurring_pattern}
                 color="#F59E0B"
               />
             )}
             {safe.progress_note && (
               <ProgressInsight
-                label="Note de progression"
+                label="Progress Note"
                 text={safe.progress_note}
                 color="#8B5CF6"
               />
@@ -321,15 +321,15 @@ export default function ReponseIA() {
       {/* REFLECTION QUESTIONS */}
       {safe.reflection_questions.length > 0 && (
         <>
-          <SectionTitle icon={<BookOpen size={13} color="#6B7FA3" />} label="Questions de réflexion" note="(Facultatif)" />
+          <SectionTitle icon={<BookOpen size={13} color="#6B7FA3" />} label="Post-Trade Review" note="(Optional)" />
           <div style={styles.card}>
-            <p style={styles.reflectionIntro}>Ces questions sont facultatives mais vous aident à conscientiser vos forces et axes de progrès. Vous pouvez y répondre librement ou enregistrer directement votre trade ci-dessous.</p>
+            <p style={styles.reflectionIntro}>These self-audit questions are optional but designed to build self-awareness and reinforce institutional habits. You may answer them or log your trade directly below.</p>
             {safe.reflection_questions.map((q, i) => (
               <div key={i} style={styles.questionBlock}>
                 <p style={styles.questionText}>{i + 1}. {q}</p>
                 <textarea
                   style={{ ...styles.textarea, borderColor: (reflections[i] || "").trim().length > 10 ? "#10B98155" : "#1E2D45" }}
-                  placeholder="Votre réflexion (facultatif)..."
+                  placeholder="Your reflection (optional)..."
                   value={reflections[i] || ""}
                   onChange={(e) => setReflections((prev) => ({ ...prev, [i]: e.target.value }))}
                   rows={3}
@@ -337,7 +337,7 @@ export default function ReponseIA() {
                 {(reflections[i] || "").trim().length > 10 && (
                   <div style={styles.answered}>
                     <CheckCircle size={11} color="#10B981" />
-                    <span style={{ color: "#10B981", fontSize: "0.72rem" }}>Répondu</span>
+                    <span style={{ color: "#10B981", fontSize: "0.72rem" }}>Answered</span>
                   </div>
                 )}
               </div>
@@ -361,10 +361,10 @@ export default function ReponseIA() {
           }}
         >
           {importDone
-            ? <><CheckCircle size={15} /> Trade enregistré ! Redirection vers le journal...</>
+            ? <><CheckCircle size={15} /> ✓ Trade Logged Successfully! Redirecting...</>
             : importing
-            ? <><Activity size={15} /> Enregistrement en cours...</>
-            : <><BookOpen size={15} /> Enregistrer dans mon journal</>
+            ? <><Activity size={15} /> Logging trade...</>
+            : <><BookOpen size={15} /> Log to Journal</>
           }
         </button>
 
@@ -380,7 +380,7 @@ export default function ReponseIA() {
               onClick={() => navigate("/")}
               style={styles.goToJournalBtn}
             >
-              Voir mon journal immédiatement →
+              Go to Journal Now →
             </button>
           </>
         )}

@@ -676,7 +676,7 @@ function detectPatterns(notes, aiAnalysis) {
   if (text.includes("revenge") || text.includes("revanche") || text.includes("rattraper") || text.includes("make back") || text.includes("tilt")) patterns.push("revenge_trading");
   if (text.includes("entrée tardive") || text.includes("late entry") || text.includes("trop tard") || text.includes("delayed entry") || text.includes("entered late")) patterns.push("late_entry");
   if (text.includes("anxieux") || text.includes("stress") || text.includes("anxiety") || text.includes("nervous") || text.includes("fear")) patterns.push("anxiety");
-  if (text.includes("impatien") || text.includes("rushed") || text.includes("précipitation") || text.includes("early entry")) patterns.push("impatience");
+  if (text.includes("impatien") || text.includes("rushed") || text.includes("précipitation") || text.includes("early entry") || text.includes("bored")) patterns.push("impatience");
   if (text.includes("stop") && (text.includes("trop proche") || text.includes("mauvais") || text.includes("tight") || text.includes("no stop") || text.includes("wide") || text.includes("moved") || text.includes("bad"))) patterns.push("bad_stop");
 
   return patterns;
@@ -690,7 +690,7 @@ async function updateUserProfile(userId, { aiScore, disciplineScore, psychologyS
     const total = (profile.total_trades_analyzed || 0) + 1;
     const newAvgScore = ((profile.avg_ai_score || 0) * (total - 1) + (aiScore || 0)) / total;
     const curDiscipline = disciplineScore != null ? disciplineScore : (aiScore >= 7 ? 8 : aiScore >= 4 ? 5 : 2);
-    const curPsychology = psychologyScore != null ? psychologyScore : (["Confiant", "Neutre", "Confident", "Neutral"].includes(emotion) ? 8 : 3);
+    const curPsychology = psychologyScore != null ? psychologyScore : (["Confiant", "Neutre", "Confident", "Neutral", "Calm"].includes(emotion) ? 8 : 3);
     const curExecution = executionScore != null ? executionScore : (aiScore || 5);
     const newDiscipline = ((profile.discipline_score || 0) * (total - 1) + curDiscipline) / total;
     const newPsychology = ((profile.psychology_score || 0) * (total - 1) + curPsychology) / total;

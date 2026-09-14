@@ -11,7 +11,7 @@ import {
   Plus, X, ChevronDown
 } from "lucide-react";
 
-const EMOTIONS = ["Confiant", "Neutre", "Anxieux", "FOMO", "Revenge"];
+const EMOTIONS = ["Confident", "Calm", "FOMO / Rushed", "Anxious", "Frustrated / Revenge", "Bored"];
 const USER_PREFS_KEY = "analysis_preferences";
 const ANALYSIS_DRAFT_KEY = "msj_analysis_draft_v1";
 const ANALYSIS_PREFS_STORAGE_KEY = "msj_analysis_preferences_v1";
@@ -20,8 +20,8 @@ const MARKETS = [
   { value: "forex", label: "Forex" },
   { value: "crypto", label: "Crypto" },
   { value: "indices", label: "Indices" },
-  { value: "actions", label: "Actions" },
-  { value: "commodities", label: "Matières premières" },
+  { value: "actions", label: "Stocks" },
+  { value: "commodities", label: "Commodities" },
 ];
 
 const DEFAULT_INSTRUMENTS = {
@@ -32,7 +32,7 @@ const DEFAULT_INSTRUMENTS = {
   commodities: ["XAUUSD", "XAGUSD", "WTI", "BRENT"],
 };
 
-const DEFAULT_ANALYSIS_TYPES = ["SMC", "ICT", "Price Action", "Supply & Demand", "Wyckoff", "Volume Profile"];
+const DEFAULT_ANALYSIS_TYPES = ["Technical", "Fundamental", "Both", "SMC", "ICT", "Price Action", "Supply & Demand"];
 const STANDARD_TIMEFRAMES = ["M1", "M5", "M15", "H1", "H4", "D1"];
 
 
@@ -136,11 +136,11 @@ function writeStoredAnalysisPrefs(userId, prefs) {
 }
 
 function getAnalysisErrorMessage(error) {
-  if (error?.status === 401) return "Session expirée. Reconnecte-toi puis relance l'analyse.";
-  if (error?.status === 403) return "Accès refusé. Vérifie ton compte puis réessaie.";
-  if (error?.status === 429) return error.message || "Trop de requêtes. Attends quelques instants puis réessaie.";
-  if (error?.status >= 500) return "Le service d'analyse IA est momentanément indisponible. Réessaie dans quelques instants.";
-  return error?.message || "Erreur lors de l'analyse. Réessaie dans quelques instants.";
+  if (error?.status === 401) return "Session expired. Please log in again to run analysis.";
+  if (error?.status === 403) return "Access denied. Please verify your account.";
+  if (error?.status === 429) return error.message || "Too many requests. Please wait a few moments and retry.";
+  if (error?.status >= 500) return "The AI risk audit service is temporarily unavailable. Please retry in a few moments.";
+  return error?.message || "Error running risk audit. Please retry in a few moments.";
 }
 
 export default function Analyse() {
@@ -409,14 +409,14 @@ export default function Analyse() {
 
 
     const analysisContext = [
-      marketLabel && `Marché: ${marketLabel}`,
+      marketLabel && `Market: ${marketLabel}`,
       form.timeframe && `Timeframe: ${form.timeframe}`,
       form.setup && `Setup: ${form.setup}`,
-      form.analysisType && `Type d'analyse: ${form.analysisType}`,
-      form.emotion && `Émotion pré-trade: ${form.emotion}`,
-      form.size && `Taille: ${form.size}`,
-      form.exitPrice && `Prix de sortie: ${form.exitPrice}`,
-      form.notes && `Notes: ${form.notes}`,
+      form.analysisType && `Analysis Type: ${form.analysisType}`,
+      form.emotion && `Pre-trade State: ${form.emotion}`,
+      form.size && `Position Size: ${form.size}`,
+      form.exitPrice && `Exit Price: ${form.exitPrice}`,
+      form.notes && `Trade Context & Thesis: ${form.notes}`,
     ].filter(Boolean).join("\n");
     try {
       const data = await apiFetch("/api/analyzeTrade", {
@@ -486,14 +486,14 @@ export default function Analyse() {
   return (
     <div style={styles.page}>
       <div style={styles.hero}>
-        <h1 style={styles.heroTitle}>La maîtrise commence par la clarté.</h1>
-        <p style={styles.heroSub}>Renseigne ton trade, l'IA s'occupe du reste.</p>
+        <h1 style={styles.heroTitle}>Mastery begins with clarity.</h1>
+        <p style={styles.heroSub}>Log your trade parameters. The AI handles the risk audit.</p>
       </div>
 
       {rr && (
         <div style={styles.rrBanner}>
           <Activity size={13} color="#3B82F6" />
-          <span style={styles.rrText}>R:R calculé en temps réel</span>
+          <span style={styles.rrText}>Real-time R:R calculation</span>
           <span style={{ ...styles.rrValue, color: rr >= 2 ? "#10B981" : rr >= 1 ? "#F59E0B" : "#EF4444" }}>1:{rr}</span>
         </div>
       )}
@@ -503,11 +503,11 @@ export default function Analyse() {
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardIconWrap}><DollarSign size={13} color="#3B82F6" /></div>
-              <h2 style={styles.cardTitle}>Données du Marché</h2>
+              <h2 style={styles.cardTitle}>Market & Asset</h2>
             </div>
             <div style={styles.fieldsGrid2}>
-              <Field label="Date du Trade"><input style={inputStyle("date")} type="date" name="date" value={form.date} onChange={handleChange} {...fp("date")} /></Field>
-              <Field label="Marché & Instrument">
+              <Field label="Trade Date"><input style={inputStyle("date")} type="date" name="date" value={form.date} onChange={handleChange} {...fp("date")} /></Field>
+              <Field label="Market & Pair / Asset">
                 <div style={styles.marketInstrumentRow}>
                   <select
                     style={inputStyle("market")}
@@ -516,13 +516,13 @@ export default function Analyse() {
                     onChange={handleMarketChange}
                     {...fp("market")}
                   >
-                    <option value="">Marché</option>
+                    <option value="">Market</option>
                     {MARKETS.map((market) => <option key={market.value} value={market.value}>{market.label}</option>)}
                   </select>
                   <DropdownSelect
                     name="pair"
                     value={form.pair}
-                    placeholder="Instrument"
+                    placeholder="Pair / Asset (e.g. EUR/USD)"
                     options={instrumentOptions}
                     inputStyle={inputStyle}
                     fp={fp}
@@ -537,26 +537,26 @@ export default function Analyse() {
                   open={openAdd === "instrument"}
                   value={customInputs.instrument}
                   placeholder="Ex: GER40"
-                  buttonLabel="Ajouter un instrument"
+                  buttonLabel="Add custom asset"
                   onOpen={() => setOpenAdd(openAdd === "instrument" ? null : "instrument")}
                   onChange={(value) => setCustomInputs((prev) => ({ ...prev, instrument: value }))}
                   onAdd={addCustomInstrument}
                 />
               </Field>
-              <Field label="Prix d'Entrée"><input style={inputStyle("entryPrice")} type="number" step="any" name="entryPrice" value={form.entryPrice} onChange={handleChange} placeholder="0.00000" {...fp("entryPrice")} /></Field>
-              <Field label="Prix de Sortie"><input style={inputStyle("exitPrice")} type="number" step="any" name="exitPrice" value={form.exitPrice} onChange={handleChange} placeholder="0.00000" {...fp("exitPrice")} /></Field>
+              <Field label="Entry Price"><input style={inputStyle("entryPrice")} type="number" step="any" name="entryPrice" value={form.entryPrice} onChange={handleChange} placeholder="0.00000" {...fp("entryPrice")} /></Field>
+              <Field label="Exit Price"><input style={inputStyle("exitPrice")} type="number" step="any" name="exitPrice" value={form.exitPrice} onChange={handleChange} placeholder="0.00000" {...fp("exitPrice")} /></Field>
             </div>
           </div>
 
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardIconWrap}><Target size={13} color="#3B82F6" /></div>
-              <h2 style={styles.cardTitle}>Objectifs & Exécution</h2>
+              <h2 style={styles.cardTitle}>Execution & Targets</h2>
             </div>
             <div style={styles.fieldsGrid2}>
-              <Field label="Take-Profit"><input style={inputStyle("takeProfit")} type="number" step="any" name="takeProfit" value={form.takeProfit} onChange={handleChange} placeholder="Cible" {...fp("takeProfit")} /></Field>
-              <Field label="Stop-Loss"><input style={inputStyle("stopLoss")} type="number" step="any" name="stopLoss" value={form.stopLoss} onChange={handleChange} placeholder="Protection" {...fp("stopLoss")} /></Field>
-              <Field label="Taille (Lots)"><input style={inputStyle("size")} type="number" step="any" name="size" value={form.size} onChange={handleChange} placeholder="0.01" {...fp("size")} /></Field>
+              <Field label="Take Profit"><input style={inputStyle("takeProfit")} type="number" step="any" name="takeProfit" value={form.takeProfit} onChange={handleChange} placeholder="Target" {...fp("takeProfit")} /></Field>
+              <Field label="Stop Loss"><input style={inputStyle("stopLoss")} type="number" step="any" name="stopLoss" value={form.stopLoss} onChange={handleChange} placeholder="Stop level" {...fp("stopLoss")} /></Field>
+              <Field label="Position Size (Lots)"><input style={inputStyle("size")} type="number" step="any" name="size" value={form.size} onChange={handleChange} placeholder="0.01" {...fp("size")} /></Field>
               <Field label="Timeframe">
                 <div style={styles.timeframesWrap}>
                   <div style={styles.timeframeGrid}>
@@ -592,7 +592,7 @@ export default function Analyse() {
                         border: isCustomTf ? "1px solid #8B5CF6" : "1px solid #1E2D45",
                       }}
                     >
-                      Autre
+                      Other
                     </button>
                   </div>
                   {(showCustomTf || isCustomTf) && (
@@ -626,7 +626,7 @@ export default function Analyse() {
         <div style={{ ...styles.card, display: "flex", flexDirection: "column" }}>
           <div style={styles.cardHeader}>
             <div style={styles.cardIconWrap}><Brain size={13} color="#3B82F6" /></div>
-            <h2 style={styles.cardTitle}>Stratégie & Mental</h2>
+            <h2 style={styles.cardTitle}>Strategy & Mindset</h2>
           </div>
           <div style={{ ...styles.fields, flex: 1 }}>
             <SmartSelectField
@@ -645,14 +645,14 @@ export default function Analyse() {
                 open: openAdd === "setup",
                 value: customInputs.setup,
                 placeholder: "Ex: London Reversal",
-                buttonLabel: "Ajouter mon setup",
+                buttonLabel: "Add custom setup",
                 onOpen: () => setOpenAdd(openAdd === "setup" ? null : "setup"),
                 onChange: (value) => setCustomInputs((prev) => ({ ...prev, setup: value })),
                 onAdd: addCustomSetup,
               }}
             />
             <SmartSelectField
-              label="Type d'Analyse"
+              label="Analysis Type"
               name="analysisType"
               value={form.analysisType}
               options={analysisTypeOptions}
@@ -666,22 +666,22 @@ export default function Analyse() {
                 type: "analysisType",
                 open: openAdd === "analysisType",
                 value: customInputs.analysisType,
-                placeholder: "Ex: Smart Money",
-                buttonLabel: "Ajouter ma méthode",
+                placeholder: "Ex: SMC / Order Flow",
+                buttonLabel: "Add custom method",
                 onOpen: () => setOpenAdd(openAdd === "analysisType" ? null : "analysisType"),
                 onChange: (value) => setCustomInputs((prev) => ({ ...prev, analysisType: value })),
                 onAdd: addCustomAnalysisType,
               }}
             />
-            <Field label="Notes & Observations" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <textarea style={{ ...inputStyle("notes"), flex: 1, minHeight: "80px", resize: "none" }} name="notes" value={form.notes} onChange={handleChange} placeholder="Contexte du trade, facteurs influents..." {...fp("notes")} />
+            <Field label="Trade Context & Thesis" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+              <textarea style={{ ...inputStyle("notes"), flex: 1, minHeight: "80px", resize: "none" }} name="notes" value={form.notes} onChange={handleChange} placeholder="Trade thesis, confluence factors, invalidation triggers..." {...fp("notes")} />
             </Field>
-            <Field label="Risque (%)"><input style={inputStyle("risk")} type="number" step="any" name="risk" value={form.risk} onChange={handleChange} placeholder="Ex: 1" {...fp("risk")} /></Field>
-            <Field label="Émotions Pré-Trade">
+            <Field label="Risk (%)"><input style={inputStyle("risk")} type="number" step="any" name="risk" value={form.risk} onChange={handleChange} placeholder="Ex: 1" {...fp("risk")} /></Field>
+            <Field label="Pre-trade State">
               <div style={styles.emotions}>
                 {EMOTIONS.map((e) => {
                   const active = form.emotion === e;
-                  const emotionColor = e === "Confiant" ? "#10B981" : e === "Neutre" ? "#3B82F6" : e === "Anxieux" ? "#F59E0B" : e === "FOMO" ? "#EF4444" : "#8B5CF6";
+                  const emotionColor = (e === "Confident" || e === "Calm") ? "#10B981" : e === "Bored" ? "#6B7FA3" : e === "Anxious" ? "#F59E0B" : e === "FOMO / Rushed" ? "#EF4444" : "#8B5CF6";
                   return (
                     <button key={e} type="button" onClick={() => selectEmotion(e)} style={{ ...styles.emotionBtn, backgroundColor: active ? emotionColor + "18" : "transparent", color: active ? emotionColor : "#6B7FA3", border: active ? `1px solid ${emotionColor}55` : "1px solid #1E2D45" }}>
                       {e}
@@ -699,11 +699,11 @@ export default function Analyse() {
       <div style={styles.cta}>
         <button type="button" onClick={handleSubmit} disabled={isDisabled} style={{ ...styles.submitBtn, opacity: isDisabled ? 0.45 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}>
           {loading
-            ? <><Loader size={15} style={{ animation: "spin 1s linear infinite" }} /> Analyse en cours...</>
-            : <><Activity size={15} /> Lancer l'Analyse IA <ArrowRight size={15} /></>
+            ? <><Loader size={15} style={{ animation: "spin 1s linear infinite" }} /> Auditing trade parameters...</>
+            : <><Activity size={15} /> Run AI Risk Audit <ArrowRight size={15} /></>
           }
         </button>
-        <p style={styles.ctaNote}>L'IA analysera votre trade en temps réel · Résultat en ~3 secondes</p>
+        <p style={styles.ctaNote}>AI audits your risk and execution parameters · Results in ~3 seconds</p>
       </div>
 
       <style>{`
@@ -721,7 +721,7 @@ function SmartSelectField({ label, name, value, options, inputStyle, fp, openDro
       <DropdownSelect
         name={name}
         value={value}
-        placeholder="Sélectionner"
+        placeholder="Select"
         options={options}
         inputStyle={inputStyle}
         fp={fp}
@@ -767,7 +767,7 @@ function DropdownSelect({ name, value, placeholder, options, inputStyle, fp, ope
       {isOpen && (
         <div style={styles.dropdownMenu}>
           {options.length === 0 ? (
-            <div style={styles.dropdownEmpty}>Ajoutez votre première option</div>
+            <div style={styles.dropdownEmpty}>No options available. Add one below.</div>
           ) : options.map((option) => (
             <div key={option} style={styles.dropdownOptionRow}>
               <button
@@ -790,7 +790,7 @@ function DropdownSelect({ name, value, placeholder, options, inputStyle, fp, ope
                   event.stopPropagation();
                   onRemove(option);
                 }}
-                aria-label={`Retirer ${option}`}
+                aria-label={`Remove ${option}`}
               >
                 <X size={11} />
               </button>
@@ -839,7 +839,7 @@ function InlineAdd({ open, value, placeholder, buttonLabel, onOpen, onChange, on
             }}
             style={styles.inlineConfirmBtn}
           >
-            Ajouter
+            Add
           </button>
         </div>
       )}
