@@ -672,12 +672,12 @@ function detectPatterns(notes, aiAnalysis) {
   const patterns = [];
   const text = `${notes || ""} ${JSON.stringify(aiAnalysis || "")}`.toLowerCase();
 
-  if (text.includes("fomo") || text.includes("peur de rater")) patterns.push("fomo");
-  if (text.includes("revenge") || text.includes("revanche") || text.includes("rattraper")) patterns.push("revenge_trading");
-  if (text.includes("entrée tardive") || text.includes("late entry") || text.includes("trop tard")) patterns.push("late_entry");
-  if (text.includes("anxieux") || text.includes("stress")) patterns.push("anxiety");
-  if (text.includes("impatien")) patterns.push("impatience");
-  if (text.includes("stop") && (text.includes("trop proche") || text.includes("mauvais"))) patterns.push("bad_stop");
+  if (text.includes("fomo") || text.includes("peur de rater") || text.includes("chasing") || text.includes("chased")) patterns.push("fomo");
+  if (text.includes("revenge") || text.includes("revanche") || text.includes("rattraper") || text.includes("make back") || text.includes("tilt")) patterns.push("revenge_trading");
+  if (text.includes("entrée tardive") || text.includes("late entry") || text.includes("trop tard") || text.includes("delayed entry") || text.includes("entered late")) patterns.push("late_entry");
+  if (text.includes("anxieux") || text.includes("stress") || text.includes("anxiety") || text.includes("nervous") || text.includes("fear")) patterns.push("anxiety");
+  if (text.includes("impatien") || text.includes("rushed") || text.includes("précipitation") || text.includes("early entry")) patterns.push("impatience");
+  if (text.includes("stop") && (text.includes("trop proche") || text.includes("mauvais") || text.includes("tight") || text.includes("no stop") || text.includes("wide") || text.includes("moved") || text.includes("bad"))) patterns.push("bad_stop");
 
   return patterns;
 }
@@ -690,7 +690,7 @@ async function updateUserProfile(userId, { aiScore, disciplineScore, psychologyS
     const total = (profile.total_trades_analyzed || 0) + 1;
     const newAvgScore = ((profile.avg_ai_score || 0) * (total - 1) + (aiScore || 0)) / total;
     const curDiscipline = disciplineScore != null ? disciplineScore : (aiScore >= 7 ? 8 : aiScore >= 4 ? 5 : 2);
-    const curPsychology = psychologyScore != null ? psychologyScore : (["Confiant", "Neutre"].includes(emotion) ? 8 : 3);
+    const curPsychology = psychologyScore != null ? psychologyScore : (["Confiant", "Neutre", "Confident", "Neutral"].includes(emotion) ? 8 : 3);
     const curExecution = executionScore != null ? executionScore : (aiScore || 5);
     const newDiscipline = ((profile.discipline_score || 0) * (total - 1) + curDiscipline) / total;
     const newPsychology = ((profile.psychology_score || 0) * (total - 1) + curPsychology) / total;
@@ -793,39 +793,38 @@ function buildEnrichedPrompt(safePair, direction, entry, stopLoss, takeProfit, r
 
   const historyContext = hasHistory ? `
 
-PROFIL TRADER (HISTORIQUE) :
-- Trades analysés : ${profile.total_trades_analyzed}
-- Score IA moyen : ${profile.avg_ai_score}/10
-- Score discipline : ${(profile.discipline_score || 0).toFixed(1)}/10
-- Score psychologie : ${(profile.psychology_score || 0).toFixed(1)}/10
-- Score exécution : ${(profile.execution_score || 0).toFixed(1)}/10
-- Patterns récurrents : FOMO(${profile.fomo_count || 0}x), Revenge(${profile.revenge_trading_count || 0}x), Entrée tardive(${profile.late_entry_count || 0}x)
-- Émotion dominante : ${profile.dominant_emotion || "non définie"}
-- Force principale : ${profile.main_strength || "à déterminer"}
-- Faiblesse principale : ${profile.main_weakness || "à déterminer"}
+TRADER PROFILE (HISTORICAL AUDIT):
+- Total trades analyzed: ${profile.total_trades_analyzed}
+- Average AI score: ${profile.avg_ai_score}/10
+- Discipline score: ${(profile.discipline_score || 0).toFixed(1)}/10
+- Psychology score: ${(profile.psychology_score || 0).toFixed(1)}/10
+- Execution score: ${(profile.execution_score || 0).toFixed(1)}/10
+- Behavioral pattern flags: FOMO(${profile.fomo_count || 0}x), Revenge Trading(${profile.revenge_trading_count || 0}x), Late Entry(${profile.late_entry_count || 0}x), Bad Stop(${profile.bad_stop_count || 0}x)
+- Dominant emotion: ${profile.dominant_emotion || "unspecified"}
+- Primary strength: ${profile.main_strength || "pending assessment"}
+- Primary weakness: ${profile.main_weakness || "pending assessment"}
 ${recentTrades.length > 0 ? `
-DERNIERS TRADES :
-${recentTrades.slice(0, 5).map(t => `- ${t.pair} ${t.direction} | Score:${t.ai_score || "?"}/10 | Résultat:${t.result || "?"} | Émotion:${t.emotion || "?"}`).join("\n")}` : ""}
+RECENT TRADES LOG:
+${recentTrades.slice(0, 5).map(t => `- ${t.pair} ${t.direction} | Score: ${t.ai_score || "?"}/10 | Outcome: ${t.result || "?"} | Emotion: ${t.emotion || "?"}`).join("\n")}` : ""}
 
-En tenant compte de CE PROFIL SPÉCIFIQUE, adapte ton analyse. Si tu détectes un pattern déjà présent dans l'historique, SIGNALE-LE explicitement dans "recurring_pattern".
+Calibrate your evaluation against this historical profile. If you detect a recurring negative behavioral pattern or flaw present in their history, explicitly document it in "recurring_pattern".
 ` : "";
 
-  return `Analyse ce trade et retourne UNIQUEMENT ce JSON :
+  return `Evaluate this trade submission and return ONLY this JSON:
 {
   "score": { "overall": <0-10>, "discipline": <0-10>, "psychology": <0-10>, "execution": <0-10> },
-
-  "verdict": "<phrase courte>",
-  "main_mistake": "<erreur principale ou null>",
-  "breakdown": { "setup": "<1-2 phrases>", "risk_management": "<1-2 phrases>", "psychology": "<1-2 phrases>" },
-  "mistakes": ["<erreur>"],
-  "strengths": ["<point fort>"],
-  "action_plan": ["<action>"],
-  "reflection_questions": ["<question>", "<question>", "<question>"],
-  "recurring_pattern": "<pattern récurrent détecté ou null>",
-  "progress_note": "<note sur progression par rapport à l'historique ou null>"
+  "verdict": "<direct, razor-sharp summary sentence in English>",
+  "main_mistake": "<primary structural or psychological error in English, or null>",
+  "breakdown": { "setup": "<1-2 concise sentences in English>", "risk_management": "<1-2 concise sentences in English>", "psychology": "<1-2 concise sentences in English>" },
+  "mistakes": ["<concise mistake 1 in English>", "<concise mistake 2 in English>"],
+  "strengths": ["<concise strength 1 in English>"],
+  "action_plan": ["<actionable imperative command in English>"],
+  "reflection_questions": ["<probing self-audit question 1 in English>", "<probing self-audit question 2 in English>", "<probing self-audit question 3 in English>"],
+  "recurring_pattern": "<detected recurring behavioral pattern in English or null>",
+  "progress_note": "<progress note relative to historical profile in English or null>"
 }
 ${historyContext}
-Trade : Paire ${safePair} | ${direction} | Entrée ${entry} | SL ${stopLoss} | TP ${takeProfit} | R:R ${rr} | Risque ${riskPercent || "N/A"}% | Notes: ${safeNotes}`;
+Trade Submission: Pair: ${safePair} | Direction: ${direction} | Entry: ${entry} | Stop Loss: ${stopLoss} | Take Profit: ${takeProfit} | Theoretical R:R: ${rr} | Risk: ${riskPercent || "N/A"}% | Context & Notes: ${safeNotes}`;
 }
 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
@@ -1034,13 +1033,13 @@ app.post(
     const safeAnalysisType = sanitizeString(analysisType || "");
     const safeEmotion = sanitizeString(emotion || "");
     const contextNotes = [
-      safeMarket && `Marché: ${safeMarket}`,
+      safeMarket && `Market: ${safeMarket}`,
       safeTimeframe && `Timeframe: ${safeTimeframe}`,
       safeSetup && `Setup: ${safeSetup}`,
-      safeAnalysisType && `Type d'analyse: ${safeAnalysisType}`,
-      safeEmotion && `Émotion pré-trade: ${safeEmotion}`,
-      size && `Taille: ${size}`,
-      exitPrice && `Prix de sortie: ${exitPrice}`,
+      safeAnalysisType && `Analysis Type: ${safeAnalysisType}`,
+      safeEmotion && `Pre-trade Emotion: ${safeEmotion}`,
+      size && `Position Size: ${size}`,
+      exitPrice && `Exit Price: ${exitPrice}`,
       notes && sanitizeString(notes),
     ].filter(Boolean).join("\n");
     const safeNotes = sanitizeString(contextNotes);
@@ -1077,38 +1076,43 @@ app.post(
         messages: [
           {
             role: "system",
-            content: `Tu es un coach de trading d'élite, spécialisé en Smart Money Concepts (SMC), Forex et gestion du risque institutionnel. Tu analyses les trades avec la rigueur d'un risk manager professionnel.
+            content: `You are an elite institutional risk officer and Prop Firm desk evaluator specializing in Smart Money Concepts (SMC), Forex, and institutional risk management. You audit trades with uncompromising institutional rigor.
 
-## BARÈME DE NOTATION — applique-le sans dérogation
+LANGUAGE INSTRUCTION:
+All generated content (verdict, main_mistake, breakdown, mistakes, strengths, action_plan, reflection_questions, recurring_pattern, progress_note) MUST be written 100% in professional, razor-sharp English.
+
+## SCORING RUBRIC — Apply strictly without deviation
 
 ### Discipline /10
-- Absence totale de Stop Loss défini → note MAXIMUM 3/10, quels que soient les autres facteurs.
-- R:R théorique < 1.5 sans justification explicite de scalp ciblé ou de setup asymétrique → pénalise de -2 points.
-- Écart manifeste entre le setup annoncé (ex: "Order Block H4") et les niveaux prix fournis → pénalise de -1 à -3 points selon la sévérité.
-- Risque par trade > 2% du capital sans mention d'une raison valide → pénalise de -1 point.
+- Total absence of a defined Stop Loss → MAXIMUM score 3/10, regardless of any other factors.
+- Theoretical R:R < 1.5 without explicit scalp or asymmetric setup justification → deduct 2 points.
+- Glaring discrepancy between stated setup (e.g., 'H4 Order Block') and provided price levels → deduct 1 to 3 points depending on severity.
+- Risk per trade > 2% of capital without valid documented rationale → deduct 1.5 points.
+- Moving, widening, or canceling stop loss → severe penalty (deduct 3 points).
 
-### Psychologie /10
-- Analyse les mots-clés dans les notes et l'émotion déclarée : "FOMO", "peur de rater", "revenge", "rattraper", "précipitation", "doute", "hésitation", "impatience", "stress", "anxieux" → chaque signal détecté pénalise de -1.5 à -2.5 points selon l'intensité.
-- Émotion déclarée neutre ou confiante avec notes cohérentes → bonus possible jusqu'à 8/10.
-- Émotion déclarée négative (anxieux, stressé, frustré) → score psychologie plafonné à 5/10 même si le trade est techniquement bon.
+### Psychology /10
+- Scrutinize keywords in trader notes and declared emotion: 'FOMO', 'fear of missing out', 'chasing', 'revenge trading', 'make back losses', 'tilt', 'rushed', 'impatience', 'doubt', 'hesitation', 'stress', 'anxious' → deduct 1.5 to 2.5 points per detected signal based on intensity.
+- Declared emotion is neutral or confident with disciplined, objective notes → bonus up to 8/10.
+- Declared negative emotion (anxious, stressed, frustrated, fearful) → psychology score is HARD CAPPED at 5/10 maximum, even if execution is technically sound.
 
-### Exécution /10
-- Late entry évident (entrée nettement après la zone idéale SMC) → -2 points.
-- Chasing du prix (entrée en momentum sans retrace) → -2 points.
-- Respect des zones SMC (Order Block, Fair Value Gap, liquidités, BOS/CHoCH) : si le setup mentionne un concept SMC, vérifie la cohérence interne des niveaux fournis. Incohérence → -1 à -2 points.
-- Taille de position mentionnée (size) cohérente avec le risque déclaré → +0.5 point si cohérent.
+### Execution /10
+- Clear late entry (entering well beyond optimal entry zone / discount or premium) → deduct 2 points.
+- Momentum chasing (entering extended candles without pullback / mitigation) → deduct 2 points.
+- SMC zone adherence (Order Block, Fair Value Gap / FVG, Liquidity sweep/grab, BOS/CHoCH, Breaker Block): if setup cites an SMC concept, verify internal price coherence. Inconsistencies → deduct 1 to 2 points.
+- Position size provided and coherent with declared risk → award +0.5 point.
 
 ### Overall /10
-Calcule OBLIGATOIREMENT : round(0.35 × discipline + 0.35 × psychologie + 0.30 × exécution, 1).
-N'arrondis pas à l'entier, retourne une valeur avec une décimale (ex: 6.4, 7.8).
+MANDATORY formula: round(0.35 * discipline + 0.35 * psychology + 0.30 * execution, 1).
+Never round to a whole integer; always return exactly 1 decimal place (e.g. 6.4, 7.8).
 
-## RÈGLES DE CONTENU
+## CONTENT STANDARDS
 
-1. N'invente JAMAIS une métrique non fournie. Si le winrate, le capital ou d'autres données ne sont pas fournis, ignore-les. N'écris pas "votre winrate semble...".
-2. Ton : professionnel, direct, percutant. Phrases courtes. Zéro moralisation du type "il faut être discipliné" ou "le trading demande de la patience". Ces formules sont INTERDITES.
-3. Oriente vers l'ACTION concrète : ce que le trader doit FAIRE différemment, pas ce qu'il devrait PENSER.
-4. Si des données cruciales manquent (pas de notes, pas d'émotion, pas de setup), baisse les scores correspondants mais ne bloque pas l'analyse.
-5. Retourne UNIQUEMENT le JSON demandé. Aucun texte avant ou après. Aucun bloc markdown.`,
+1. NEVER fabricate unprovided metrics. If win rate, account balance, or other data points are omitted, ignore them. Never write 'your win rate seems...'.
+2. Tone: institutional, cold, direct, razor-sharp. Short sentences. Zero patronizing or generic motivational clichés like 'trading requires patience' or 'discipline is key'. Such phrases are STRICTLY FORBIDDEN.
+3. Action-oriented: Focus exclusively on what the trader must DO mechanically (orders, limit placement, liquidity sweep validation, risk caps), not what they should feel.
+4. If crucial data is omitted (missing notes, missing emotion, missing setup), penalize the corresponding score proportionally but do not abort analysis.
+5. All text fields in the output JSON must be in clean, idiomatic English using standard Prop Firm / SMC terminology (e.g., liquidity pool, drawdown limit, premium/discount, mitigation, FVG fill, structural break).
+6. Return ONLY the requested JSON object. No preamble, no markdown wrapper, no postscript.`,
           },
           { role: "user", content: prompt },
         ],
