@@ -11,7 +11,7 @@ import {
   Plus, X, ChevronDown
 } from "lucide-react";
 
-const EMOTIONS = ["Confident", "Calm", "FOMO / Rushed", "Anxious", "Frustrated / Revenge", "Bored"];
+const EMOTIONS = ["Confident", "Calm", "FOMO / Rushed", "Anxious", "Frustrated / Revenge"];
 const USER_PREFS_KEY = "analysis_preferences";
 const ANALYSIS_DRAFT_KEY = "msj_analysis_draft_v1";
 const ANALYSIS_PREFS_STORAGE_KEY = "msj_analysis_preferences_v1";
@@ -33,7 +33,6 @@ const DEFAULT_INSTRUMENTS = {
 };
 
 const DEFAULT_ANALYSIS_TYPES = ["Technical", "Fundamental", "Both", "SMC", "ICT", "Price Action", "Supply & Demand"];
-const STANDARD_TIMEFRAMES = ["M1", "M5", "M15", "H1", "H4", "D1"];
 
 
 const DEFAULT_ANALYSIS_PREFS = {
@@ -154,7 +153,6 @@ export default function Analyse() {
   const [customInputs, setCustomInputs] = useState({ instrument: "", setup: "", analysisType: "" });
   const [openAdd, setOpenAdd] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [showCustomTf, setShowCustomTf] = useState(false);
   const storageUserIdRef = useRef(null);
 
   const storageReadyRef = useRef(false);
@@ -377,7 +375,6 @@ export default function Analyse() {
     return risk > 0 ? (reward / risk).toFixed(2) : null;
   })();
 
-  const isCustomTf = Boolean(form.timeframe && !STANDARD_TIMEFRAMES.includes(form.timeframe));
   const isDisabled = !form.pair || !form.entryPrice || !form.stopLoss || !form.takeProfit || loading;
 
   const hiddenInstruments = analysisPrefs.hiddenInstruments?.[form.market] || [];
@@ -558,55 +555,15 @@ export default function Analyse() {
               <Field label="Stop Loss"><input style={inputStyle("stopLoss")} type="number" step="any" name="stopLoss" value={form.stopLoss} onChange={handleChange} placeholder="Stop level" {...fp("stopLoss")} /></Field>
               <Field label="Position Size (Lots)"><input style={inputStyle("size")} type="number" step="any" name="size" value={form.size} onChange={handleChange} placeholder="0.01" {...fp("size")} /></Field>
               <Field label="Timeframe">
-                <div style={styles.timeframesWrap}>
-                  <div style={styles.timeframeGrid}>
-                    {STANDARD_TIMEFRAMES.map((tf) => {
-                      const active = form.timeframe === tf;
-                      return (
-                        <button
-                          key={tf}
-                          type="button"
-                          onClick={() => {
-                            updateForm((p) => ({ ...p, timeframe: p.timeframe === tf ? "" : tf }));
-                            setShowCustomTf(false);
-                          }}
-                          style={{
-                            ...styles.timeframeBtn,
-                            backgroundColor: active ? "#1E3A5F" : "#121B2E",
-                            color: active ? "#60A5FA" : "#8A9BB8",
-                            border: active ? "1px solid #3B82F6" : "1px solid #1E2D45",
-                            boxShadow: active ? "0 0 10px rgba(59,130,246,0.18)" : "none",
-                          }}
-                        >
-                          {tf}
-                        </button>
-                      );
-                    })}
-                    <button
-                      type="button"
-                      onClick={() => setShowCustomTf((v) => !v)}
-                      style={{
-                        ...styles.timeframeBtn,
-                        backgroundColor: isCustomTf ? "#2E1065" : showCustomTf ? "#1E2D45" : "#121B2E",
-                        color: isCustomTf ? "#C4B5FD" : showCustomTf ? "#E8EDF5" : "#8A9BB8",
-                        border: isCustomTf ? "1px solid #8B5CF6" : "1px solid #1E2D45",
-                      }}
-                    >
-                      Other
-                    </button>
-                  </div>
-                  {(showCustomTf || isCustomTf) && (
-                    <input
-                      style={{ ...inputStyle("timeframe"), marginTop: "6px", padding: "6px 10px", fontSize: "0.8rem" }}
-                      name="timeframe"
-                      value={form.timeframe}
-                      onChange={handleChange}
-                      placeholder="Ex: M3, M30, W1..."
-                      autoFocus={showCustomTf && !isCustomTf}
-                      {...fp("timeframe")}
-                    />
-                  )}
-                </div>
+                <input
+                  style={inputStyle("timeframe")}
+                  type="text"
+                  name="timeframe"
+                  value={form.timeframe}
+                  onChange={handleChange}
+                  placeholder="e.g. H4 / M15, Daily..."
+                  {...fp("timeframe")}
+                />
               </Field>
 
               <Field label="Direction" style={{ gridColumn: "1 / -1" }}>
@@ -681,9 +638,26 @@ export default function Analyse() {
               <div style={styles.emotions}>
                 {EMOTIONS.map((e) => {
                   const active = form.emotion === e;
-                  const emotionColor = (e === "Confident" || e === "Calm") ? "#10B981" : e === "Bored" ? "#6B7FA3" : e === "Anxious" ? "#F59E0B" : e === "FOMO / Rushed" ? "#EF4444" : "#8B5CF6";
+                  const emotionColor = (e === "Confident" || e === "Calm")
+                    ? "#10B981"
+                    : e === "Anxious"
+                    ? "#F59E0B"
+                    : e === "FOMO / Rushed"
+                    ? "#EF4444"
+                    : "#A855F7";
                   return (
-                    <button key={e} type="button" onClick={() => selectEmotion(e)} style={{ ...styles.emotionBtn, backgroundColor: active ? emotionColor + "18" : "transparent", color: active ? emotionColor : "#6B7FA3", border: active ? `1px solid ${emotionColor}55` : "1px solid #1E2D45" }}>
+                    <button
+                      key={e}
+                      type="button"
+                      onClick={() => selectEmotion(e)}
+                      style={{
+                        ...styles.emotionBtn,
+                        backgroundColor: active ? `${emotionColor}1F` : "#0D1421",
+                        color: active ? emotionColor : "#8A9BB8",
+                        border: active ? `1px solid ${emotionColor}88` : "1px solid #1E2D45",
+                        boxShadow: active ? `0 0 12px ${emotionColor}22` : "none",
+                      }}
+                    >
                       {e}
                     </button>
                   );
@@ -889,11 +863,8 @@ const styles = {
   inlineAddRow: { display: "grid", gridTemplateColumns: "1fr auto", gap: "6px", marginTop: "2px" },
   inlineAddInput: { padding: "7px 10px", fontSize: "0.78rem", borderRadius: "7px" },
   inlineConfirmBtn: { padding: "7px 10px", borderRadius: "7px", border: "1px solid #1E2D45", backgroundColor: "#1E3A5F44", color: "#60A5FA", fontSize: "0.72rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
-  emotions: { display: "flex", flexWrap: "wrap", gap: "6px" },
-  emotionBtn: { padding: "5px 12px", borderRadius: "6px", fontSize: "0.78rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s" },
-  timeframesWrap: { display: "flex", flexDirection: "column" },
-  timeframeGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "4px" },
-  timeframeBtn: { padding: "7px 4px", borderRadius: "6px", fontSize: "0.74rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif", textAlign: "center", transition: "all 0.15s" },
+  emotions: { display: "flex", flexWrap: "wrap", gap: "8px" },
+  emotionBtn: { padding: "8px 14px", borderRadius: "8px", fontSize: "0.75rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s ease", display: "inline-flex", alignItems: "center", justifyContent: "center" },
   dirWrapper: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" },
 
   dirBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "9px", borderRadius: "8px", fontWeight: "600", fontSize: "0.82rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.2s" },

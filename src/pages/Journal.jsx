@@ -6,6 +6,17 @@ import InstrumentIcon from "../components/InstrumentIcon.jsx";
 
 const FILTERS = ["All", "Winners", "Losers", "This Month"];
 
+const TABLE_COLUMNS = [
+  { key: "date", label: "Date", align: "left", width: "12%" },
+  { key: "pair", label: "Pair", align: "left", width: "14%" },
+  { key: "direction", label: "Direction", align: "center", width: "10%" },
+  { key: "pnl", label: "P&L", align: "center", width: "10%" },
+  { key: "result", label: "Result", align: "center", width: "10%" },
+  { key: "setup", label: "Setup", align: "left", width: "26%" },
+  { key: "ai_score", label: "AI Score", align: "center", width: "10%" },
+  { key: "details", label: "Details", align: "center", width: "8%" },
+];
+
 function getSignedR(trade) {
   const result = (trade.result || "").toLowerCase();
   const rr = Math.abs(parseFloat(trade.rr) || 0);
@@ -140,10 +151,23 @@ export default function Journal() {
       ) : (
         <div style={styles.tableWrapper}>
           <table style={styles.table}>
+            <colgroup>
+              {TABLE_COLUMNS.map((col) => (
+                <col key={col.key} style={{ width: col.width }} />
+              ))}
+            </colgroup>
             <thead>
               <tr>
-                {["Date", "Pair", "Direction", "P&L", "Result", "Setup", "AI Score", "Details"].map((h) => (
-                  <th key={h} style={styles.th}>{h}</th>
+                {TABLE_COLUMNS.map((col) => (
+                  <th
+                    key={col.key}
+                    style={{
+                      ...styles.th,
+                      textAlign: col.align,
+                    }}
+                  >
+                    {col.label}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -164,16 +188,16 @@ export default function Journal() {
 
                 return (
                   <tr key={trade.id} style={styles.row}>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "left" }}>
                       <span style={{ color: "#E8EDF5", fontWeight: "500" }}>{trade.date}</span>
                     </td>
-                    <td style={{ ...styles.td, fontWeight: "700", color: "#E8EDF5" }}>
+                    <td style={{ ...styles.td, textAlign: "left", fontWeight: "700", color: "#E8EDF5" }}>
                       <span style={styles.pairCell}>
                         <InstrumentIcon symbol={trade.pair} size={28} />
                         <span>{trade.pair?.toUpperCase()}</span>
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "center" }}>
                       <span style={{
                         ...styles.badge,
                         backgroundColor: trade.direction === "buy" || trade.direction === "long" ? "#064E3B" : "#450A0A",
@@ -182,21 +206,21 @@ export default function Journal() {
                         {trade.direction === "buy" || trade.direction === "long" ? "LONG" : "SHORT"}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "center" }}>
                       <span style={{ color: pnlColor, fontWeight: "600" }}>{pnl}</span>
                     </td>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "center" }}>
                       <span style={{ ...styles.badge, backgroundColor: resultBg, color: resultColor }}>
                         {resultLabel}
                       </span>
                     </td>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "left" }}>
                       {trade.setup
                         ? <span style={{ ...styles.badge, backgroundColor: "#1E3A5F", color: "#3B82F6" }}>{trade.setup}</span>
                         : <span style={{ color: "#3B4B6B" }}>—</span>
                       }
                     </td>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "center" }}>
                       {trade.ai_score ? (
                         <span style={{
                           ...styles.scoreBadge,
@@ -208,7 +232,7 @@ export default function Journal() {
                         </span>
                       ) : <span style={{ color: "#3B4B6B" }}>—</span>}
                     </td>
-                    <td style={styles.td}>
+                    <td style={{ ...styles.td, textAlign: "center" }}>
                       <button
                         onClick={() => navigate(`/trade/${trade.id}`)}
                         style={styles.viewBtn}
@@ -256,10 +280,10 @@ const styles = {
   addBtn: { padding: "8px 16px", backgroundColor: "#3B82F6", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
   empty: { textAlign: "center", padding: "60px", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" },
   tableWrapper: { backgroundColor: "#0D1421", borderRadius: "12px", border: "1px solid #1E2D45", overflow: "hidden" },
-  table: { width: "100%", borderCollapse: "collapse" },
-  th: { padding: "14px 20px", textAlign: "left", fontSize: "0.7rem", fontWeight: "600", color: "#6B7FA3", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid #1E2D45", backgroundColor: "#0D1421" },
+  table: { width: "100%", borderCollapse: "collapse", tableLayout: "fixed" },
+  th: { padding: "14px 16px", fontSize: "0.72rem", fontWeight: "600", color: "#6B7FA3", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid #1E2D45", backgroundColor: "#0D1421" },
   row: { borderBottom: "1px solid #1E2D45" },
-  td: { padding: "16px 20px", fontSize: "0.875rem", color: "#94A3B8" },
+  td: { padding: "16px 16px", fontSize: "0.875rem", color: "#94A3B8", verticalAlign: "middle" },
   pairCell: { display: "inline-flex", alignItems: "center", gap: "10px" },
   badge: { display: "inline-block", padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", fontWeight: "700" },
   scoreBadge: { display: "inline-block", padding: "4px 10px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: "700" },
