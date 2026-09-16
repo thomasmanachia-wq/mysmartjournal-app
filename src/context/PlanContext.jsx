@@ -10,17 +10,20 @@ export function PlanProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadPlan();
+    loadPlan(true);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      loadPlan();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      // Ignorer TOKEN_REFRESHED pour éviter des re-fetches et re-renders inutiles au focus
+      if (event === "TOKEN_REFRESHED") return;
+      loadPlan(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  async function loadPlan() {
+  async function loadPlan(isInitial = false) {
     try {
+      if (isInitial) setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 

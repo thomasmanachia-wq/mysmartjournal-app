@@ -69,8 +69,15 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const newUser = session?.user ?? null;
+      setUser((prevUser) => {
+        // Conserve la référence objet si l'utilisateur est identique pour éviter un re-render global au focus d'onglet
+        if (event === "TOKEN_REFRESHED" && prevUser?.id && newUser?.id && prevUser.id === newUser.id) {
+          return prevUser;
+        }
+        return newUser;
+      });
     });
 
     return () => subscription.unsubscribe();

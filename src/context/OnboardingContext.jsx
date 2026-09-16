@@ -12,9 +12,9 @@ export function OnboardingProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    async function check() {
+    async function check(isInitial = false) {
       try {
-        if (mounted) {
+        if (mounted && isInitial) {
           setLoading(true);
           setError(null);
         }
@@ -31,14 +31,23 @@ export function OnboardingProvider({ children }) {
           setError(err.message || "Impossible de charger l'onboarding.");
         }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted && isInitial) setLoading(false);
       }
     }
 
-    check();
+    check(true);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      check();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      // Évite tout clignotement ou rechargement au focus d'onglet / renouvellement de token
+      if (event === "TOKEN_REFRESHED") return;
+      if (event === "SIGNED_OUT") {
+        if (mounted) {
+          setOnboardingDone(false);
+          setLoading(false);
+        }
+        return;
+      }
+      check(false);
     });
 
     return () => {

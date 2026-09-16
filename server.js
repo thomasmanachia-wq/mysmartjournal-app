@@ -64,11 +64,22 @@ function trackEvent(distinctId, event, properties = {}) {
         ...properties,
       },
     });
-    if (process.env.NODE_ENV !== "production") {
-      posthogClient.flush();
-    }
+    // En environnement serverless (Vercel), l'event loop est immédiatement gelée
+    // à la fin de la réponse HTTP. On force systématiquement le flush.
+    posthogClient.flush().catch((err) => {
+      log("warn", "posthog_flush_error", { error: err.message });
+    });
   } catch (err) {
     log("warn", "posthog_track_error", { error: err.message });
+  }
+}
+
+async function flushTelemetry() {
+  if (!posthogClient) return;
+  try {
+    await posthogClient.flush();
+  } catch (err) {
+    log("warn", "posthog_flush_error", { error: err.message });
   }
 }
 
@@ -383,6 +394,7 @@ app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" })
     return res.status(500).json({ error: "Erreur interne" });
   }
 
+  await flushTelemetry();
   res.json({ received: true });
 });
 
@@ -1193,6 +1205,7 @@ Never round to a whole integer; always return exactly 1 decimal place (e.g. 6.4,
       await incrementAnalysisUsage(userId, req.analysisUsage?.date, req.analysisUsage?.currentCount || 0);
 
       log("info", "analysis_completed", { userId, pair: safePair, plan });
+      await flushTelemetry();
       res.json({ ...validated, is_limited: false, plan });
     } catch (err) {
       log("error", "ai_analysis_error", { error: err.message, userId });

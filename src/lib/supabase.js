@@ -17,16 +17,26 @@ export function apiUrl(path) {
 }
 
 export async function apiFetch(url, options = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  let { data: { session } } = await supabase.auth.getSession();
+  let token = session?.access_token;
+
+  // Si pas de token ou session expirée, tenter un refresh silencieux
+  if (!token) {
+    try {
+      const { data: refreshedData } = await supabase.auth.refreshSession();
+      token = refreshedData?.session?.access_token;
+    } catch {
+      // Ignorer l'erreur immédiate, le check ci-dessous gérera
+    }
+  }
 
   if (!token) {
-    const error = new Error("Session expirée. Veuillez vous reconnecter.");
+    const error = new Error("Session expired. Please log in again.");
     error.status = 401;
     throw error;
   }
 
-  const res = await fetch(apiUrl(url), {
+  let res = await fetch(apiUrl(url), {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -35,11 +45,31 @@ export async function apiFetch(url, options = {}) {
     },
   });
 
+  // Si le serveur répond 401 (ex: token tout juste expiré côté serveur), tenter un refresh et rejouer la requête une fois
+  if (res.status === 401) {
+    try {
+      const { data: refreshedData } = await supabase.auth.refreshSession();
+      const newToken = refreshedData?.session?.access_token;
+      if (newToken) {
+        res = await fetch(apiUrl(url), {
+          ...options,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${newToken}`,
+            ...options.headers,
+          },
+        });
+      }
+    } catch {
+      // Poursuivre vers la gestion d'erreur standard
+    }
+  }
+
   const isJson = res.headers.get("content-type")?.includes("application/json");
   const data = isJson ? await res.json() : await res.text();
 
   if (!res.ok) {
-    const error = new Error(data?.error || data || `Erreur serveur ${res.status}`);
+    const error = new Error(data?.error || data || `Server error ${res.status}`);
     error.status = res.status;
     error.payload = data;
     throw error;
