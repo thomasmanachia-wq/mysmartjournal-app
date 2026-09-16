@@ -4,7 +4,15 @@ import { templates } from "./templates.js";
 import { EMAIL_CATEGORIES, EMAILS, getEmailMeta } from "./emailConfig.js";
 import { createClient } from "@supabase/supabase-js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendApiKey = process.env.RESEND_API_KEY;
+let resend = null;
+
+if (typeof resendApiKey === "string" && resendApiKey.startsWith("re_")) {
+  resend = new Resend(resendApiKey);
+} else {
+  console.warn("RESEND_API_KEY is not configured - emails disabled");
+}
+
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -15,6 +23,10 @@ const FROM = EMAILS.from;
 // ─── SEND HELPER ──────────────────────────────────────────────────────────────
 
 async function sendEmail({ to, subject, html, userId, emailType, force = false }) {
+  if (!resend) {
+    return null;
+  }
+
   try {
     const meta = getEmailMeta(emailType);
     const isTransactional = meta.category === EMAIL_CATEGORIES.TRANSACTIONAL;
