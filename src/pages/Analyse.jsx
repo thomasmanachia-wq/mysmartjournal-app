@@ -448,11 +448,11 @@ export default function Analyse() {
 
       // Marque première analyse et activité
       try {
-        await apiFetch("/mark-first-analysis", {
+        await apiFetch("/api/mark-first-analysis", {
           method: "POST",
           body: JSON.stringify({ pair: form.pair, score: data?.score?.overall }),
         });
-        await apiFetch("/track-activity", { method: "POST", body: JSON.stringify({}) });
+        await apiFetch("/api/track-activity", { method: "POST", body: JSON.stringify({}) });
       } catch { /* silencieux */ }
 
     } catch (err) {

@@ -33,7 +33,7 @@ export default function AdminFeedback() {
       if (filters.from) params.set("from", filters.from);
       if (filters.to) params.set("to", filters.to);
 
-      const result = await apiFetch(`/admin/feedback?${params}`);
+      const result = await apiFetch(`/api/admin/feedback?${params}`);
       setData(result);
     } catch (err) {
       console.error(err);
@@ -50,7 +50,7 @@ export default function AdminFeedback() {
       const payload = { emailType: emailTest.emailType };
       if (emailTest.to.trim()) payload.to = emailTest.to.trim();
 
-      const result = await apiFetch("/admin/test-email", {
+      const result = await apiFetch("/api/admin/test-email", {
         method: "POST",
         body: JSON.stringify(payload),
       });

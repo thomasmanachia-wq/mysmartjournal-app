@@ -159,7 +159,7 @@ async function updateUserSettingsBy(column, value, fields) {
 
 // ─── WEBHOOK (AVANT tout middleware) ──────────────────────────────────────────
 
-app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
   let event;
 
@@ -367,7 +367,7 @@ const ALLOWED_ORIGINS = [
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".vercel.app")) return callback(null, true);
     log("warn", "cors_blocked", { origin });
     return callback(new Error(`CORS bloqué pour l'origine: ${origin}`));
   },
@@ -383,6 +383,12 @@ app.use(cors({
 }));
 
 app.options(/.*/, cors());
+
+// ─── HEALTH CHECK ─────────────────────────────────────────────────────────────
+
+app.get(["/api", "/api/health", "/health"], (req, res) => {
+  res.json({ status: "ok", service: "mysmartjournal-api" });
+});
 
 // ─── HELMET ───────────────────────────────────────────────────────────────────
 
@@ -830,7 +836,7 @@ Trade Submission: Pair: ${safePair} | Direction: ${direction} | Entry: ${entry} 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
 
 // Debug PostHog (dev only)
-app.get("/debug-posthog", async (req, res) => {
+app.get(["/api/debug-posthog", "/debug-posthog"], async (req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(404).json({ error: "Not found" });
   }
@@ -853,7 +859,7 @@ app.get("/debug-posthog", async (req, res) => {
 
 // Checkout Stripe
 app.post(
-  "/create-checkout-session",
+  ["/api/create-checkout-session", "/create-checkout-session"],
   authLimiter,
   checkoutValidation,
   handleValidationErrors,
@@ -916,7 +922,7 @@ app.post(
 );
 
 // Cancel subscription
-app.post("/cancel-subscription", requireAuth, async (req, res) => {
+app.post(["/api/cancel-subscription", "/cancel-subscription"], requireAuth, async (req, res) => {
   const userId = req.user.id;
   try {
     const { data: settings } = await supabase
@@ -954,7 +960,7 @@ app.post("/cancel-subscription", requireAuth, async (req, res) => {
 });
 
 // Stripe customer portal
-app.post("/create-billing-portal-session", requireAuth, async (req, res) => {
+app.post(["/api/create-billing-portal-session", "/create-billing-portal-session"], requireAuth, async (req, res) => {
   const userId = req.user.id;
   try {
     const { data: settings } = await supabase
@@ -987,7 +993,7 @@ app.post("/create-billing-portal-session", requireAuth, async (req, res) => {
 });
 
 // Check plan
-app.post("/check-plan", requireAuth, async (req, res) => {
+app.post(["/api/check-plan", "/check-plan"], requireAuth, async (req, res) => {
   try {
     const { data } = await supabase
       .from("user_settings").select("plan").eq("user_id", req.user.id).single();
@@ -1000,7 +1006,7 @@ app.post("/check-plan", requireAuth, async (req, res) => {
 
 // AI Analysis — enrichie avec profil Coach IA
 app.post(
-  "/api/analyzeTrade",
+  ["/api/analyzeTrade", "/analyzeTrade"],
   aiLimiter,
   tradeValidation,
   handleValidationErrors,
@@ -1153,7 +1159,7 @@ Never round to a whole integer; always return exactly 1 decimal place (e.g. 6.4,
 );
 
 // Synchronisation du profil Coach IA (uniquement après validation/import effectif du trade)
-app.post("/api/profile/sync", requireAuth, async (req, res) => {
+app.post(["/api/profile/sync", "/profile/sync"], requireAuth, async (req, res) => {
   const userId = req.user.id;
   try {
     const { aiScore, disciplineScore, psychologyScore, executionScore, emotion, pair, notes, aiAnalysis } = req.body;
@@ -1184,7 +1190,7 @@ app.post("/api/profile/sync", requireAuth, async (req, res) => {
 
 // ─── EMAIL ROUTES ─────────────────────────────────────────────────────────────
 
-app.post("/send-welcome-email", requireAuth, async (req, res) => {
+app.post(["/api/send-welcome-email", "/send-welcome-email"], requireAuth, async (req, res) => {
   try {
     const { data: authUser } = await supabase.auth.admin.getUserById(req.user.id);
     if (authUser?.user?.email) {
@@ -1200,7 +1206,7 @@ app.post("/send-welcome-email", requireAuth, async (req, res) => {
   }
 });
 
-app.post("/track-activity", requireAuth, async (req, res) => {
+app.post(["/api/track-activity", "/track-activity"], requireAuth, async (req, res) => {
   try {
     await supabase
       .from("user_settings")
@@ -1213,7 +1219,7 @@ app.post("/track-activity", requireAuth, async (req, res) => {
   }
 });
 
-app.post("/mark-first-analysis", requireAuth, async (req, res) => {
+app.post(["/api/mark-first-analysis", "/mark-first-analysis"], requireAuth, async (req, res) => {
   try {
     const { data: settings } = await supabase
       .from("user_settings")
@@ -1246,7 +1252,7 @@ app.post("/mark-first-analysis", requireAuth, async (req, res) => {
 
 // ─── PROFILE COACH IA ─────────────────────────────────────────────────────────
 
-app.get("/api/profile", requireAuth, async (req, res) => {
+app.get(["/api/profile", "/profile"], requireAuth, async (req, res) => {
   try {
     const profile = await getOrCreateProfile(req.user.id);
     const { data: patterns } = await supabase
@@ -1266,7 +1272,7 @@ app.get("/api/profile", requireAuth, async (req, res) => {
 
 // ─── ADMIN ROUTES ─────────────────────────────────────────────────────────────
 
-app.post("/admin/test-email", requireAuth, requireAdmin, testEmailValidation, handleValidationErrors, async (req, res) => {
+app.post(["/api/admin/test-email", "/admin/test-email"], requireAuth, requireAdmin, testEmailValidation, handleValidationErrors, async (req, res) => {
   if (process.env.DISABLE_EMAIL_TEST_ENDPOINT === "true") {
     return res.status(403).json({ error: "Endpoint de test email désactivé." });
   }
@@ -1294,7 +1300,7 @@ app.post("/admin/test-email", requireAuth, requireAdmin, testEmailValidation, ha
   }
 });
 
-app.get("/admin/feedback", requireAuth, requireAdmin, async (req, res) => {
+app.get(["/api/admin/feedback", "/admin/feedback"], requireAuth, requireAdmin, async (req, res) => {
   const { from, to, plan, limit = 50 } = req.query;
   try {
     let query = supabase
@@ -1349,13 +1355,15 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-  log("info", "server_started", { port: PORT, env: process.env.NODE_ENV || "development" });
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    log("info", "server_started", { port: PORT, env: process.env.NODE_ENV || "development" });
+  });
+}
 
 // ─── CRON JOBS ────────────────────────────────────────────────────────────────
 
-const cronJobsEnabled = process.env.ENABLE_CRON_JOBS === "true";
+const cronJobsEnabled = process.env.ENABLE_CRON_JOBS === "true" && !process.env.VERCEL;
 
 if (cronJobsEnabled) {
   cron.schedule("0 9 * * *", async () => {
@@ -1368,7 +1376,7 @@ if (cronJobsEnabled) {
 
   log("info", "cron_jobs_started", { jobs: ["onboarding_sequence", "retention_campaign"] });
 } else {
-  log("info", "cron_jobs_disabled", { reason: "ENABLE_CRON_JOBS is not true" });
+  log("info", "cron_jobs_disabled", { reason: process.env.VERCEL ? "running in serverless" : "ENABLE_CRON_JOBS is not true" });
 }
 
 // ─── SHUTDOWN HOOKS ───────────────────────────────────────────────────────────
@@ -1393,3 +1401,5 @@ process.on("SIGTERM", async () => {
   await shutdownPostHog();
   process.exit(0);
 });
+
+export default app;

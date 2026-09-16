@@ -17,7 +17,7 @@ export default function UpgradeButton({ style, source = "upgrade_button" }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Please sign in again.");
 
-      const data = await apiFetch("/create-checkout-session", {
+      const data = await apiFetch("/api/create-checkout-session", {
         method: "POST",
         body: JSON.stringify({ user_id: user.id, email: user.email }),
       });

@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
         // Welcome email via backend (avec délai pour laisser Supabase créer les settings)
         setTimeout(async () => {
           try {
-            await apiFetch("/send-welcome-email", { method: "POST", body: JSON.stringify({}) });
+            await apiFetch("/api/send-welcome-email", { method: "POST", body: JSON.stringify({}) });
           } catch (e) {
             console.error("Welcome email error:", e);
           }

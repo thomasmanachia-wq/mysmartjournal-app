@@ -660,7 +660,7 @@ function FacturationSection({ settings, onUpdate }) {
     setCancelling(true);
     setCancelStatus(null);
     try {
-      const data = await apiFetch("/cancel-subscription", {
+      const data = await apiFetch("/api/cancel-subscription", {
         method: "POST",
         body: JSON.stringify({}),
       });
@@ -688,7 +688,7 @@ function FacturationSection({ settings, onUpdate }) {
     setPortalLoading(true);
     setPortalStatus(null);
     try {
-      const data = await apiFetch("/create-billing-portal-session", {
+      const data = await apiFetch("/api/create-billing-portal-session", {
         method: "POST",
         body: JSON.stringify({}),
       });

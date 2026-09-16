@@ -2,24 +2,18 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const PRODUCTION_API_BASE_URL = "https://mysmartjournal-app.onrender.com";
-
-function getDefaultApiBaseUrl() {
-  if (import.meta.env.DEV) return "http://localhost:3001";
-  if (typeof window === "undefined") return "";
-
-  const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
-  return isLocalhost ? "http://localhost:3001" : PRODUCTION_API_BASE_URL;
-}
-
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || getDefaultApiBaseUrl())
+const API_URL = (import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "")
   .replace(/\/$/, "");
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export function apiUrl(path) {
   if (/^https?:\/\//i.test(path)) return path;
-  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  let normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (!normalizedPath.startsWith("/api/") && normalizedPath !== "/api") {
+    normalizedPath = `/api${normalizedPath}`;
+  }
+  return API_URL ? `${API_URL}${normalizedPath}` : normalizedPath;
 }
 
 export async function apiFetch(url, options = {}) {
