@@ -58,7 +58,7 @@ export default function Settings() {
   }
 
   return (
-    <div style={s.page}>
+    <div className="settings-page-wrapper" style={s.page}>
       <div style={s.pageHeader}>
         <div>
           <h1 style={s.pageTitle}>Settings</h1>
@@ -66,7 +66,7 @@ export default function Settings() {
         </div>
       </div>
 
-      <div style={s.summaryGrid}>
+      <div className="settings-summary-grid" style={s.summaryGrid}>
         <SummaryItem
           icon={<User size={14} color="#60A5FA" />}
           label="Account"
@@ -84,10 +84,10 @@ export default function Settings() {
         />
       </div>
 
-      <div style={s.layout}>
+      <div className="settings-layout" style={s.layout}>
         {/* Sidebar */}
-        <aside style={s.sidebar}>
-          <div style={s.sidebarInner}>
+        <aside className="settings-sidebar" style={s.sidebar}>
+          <div className="settings-sidebar-inner" style={s.sidebarInner}>
             {SECTIONS.map(({ id, label, desc, icon }) => {
               const active = section === id;
               const SectionIcon = icon;
@@ -95,6 +95,7 @@ export default function Settings() {
                 <button
                   key={id}
                   onClick={() => setSection(id)}
+                  className={`settings-sidebar-btn ${active ? "active-tab" : ""}`}
                   style={{
                     ...s.sidebarBtn,
                     backgroundColor: active ? "#131F33" : "transparent",
@@ -105,16 +106,16 @@ export default function Settings() {
                   <SectionIcon size={14} style={{ flexShrink: 0, opacity: active ? 1 : 0.7 }} />
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={s.sidebarLabel}>{label}</span>
-                    <span style={s.sidebarDesc}>{desc}</span>
+                    <span className="settings-sidebar-desc" style={s.sidebarDesc}>{desc}</span>
                   </span>
-                  {active && <ChevronRight size={12} style={{ opacity: 0.4 }} />}
+                  {active && <ChevronRight size={12} className="settings-sidebar-desc" style={{ opacity: 0.4 }} />}
                 </button>
               );
             })}
           </div>
 
           {/* Legal documents link */}
-          <div style={s.sidebarLegal}>
+          <div className="settings-sidebar-legal" style={s.sidebarLegal}>
             <p style={s.sidebarLegalTitle}>Documents</p>
             <LegalLink label="Terms of Service" href="/terms" />
             <LegalLink label="Privacy Policy" href="/privacy" />

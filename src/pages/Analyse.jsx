@@ -833,7 +833,7 @@ function Field({ label, children, style }) {
 const styles = {
   page: { padding: "36px 32px", maxWidth: "1060px", margin: "0 auto" },
   hero: { textAlign: "center", marginBottom: "24px" },
-  heroTitle: { fontSize: "1.75rem", fontWeight: "700", color: "#E8EDF5", margin: "0 0 8px 0", letterSpacing: "-0.02em" },
+  heroTitle: { fontSize: "clamp(1.3rem, 4vw, 1.75rem)", fontWeight: "700", color: "#E8EDF5", margin: "0 0 8px 0", letterSpacing: "-0.02em" },
   heroSub: { color: "#6B7FA3", fontSize: "0.9rem", margin: 0 },
   rrBanner: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "7px 20px", backgroundColor: "#1E3A5F22", border: "1px solid #3B82F633", borderRadius: "999px", width: "fit-content", margin: "0 auto 20px" },
   rrText: { color: "#6B7FA3", fontSize: "0.78rem" },

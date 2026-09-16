@@ -189,16 +189,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.metricsGrid}>
+    <div className="dashboard-page-wrapper" style={styles.page}>
+      <div className="dashboard-metrics-grid" style={styles.metricsGrid}>
         <MetricCard label="Total P&L" value={`${totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)}R`} sub={`Across ${total} trades`} icon={<TrendingUp size={14} color={totalPnl >= 0 ? "#10B981" : "#EF4444"} />} color={totalPnl >= 0 ? "#10B981" : "#EF4444"} trend={totalPnl >= 0 ? "up" : "down"} />
         <MetricCard label="Win Rate" value={`${winRate}%`} sub={`${wins}W · ${losses}L`} icon={<Target size={14} color={winRate >= 50 ? "#10B981" : "#EF4444"} />} color={winRate >= 50 ? "#10B981" : "#EF4444"} trend={winRate >= 50 ? "up" : "down"} />
         <MetricCard label="Profit Factor" value={profitFactor} sub="Gross win / loss ratio" icon={<Award size={14} color="#6366F1" />} color={isStrongProfitFactor ? "#10B981" : "#F59E0B"} trend={isPositiveProfitFactor ? "up" : "down"} />
         <MetricCard label="Avg R:R" value={avgRR === "—" ? "—" : `${avgRR}R`} sub={`${closedTotal} trades`} icon={<Activity size={14} color="#6366F1" />} color="#6366F1" trend="neutral" />
       </div>
 
-      <div style={styles.midGrid}>
-        <div style={styles.chartCard}>
+      <div className="dashboard-mid-grid" style={styles.midGrid}>
+        <div className="dashboard-chart-card" style={styles.chartCard}>
           <div style={styles.chartHeader}>
             <div>
               <p style={styles.sectionLabel}>P&L DISTRIBUTION (R-MULTIPLE)</p>
@@ -212,8 +212,8 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={rDistribution.data} margin={{ top: 18, right: 8, left: -16, bottom: 0 }} barCategoryGap="24%">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={rDistribution.data} margin={{ top: 18, right: 6, left: -20, bottom: 0 }} barCategoryGap="20%">
               <CartesianGrid strokeDasharray="3 3" stroke="#1E2D4555" vertical={false} />
               <XAxis
                 dataKey="x"
@@ -231,7 +231,7 @@ export default function Dashboard() {
                 tick={{ fill: "#6B7FA3", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
-                width={34}
+                width={30}
               />
               {rDistribution.avgLoss !== null && (
                 <ReferenceLine
@@ -252,7 +252,7 @@ export default function Dashboard() {
                 />
               )}
               <Tooltip content={<HistogramTooltip />} cursor={{ fill: "#1E2D4522" }} />
-              <Bar dataKey="count" radius={[6, 6, 2, 2]} barSize={30}>
+              <Bar dataKey="count" radius={[6, 6, 2, 2]} barSize={26}>
                 {rDistribution.data.map((entry) => (
                   <Cell
                     key={entry.x}
@@ -291,7 +291,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={styles.bottomGrid}>
+      <div className="dashboard-bottom-grid" style={styles.bottomGrid}>
         <div style={styles.sideCard}>
           <p style={{ ...styles.sectionLabel, textAlign: "center" }}>RECENT ACTIVITY</p>
           <div style={styles.recentList}>
@@ -362,25 +362,25 @@ const styles = {
   emptyTitle: { color: "#E8EDF5", fontSize: "1.2rem", fontWeight: "600", margin: 0 },
   emptySub: { color: "#6B7FA3", fontSize: "0.875rem", margin: 0 },
   metricsGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" },
-  metricCard: { backgroundColor: "#0D1421", borderRadius: "10px", border: "1px solid #1E2D45", padding: "18px", display: "flex", flexDirection: "column", gap: "8px" },
+  metricCard: { backgroundColor: "#0D1421", borderRadius: "12px", border: "1px solid #1E2D45", padding: "16px", display: "flex", flexDirection: "column", gap: "8px", boxSizing: "border-box" },
   metricTop: { display: "flex", justifyContent: "space-between", alignItems: "center" },
   metricLabel: { fontSize: "0.67rem", fontWeight: "600", color: "#6B7FA3", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 },
   metricIconWrap: { width: "26px", height: "26px", borderRadius: "7px", backgroundColor: "#121B2E", border: "1px solid #1E2D45", display: "flex", alignItems: "center", justifyContent: "center" },
-  metricValue: { fontSize: "1.65rem", fontWeight: "700", margin: 0, letterSpacing: "-0.02em" },
+  metricValue: { fontSize: "clamp(1.25rem, 3.5vw, 1.65rem)", fontWeight: "700", margin: 0, letterSpacing: "-0.02em" },
   metricBottom: { display: "flex", alignItems: "center", gap: "5px" },
   metricSub: { fontSize: "0.72rem", color: "#6B7FA3" },
   midGrid: { display: "grid", gridTemplateColumns: "1fr 280px", gap: "14px" },
   bottomGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" },
-  chartCard: { backgroundColor: "#0D1421", borderRadius: "10px", border: "1px solid #1E2D45", padding: "20px" },
-  chartHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" },
+  chartCard: { backgroundColor: "#0D1421", borderRadius: "12px", border: "1px solid #1E2D45", padding: "20px" },
+  chartHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", flexWrap: "wrap", gap: "8px" },
   sectionLabel: { fontSize: "0.67rem", fontWeight: "700", color: "#6B7FA3", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px 0" },
   chartSub: { fontSize: "0.75rem", color: "#3B4B6B", margin: 0 },
-  timeFilters: { display: "flex", gap: "2px", backgroundColor: "#070B14", borderRadius: "7px", padding: "3px" },
-  timeBtn: { padding: "4px 10px", borderRadius: "5px", fontSize: "0.67rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif", border: "none", transition: "all 0.15s" },
+  timeFilters: { display: "flex", gap: "3px", backgroundColor: "#070B14", borderRadius: "7px", padding: "3px" },
+  timeBtn: { padding: "5px 10px", borderRadius: "5px", fontSize: "0.67rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif", border: "none", transition: "all 0.15s" },
   tooltip: { backgroundColor: "#0D1421", border: "1px solid #1E2D45", borderRadius: "8px", padding: "10px 14px", boxShadow: "0 8px 24px rgba(0,0,0,0.4)" },
   tooltipPair: { color: "#6B7FA3", fontSize: "0.72rem", margin: "0 0 3px 0" },
   tooltipVal: { fontSize: "1rem", fontWeight: "700", margin: 0 },
-  sideCard: { backgroundColor: "#0D1421", borderRadius: "10px", border: "1px solid #1E2D45", padding: "18px", display: "flex", flexDirection: "column" },
+  sideCard: { backgroundColor: "#0D1421", borderRadius: "12px", border: "1px solid #1E2D45", padding: "18px", display: "flex", flexDirection: "column" },
   pairsList: { display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px", flex: 1 },
   pairRow: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" },
   pairLeft: { display: "flex", alignItems: "center", gap: "10px" },

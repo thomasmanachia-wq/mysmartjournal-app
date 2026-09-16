@@ -107,14 +107,14 @@ export default function Journal() {
   }
 
   return (
-    <div style={styles.page}>
+    <div className="journal-page-wrapper" style={styles.page}>
       <div style={styles.hero}>
         <h1 style={styles.heroTitle}>Decode your performance and replicate your best trades.</h1>
         <p style={styles.heroSub}>Every trade is a lesson. Turn your execution data into actionable insights.</p>
       </div>
 
-      <div style={styles.toolbar}>
-        <div style={styles.filters}>
+      <div className="journal-toolbar" style={styles.toolbar}>
+        <div className="journal-filters" style={styles.filters}>
           {FILTERS.map((f) => (
             <button key={f} onClick={() => setFilter(f)} style={{
               ...styles.filterBtn,
@@ -126,7 +126,7 @@ export default function Journal() {
             </button>
           ))}
         </div>
-        <div style={styles.searchRow}>
+        <div className="journal-search-row" style={styles.searchRow}>
           <input
             style={styles.search}
             value={search}
@@ -150,103 +150,195 @@ export default function Journal() {
         </div>
       ) : (
         <div style={styles.tableWrapper}>
-          <table style={styles.table}>
-            <colgroup>
-              {TABLE_COLUMNS.map((col) => (
-                <col key={col.key} style={{ width: col.width }} />
-              ))}
-            </colgroup>
-            <thead>
-              <tr>
+          {/* Desktop Table View */}
+          <div className="journal-desktop-table hidden md:table w-full">
+            <table style={styles.table}>
+              <colgroup>
                 {TABLE_COLUMNS.map((col) => (
-                  <th
-                    key={col.key}
-                    style={{
-                      ...styles.th,
-                      textAlign: col.align,
-                    }}
-                  >
-                    {col.label}
-                  </th>
+                  <col key={col.key} style={{ width: col.width }} />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((trade) => {
-                const r = (trade.result || "").toLowerCase();
-                const isWin = r === "win";
-                const isLoss = r === "loss";
-                const scoreInfo = getScoreLabel(trade.ai_score);
-                const signedR = getSignedR(trade);
-                const pnl = signedR === null
-                  ? "—"
-                  : `${signedR > 0 ? "+" : ""}${signedR.toFixed(2)}R`;
-                const pnlColor = isWin ? "#10B981" : isLoss ? "#EF4444" : "#6B7FA3";
-                const resultColor = isWin ? "#10B981" : isLoss ? "#EF4444" : "#6B7FA3";
-                const resultBg = isWin ? "#064E3B" : isLoss ? "#450A0A" : "#1E2D45";
-                const resultLabel = getResultLabel(trade.result);
+              </colgroup>
+              <thead>
+                <tr>
+                  {TABLE_COLUMNS.map((col) => (
+                    <th
+                      key={col.key}
+                      style={{
+                        ...styles.th,
+                        textAlign: col.align,
+                      }}
+                    >
+                      {col.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((trade) => {
+                  const r = (trade.result || "").toLowerCase();
+                  const isWin = r === "win";
+                  const isLoss = r === "loss";
+                  const scoreInfo = getScoreLabel(trade.ai_score);
+                  const signedR = getSignedR(trade);
+                  const pnl = signedR === null
+                    ? "—"
+                    : `${signedR > 0 ? "+" : ""}${signedR.toFixed(2)}R`;
+                  const pnlColor = isWin ? "#10B981" : isLoss ? "#EF4444" : "#6B7FA3";
+                  const resultColor = isWin ? "#10B981" : isLoss ? "#EF4444" : "#6B7FA3";
+                  const resultBg = isWin ? "#064E3B" : isLoss ? "#450A0A" : "#1E2D45";
+                  const resultLabel = getResultLabel(trade.result);
 
-                return (
-                  <tr key={trade.id} style={styles.row}>
-                    <td style={{ ...styles.td, textAlign: "left" }}>
-                      <span style={{ color: "#E8EDF5", fontWeight: "500" }}>{trade.date}</span>
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "left", fontWeight: "700", color: "#E8EDF5" }}>
-                      <span style={styles.pairCell}>
-                        <InstrumentIcon symbol={trade.pair} size={28} />
-                        <span>{trade.pair?.toUpperCase()}</span>
-                      </span>
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "center" }}>
-                      <span style={{
-                        ...styles.badge,
-                        backgroundColor: trade.direction === "buy" || trade.direction === "long" ? "#064E3B" : "#450A0A",
-                        color: trade.direction === "buy" || trade.direction === "long" ? "#10B981" : "#EF4444",
+                  return (
+                    <tr key={trade.id} style={styles.row}>
+                      <td style={{ ...styles.td, textAlign: "left" }}>
+                        <span style={{ color: "#E8EDF5", fontWeight: "500" }}>{trade.date}</span>
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "left", fontWeight: "700", color: "#E8EDF5" }}>
+                        <span style={styles.pairCell}>
+                          <InstrumentIcon symbol={trade.pair} size={28} />
+                          <span>{trade.pair?.toUpperCase()}</span>
+                        </span>
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
+                        <span style={{
+                          ...styles.badge,
+                          backgroundColor: trade.direction === "buy" || trade.direction === "long" ? "#064E3B" : "#450A0A",
+                          color: trade.direction === "buy" || trade.direction === "long" ? "#10B981" : "#EF4444",
+                        }}>
+                          {trade.direction === "buy" || trade.direction === "long" ? "LONG" : "SHORT"}
+                        </span>
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
+                        <span style={{ color: pnlColor, fontWeight: "600" }}>{pnl}</span>
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
+                        <span style={{ ...styles.badge, backgroundColor: resultBg, color: resultColor }}>
+                          {resultLabel}
+                        </span>
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
+                        {trade.setup
+                          ? <span style={{ ...styles.badge, backgroundColor: "#1E3A5F", color: "#3B82F6", maxWidth: "100%", whiteSpace: "normal", textAlign: "center" }}>{trade.setup}</span>
+                          : <span style={{ color: "#3B4B6B" }}>—</span>
+                        }
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
+                        {trade.ai_score ? (
+                          <span style={{
+                            ...styles.scoreBadge,
+                            backgroundColor: scoreInfo.color + "22",
+                            color: scoreInfo.color,
+                            border: `1px solid ${scoreInfo.color}44`,
+                          }}>
+                            {trade.ai_score} {scoreInfo.label}
+                          </span>
+                        ) : <span style={{ color: "#3B4B6B" }}>—</span>}
+                      </td>
+                      <td style={{ ...styles.td, textAlign: "center" }}>
+                        <button
+                          onClick={() => navigate(`/trade/${trade.id}`)}
+                          style={styles.viewBtn}
+                        >
+                          →
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Tactile Cards View */}
+          <div className="journal-mobile-cards block md:hidden space-y-3 w-full px-1" style={{ padding: "12px 10px" }}>
+            {filtered.map((trade) => {
+              const r = (trade.result || "").toLowerCase();
+              const isWin = r === "win";
+              const isLoss = r === "loss";
+              const scoreInfo = getScoreLabel(trade.ai_score);
+              const signedR = getSignedR(trade);
+              const direction = (trade.direction === "buy" || trade.direction === "long") ? "LONG" : "SHORT";
+              const resultLabel = getResultLabel(trade.result);
+              const pnlText = signedR === null
+                ? "—"
+                : `${signedR >= 0 ? "+" : ""}${signedR.toFixed(2)}R`;
+              const isPositive = signedR !== null && signedR >= 0;
+
+              return (
+                <div
+                  key={trade.id}
+                  className="journal-trade-card bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex justify-between items-center"
+                  onClick={() => navigate(`/trade/${trade.id}`)}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
+                    <InstrumentIcon symbol={trade.pair} size={30} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: "700", color: "#FFFFFF", fontSize: "0.95rem" }}>
+                          {trade.pair?.toUpperCase()}
+                        </span>
+                        <span style={{
+                          fontSize: "0.7rem",
+                          fontWeight: "700",
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          backgroundColor: direction === "LONG" ? "rgba(16, 185, 129, 0.2)" : "rgba(244, 63, 94, 0.2)",
+                          color: direction === "LONG" ? "#34D399" : "#FB7185",
+                        }}>
+                          {direction}
+                        </span>
+                        <span style={{ fontSize: "0.72rem", color: "#64748B" }}>
+                          {trade.date}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "#94A3B8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {trade.setup || "No setup specified"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+                    <div>
+                      <div style={{
+                        fontSize: "0.95rem",
+                        fontWeight: "700",
+                        color: isPositive ? "#34D399" : (signedR !== null ? "#FB7185" : "#94A3B8"),
                       }}>
-                        {trade.direction === "buy" || trade.direction === "long" ? "LONG" : "SHORT"}
-                      </span>
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "center" }}>
-                      <span style={{ color: pnlColor, fontWeight: "600" }}>{pnl}</span>
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "center" }}>
-                      <span style={{ ...styles.badge, backgroundColor: resultBg, color: resultColor }}>
+                        {pnlText}
+                      </div>
+                      <span style={{
+                        fontSize: "0.62rem",
+                        color: "#94A3B8",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                      }}>
                         {resultLabel}
                       </span>
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "center" }}>
-                      {trade.setup
-                        ? <span style={{ ...styles.badge, backgroundColor: "#1E3A5F", color: "#3B82F6", maxWidth: "100%", whiteSpace: "normal", textAlign: "center" }}>{trade.setup}</span>
-                        : <span style={{ color: "#3B4B6B" }}>—</span>
-                      }
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "center" }}>
-                      {trade.ai_score ? (
-                        <span style={{
-                          ...styles.scoreBadge,
-                          backgroundColor: scoreInfo.color + "22",
-                          color: scoreInfo.color,
-                          border: `1px solid ${scoreInfo.color}44`,
-                        }}>
-                          {trade.ai_score} {scoreInfo.label}
-                        </span>
-                      ) : <span style={{ color: "#3B4B6B" }}>—</span>}
-                    </td>
-                    <td style={{ ...styles.td, textAlign: "center" }}>
-                      <button
-                        onClick={() => navigate(`/trade/${trade.id}`)}
-                        style={styles.viewBtn}
-                      >
-                        →
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </div>
+                    {trade.ai_score ? (
+                      <div style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "8px",
+                        backgroundColor: "#1E293B",
+                        border: "1px solid #334155",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        color: "#22D3EE",
+                      }}>
+                        {trade.ai_score}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-          <div style={styles.statsFooter}>
+          <div className="journal-stats-footer" style={styles.statsFooter}>
             <StatFooter label="Total Trades" value={total} />
             <StatFooter label="Win Rate" value={`${winRate}%`} color={winRate >= 50 ? "#10B981" : "#EF4444"} />
             <StatFooter label="Net P&L" value={`${totalR >= 0 ? "+" : ""}${totalR.toFixed(2)}R`} color={totalR >= 0 ? "#10B981" : "#EF4444"} />
@@ -268,16 +360,16 @@ function StatFooter({ label, value, color }) {
 }
 
 const styles = {
-  page: { padding: "40px 32px", maxWidth: "1200px", margin: "0 auto" },
-  hero: { textAlign: "center", marginBottom: "36px" },
-  heroTitle: { fontSize: "1.8rem", fontWeight: "700", color: "#E8EDF5", margin: "0 0 10px 0" },
-  heroSub: { color: "#6B7FA3", fontSize: "0.95rem", margin: 0 },
+  page: { padding: "40px 32px", maxWidth: "1200px", margin: "0 auto", boxSizing: "border-box" },
+  hero: { textAlign: "center", marginBottom: "32px" },
+  heroTitle: { fontSize: "clamp(1.3rem, 4vw, 1.8rem)", fontWeight: "700", color: "#E8EDF5", margin: "0 0 10px 0" },
+  heroSub: { color: "#6B7FA3", fontSize: "0.9rem", margin: 0 },
   toolbar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" },
   filters: { display: "flex", gap: "8px" },
-  filterBtn: { padding: "8px 16px", borderRadius: "8px", fontWeight: "500", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
+  filterBtn: { padding: "8px 16px", minHeight: "38px", borderRadius: "8px", fontWeight: "500", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap" },
   searchRow: { display: "flex", gap: "10px" },
-  search: { backgroundColor: "#0D1421", border: "1px solid #1E2D45", borderRadius: "8px", padding: "8px 14px", color: "#E8EDF5", fontSize: "0.875rem", outline: "none", width: "220px", fontFamily: "'Inter', sans-serif" },
-  addBtn: { padding: "8px 16px", backgroundColor: "#3B82F6", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
+  search: { backgroundColor: "#0D1421", border: "1px solid #1E2D45", borderRadius: "8px", padding: "10px 14px", minHeight: "42px", color: "#E8EDF5", fontSize: "0.9rem", outline: "none", width: "220px", fontFamily: "'Inter', sans-serif" },
+  addBtn: { padding: "10px 18px", minHeight: "42px", display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: "#3B82F6", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", whiteSpace: "nowrap" },
   empty: { textAlign: "center", padding: "60px", display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" },
   tableWrapper: { backgroundColor: "#0D1421", borderRadius: "12px", border: "1px solid #1E2D45", overflow: "hidden" },
   table: { width: "100%", borderCollapse: "collapse", tableLayout: "fixed" },
