@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
+    "remotion:studio": "remotion studio src/remotion/index.js",
+    "remotion:render": "remotion render src/remotion/index.js TradeAuditShort out/trade-audit-short.mp4",
+    "remotion:still": "remotion still src/remotion/index.js TradeAuditShort out/preview-frame.png --frame=120"
   },
   "dependencies": {
     "@sentry/node": "^10.53.1",
@@ -38,6 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@remotion/cli": "^4.0.525",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
@@ -46,6 +50,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "remotion": "^4.0.525",
     "vite": "^8.0.1"
   }
 }

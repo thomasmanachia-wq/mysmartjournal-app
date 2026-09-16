@@ -1,15 +1,29 @@
 *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
-  body {
-    background-color: #0f172a;
-    color: #e2e8f0;
-    font-family: 'Inter', sans-serif;
-  }
-  @keyframes dropdownIn {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  background-color: #070B14;
+  color: #E8EDF5;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes dropdownIn {
   from {
     opacity: 0;
     transform: translateY(-6px);
@@ -17,5 +31,140 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── RESPONSIVE NAVBAR & BOTTOM BAR ─── */
+.nav-center-desktop {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-username-desktop {
+  display: inline-block;
+}
+
+.bottom-nav-mobile {
+  display: none;
+}
+
+.app-main-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ─── RESPONSIVE AUDIT FORM (Analyse.jsx) ─── */
+.analyse-page-wrapper {
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  box-sizing: border-box;
+}
+
+.analyse-main-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 28px;
+}
+
+.analyse-subgrid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.analyse-market-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 8px;
+}
+
+.analyse-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 40px;
+  min-height: 50px;
+  width: auto;
+  font-size: 0.95rem;
+}
+
+/* ─── MOBILE BREAKPOINT (< 768px) ─── */
+@media (max-width: 768px) {
+  .nav-center-desktop {
+    display: none !important;
+  }
+
+  .nav-username-desktop {
+    display: none !important;
+  }
+
+  .bottom-nav-mobile {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background-color: rgba(8, 14, 26, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid #1E2D45;
+    z-index: 400;
+    align-items: center;
+    justify-content: space-around;
+    padding: 4px 8px env(safe-area-inset-bottom, 8px) 8px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.45);
+  }
+
+  .app-main-container {
+    padding-bottom: 84px !important;
+  }
+
+  .analyse-page-wrapper {
+    padding: 20px 14px 84px 14px !important;
+  }
+
+  .analyse-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .analyse-market-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .analyse-cta-btn {
+    width: 100% !important;
+    min-height: 54px !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* ─── ULTRA COMPACT MOBILE (< 480px) ─── */
+@media (max-width: 480px) {
+  .analyse-subgrid-2 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .analyse-subgrid-2-stacked {
+    grid-template-columns: 1fr !important;
   }
 }

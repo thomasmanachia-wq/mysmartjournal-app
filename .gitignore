@@ -25,3 +25,8 @@ dist-ssr
 .env
 .env.*
 .env.local
+
+# Remotion renders and cache
+out/
+.remotion/
+

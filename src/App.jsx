@@ -21,7 +21,8 @@ import AdminFeedback from "./pages/AdminFeedback.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import {
   User, CreditCard, MessageSquare, LogOut,
-  Shield, ChevronDown, ChevronUp
+  Shield, ChevronDown, ChevronUp,
+  Zap, BookOpen, Activity, Settings as SettingsIcon
 } from "lucide-react";
 
 const ADMIN_EMAILS = ["thomasmanach06@gmail.com"];
@@ -163,8 +164,8 @@ function NavBar() {
         <span style={navStyles.logoText}>MySmartJournal</span>
       </div>
 
-      {/* ── Nav centrale */}
-      <div style={navStyles.center}>
+      {/* ── Nav centrale (desktop) */}
+      <div className="nav-center-desktop" style={navStyles.center}>
         <NavLink label="Journal"     path="/"          active={isActive("/")} />
         <NavLink label="Audit Trade" path="/analyse"   active={isActive("/analyse")} />
         <NavLink label="Dashboard"   path="/dashboard" active={isActive("/dashboard")} />
@@ -180,11 +181,12 @@ function NavBar() {
             borderColor: menuOpen ? "#2D4060" : "#1E2D45",
             boxShadow: menuOpen ? "0 0 0 1px #3B82F620" : "none",
           }}
+          aria-label="User Account Menu"
         >
           <div style={navStyles.avatar}>
             <span style={navStyles.avatarText}>{initial}</span>
           </div>
-          <span style={navStyles.username}>{username}</span>
+          <span className="nav-username-desktop" style={navStyles.username}>{username}</span>
           <span style={{ color: "#4B607A", display: "flex", alignItems: "center" }}>
             {menuOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           </span>
@@ -274,6 +276,77 @@ function NavBar() {
   );
 }
 
+function BottomNav() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  if (!user || location.pathname === "/onboarding") return null;
+
+  const tabs = [
+    { label: "Audit", path: "/analyse", icon: Zap },
+    { label: "Journal", path: "/", icon: BookOpen },
+    { label: "Dashboard", path: "/dashboard", icon: Activity },
+    { label: "Settings", path: "/settings", icon: SettingsIcon },
+  ];
+
+  const isActive = (path) =>
+    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+
+  return (
+    <nav className="bottom-nav-mobile" aria-label="Mobile Navigation">
+      {tabs.map(({ label, path, icon: Icon }) => {
+        const active = isActive(path);
+        const isAudit = path === "/analyse";
+        const activeColor = isAudit ? "#10B981" : "#3B82F6";
+        return (
+          <button
+            key={path}
+            onClick={() => navigate(path)}
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "3px",
+              height: "100%",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "4px 0",
+              color: active ? activeColor : "#64748B",
+              transition: "all 0.15s ease",
+            }}
+          >
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "28px",
+              height: "24px",
+              borderRadius: "12px",
+              backgroundColor: active && isAudit ? "rgba(16, 185, 129, 0.15)" : active ? "rgba(59, 130, 246, 0.12)" : "transparent",
+            }}>
+              <Icon size={19} strokeWidth={active ? 2.4 : 1.8} color={active ? activeColor : "#64748B"} />
+            </div>
+            <span
+              style={{
+                fontSize: "0.68rem",
+                fontWeight: active ? "700" : "500",
+                letterSpacing: "-0.01em",
+                color: active ? "#E8EDF5" : "#64748B",
+              }}
+            >
+              {label}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
 function AppShell() {
   const location = useLocation();
   const isOnboarding = location.pathname === "/onboarding";
@@ -284,9 +357,12 @@ function AppShell() {
       backgroundColor: "#070B14",
       color: "#E8EDF5",
       fontFamily: "'Inter', sans-serif",
+      overflowX: "hidden",
+      width: "100%",
+      position: "relative",
     }}>
       <NavBar />
-      <main style={isOnboarding ? navStyles.onboardingMain : navStyles.main}>
+      <main className={isOnboarding ? "" : "app-main-container"} style={isOnboarding ? navStyles.onboardingMain : navStyles.main}>
         <Routes>
           <Route path="/login"      element={<Login />} />
           <Route path="/signup"     element={<Signup />} />
@@ -316,6 +392,7 @@ function AppShell() {
           <Route path="*"           element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <BottomNav />
     </div>
   );
 }
@@ -339,24 +416,31 @@ export default function App() {
 const navStyles = {
   main: {
     maxWidth: "1200px",
+    width: "100%",
     margin: "0 auto",
+    boxSizing: "border-box",
   },
   onboardingMain: {
     maxWidth: "none",
     margin: 0,
+    width: "100%",
+    boxSizing: "border-box",
   },
   bar: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 32px",
-    height: "60px",
+    padding: "0 clamp(16px, 4vw, 32px)",
+    height: "58px",
     borderBottom: "1px solid #111C2E",
-    backgroundColor: "#080E1A",
+    backgroundColor: "rgba(8, 14, 26, 0.94)",
     position: "sticky",
     top: 0,
     zIndex: 200,
     backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    width: "100%",
+    boxSizing: "border-box",
   },
 
   logoWrap: {

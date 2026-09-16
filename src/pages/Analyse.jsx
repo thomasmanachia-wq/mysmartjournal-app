@@ -481,7 +481,7 @@ export default function Analyse() {
   });
 
   return (
-    <div style={styles.page}>
+    <div className="analyse-page-wrapper" style={styles.page}>
       <div style={styles.hero}>
         <h1 style={styles.heroTitle}>Mastery begins with clarity.</h1>
         <p style={styles.heroSub}>Log your trade parameters. The AI handles the risk audit.</p>
@@ -495,17 +495,17 @@ export default function Analyse() {
         </div>
       )}
 
-      <div style={styles.mainGrid}>
+      <div className="analyse-main-grid" style={styles.mainGrid}>
         <div style={styles.leftCol}>
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardIconWrap}><DollarSign size={13} color="#3B82F6" /></div>
               <h2 style={styles.cardTitle}>Market & Asset</h2>
             </div>
-            <div style={styles.fieldsGrid2}>
+            <div className="analyse-subgrid-2" style={styles.fieldsGrid2}>
               <Field label="Trade Date"><input style={inputStyle("date")} type="date" name="date" value={form.date} onChange={handleChange} {...fp("date")} /></Field>
-              <Field label="Market & Pair / Asset">
-                <div style={styles.marketInstrumentRow}>
+              <Field label="Market & Pair / Asset" style={{ gridColumn: "1 / -1" }}>
+                <div className="analyse-market-row" style={styles.marketInstrumentRow}>
                   <select
                     style={inputStyle("market")}
                     name="market"
@@ -550,7 +550,7 @@ export default function Analyse() {
               <div style={styles.cardIconWrap}><Target size={13} color="#3B82F6" /></div>
               <h2 style={styles.cardTitle}>Execution & Targets</h2>
             </div>
-            <div style={{ ...styles.fieldsGrid2, flex: 1, alignContent: "space-between" }}>
+            <div className="analyse-subgrid-2" style={{ ...styles.fieldsGrid2, flex: 1, alignContent: "space-between" }}>
               <Field label="Take Profit"><input style={inputStyle("takeProfit")} type="number" step="any" name="takeProfit" value={form.takeProfit} onChange={handleChange} placeholder="Target" {...fp("takeProfit")} /></Field>
               <Field label="Stop Loss"><input style={inputStyle("stopLoss")} type="number" step="any" name="stopLoss" value={form.stopLoss} onChange={handleChange} placeholder="Stop level" {...fp("stopLoss")} /></Field>
               <Field label="Position Size (Lots)"><input style={inputStyle("size")} type="number" step="any" name="size" value={form.size} onChange={handleChange} placeholder="0.01" {...fp("size")} /></Field>
@@ -671,7 +671,7 @@ export default function Analyse() {
       {error && <div style={styles.errorBanner}>{error}</div>}
 
       <div style={styles.cta}>
-        <button type="button" onClick={handleSubmit} disabled={isDisabled} style={{ ...styles.submitBtn, opacity: isDisabled ? 0.45 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}>
+        <button type="button" className="analyse-cta-btn" onClick={handleSubmit} disabled={isDisabled} style={{ ...styles.submitBtn, opacity: isDisabled ? 0.45 : 1, cursor: isDisabled ? "not-allowed" : "pointer" }}>
           {loading
             ? <><Loader size={15} style={{ animation: "spin 1s linear infinite" }} /> Auditing trade parameters...</>
             : <><Activity size={15} /> Run AI Risk Audit <ArrowRight size={15} /></>
@@ -840,18 +840,18 @@ const styles = {
   rrValue: { fontWeight: "700", fontSize: "0.9rem" },
   mainGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "stretch", marginBottom: "28px" },
   leftCol: { display: "flex", flexDirection: "column", gap: "16px", height: "100%" },
-  card: { backgroundColor: "#0D1421", borderRadius: "10px", border: "1px solid #1E2D45", padding: "20px", boxShadow: "0 2px 16px rgba(0,0,0,0.25)" },
+  card: { backgroundColor: "#0D1421", borderRadius: "14px", border: "1px solid #1E2D45", padding: "20px", boxShadow: "0 2px 16px rgba(0,0,0,0.25)" },
   cardHeader: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" },
   cardIconWrap: { width: "26px", height: "26px", borderRadius: "7px", backgroundColor: "#1E3A5F44", border: "1px solid #3B82F633", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
   cardTitle: { fontSize: "0.875rem", fontWeight: "600", color: "#E8EDF5", margin: 0 },
   fields: { display: "flex", flexDirection: "column", gap: "12px" },
   fieldsGrid2: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" },
   fieldLabel: { fontSize: "0.67rem", fontWeight: "600", color: "#6B7FA3", textTransform: "uppercase", letterSpacing: "0.08em" },
-  input: { backgroundColor: "#121B2E", border: "1px solid #1E2D45", borderRadius: "8px", padding: "9px 12px", color: "#E8EDF5", fontSize: "0.875rem", outline: "none", width: "100%", boxSizing: "border-box", fontFamily: "'Inter', sans-serif", transition: "border-color 0.15s, box-shadow 0.15s" },
+  input: { backgroundColor: "#121B2E", border: "1px solid #1E2D45", borderRadius: "8px", padding: "10px 14px", minHeight: "46px", color: "#E8EDF5", fontSize: "0.9rem", outline: "none", width: "100%", boxSizing: "border-box", fontFamily: "'Inter', sans-serif", transition: "border-color 0.15s, box-shadow 0.15s" },
   marketInstrumentRow: { display: "grid", gridTemplateColumns: "0.8fr 1.2fr", gap: "8px" },
   selectCompact: { minWidth: 0 },
   dropdownWrap: { position: "relative" },
-  dropdownTrigger: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", textAlign: "left", cursor: "pointer" },
+  dropdownTrigger: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", textAlign: "left", cursor: "pointer", minHeight: "46px" },
   dropdownValue: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   dropdownMenu: { position: "absolute", zIndex: 30, top: "calc(100% + 6px)", left: 0, right: 0, maxHeight: "188px", overflowY: "auto", padding: "6px", backgroundColor: "#0A101B", border: "1px solid #1E2D45", borderRadius: "8px", boxShadow: "0 16px 40px rgba(0,0,0,0.34)" },
   dropdownOptionRow: { display: "grid", gridTemplateColumns: "1fr 24px", alignItems: "center", gap: "4px", borderRadius: "6px" },
@@ -863,13 +863,12 @@ const styles = {
   inlineAddRow: { display: "grid", gridTemplateColumns: "1fr auto", gap: "6px", marginTop: "2px" },
   inlineAddInput: { padding: "7px 10px", fontSize: "0.78rem", borderRadius: "7px" },
   inlineConfirmBtn: { padding: "7px 10px", borderRadius: "7px", border: "1px solid #1E2D45", backgroundColor: "#1E3A5F44", color: "#60A5FA", fontSize: "0.72rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
-  emotions: { display: "flex", flexWrap: "wrap", gap: "6px" },
-  emotionBtn: { padding: "6px 12px", borderRadius: "7px", fontSize: "0.74rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s ease", display: "inline-flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" },
+  emotions: { display: "flex", flexWrap: "wrap", gap: "8px" },
+  emotionBtn: { padding: "8px 14px", minHeight: "38px", borderRadius: "8px", fontSize: "0.78rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s ease", display: "inline-flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" },
   dirWrapper: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" },
-
-  dirBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "9px", borderRadius: "8px", fontWeight: "600", fontSize: "0.82rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.2s" },
+  dirBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", minHeight: "48px", padding: "11px 12px", borderRadius: "8px", fontWeight: "600", fontSize: "0.85rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.2s" },
   errorBanner: { backgroundColor: "#450A0A", border: "1px solid #EF444444", borderRadius: "8px", padding: "12px 16px", color: "#EF4444", fontSize: "0.85rem", marginBottom: "16px", textAlign: "center" },
   cta: { textAlign: "center" },
-  submitBtn: { display: "inline-flex", alignItems: "center", gap: "10px", padding: "13px 36px", background: "linear-gradient(135deg, #059669, #10B981)", color: "#fff", border: "none", borderRadius: "10px", fontWeight: "600", fontSize: "0.95rem", fontFamily: "'Inter', sans-serif", boxShadow: "0 4px 20px rgba(16,185,129,0.25)" },
+  submitBtn: { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px", minHeight: "50px", padding: "14px 36px", background: "linear-gradient(135deg, #059669, #10B981)", color: "#fff", border: "none", borderRadius: "10px", fontWeight: "600", fontSize: "0.95rem", fontFamily: "'Inter', sans-serif", boxShadow: "0 4px 20px rgba(16,185,129,0.25)", transition: "all 0.2s ease" },
   ctaNote: { color: "#3B4B6B", fontSize: "0.78rem", marginTop: "10px" },
 };
