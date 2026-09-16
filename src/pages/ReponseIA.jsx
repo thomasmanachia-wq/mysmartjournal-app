@@ -10,11 +10,12 @@ import {
   BookOpen, Activity, AlertCircle
 } from "lucide-react";
 import FeedbackWidget from "../components/FeedbackWidget.jsx";
+import PremiumGate from "../components/PremiumGate.jsx";
 
 export default function ReponseIA() {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { plan } = usePlan();
+  const { plan, isPremium } = usePlan();
   const [reflections, setReflections] = useState({});
   const [importing, setImporting] = useState(false);
   const [importDone, setImportDone] = useState(false);
@@ -279,71 +280,76 @@ export default function ReponseIA() {
         </div>
       </div>
 
-      {/* ACTION PLAN */}
-      {safe.action_plan.length > 0 && (
-        <>
-          <SectionTitle icon={<Target size={13} color="#6B7FA3" />} label="Action Plan" />
-          <div style={styles.card}>
-            {safe.action_plan.map((action, i) => (
-              <div key={i} style={styles.actionItem}>
-                <div style={styles.actionNum}>{i + 1}</div>
-                <span style={styles.listText}>{action}</span>
-                <ChevronRight size={13} color="#1E2D45" style={{ flexShrink: 0, marginLeft: "auto" }} />
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* LONG-TERM PROGRESS */}
-      {hasLongTermProgress && (
-        <>
-          <SectionTitle icon={<Activity size={13} color="#6B7FA3" />} label="Long-Term Progress" />
-          <div style={styles.progressCard}>
-            {safe.recurring_pattern && (
-              <ProgressInsight
-                label="Recurring Pattern"
-                text={safe.recurring_pattern}
-                color="#F59E0B"
-              />
-            )}
-            {safe.progress_note && (
-              <ProgressInsight
-                label="Progress Note"
-                text={safe.progress_note}
-                color="#8B5CF6"
-              />
-            )}
-          </div>
-        </>
-      )}
-
-      {/* REFLECTION QUESTIONS */}
-      {safe.reflection_questions.length > 0 && (
-        <>
-          <SectionTitle icon={<BookOpen size={13} color="#6B7FA3" />} label="Post-Trade Review" note="(Optional)" />
-          <div style={styles.card}>
-            <p style={styles.reflectionIntro}>These self-audit questions are optional but designed to build self-awareness and reinforce institutional habits. You may answer them or log your trade directly below.</p>
-            {safe.reflection_questions.map((q, i) => (
-              <div key={i} style={styles.questionBlock}>
-                <p style={styles.questionText}>{i + 1}. {q}</p>
-                <textarea
-                  style={{ ...styles.textarea, borderColor: (reflections[i] || "").trim().length > 10 ? "#10B98155" : "#1E2D45" }}
-                  placeholder="Your reflection (optional)..."
-                  value={reflections[i] || ""}
-                  onChange={(e) => setReflections((prev) => ({ ...prev, [i]: e.target.value }))}
-                  rows={3}
-                />
-                {(reflections[i] || "").trim().length > 10 && (
-                  <div style={styles.answered}>
-                    <CheckCircle size={11} color="#10B981" />
-                    <span style={{ color: "#10B981", fontSize: "0.72rem" }}>Answered</span>
+      {/* PRO-GATED SECTION: ACTION PLAN & REFLECTION QUESTIONS */}
+      {(safe.action_plan.length > 0 || safe.reflection_questions.length > 0) && (
+        <PremiumGate feature="Detailed Action Plan & Self-Audit">
+          {/* ACTION PLAN */}
+          {safe.action_plan.length > 0 && (
+            <div style={{ marginBottom: "20px" }}>
+              <SectionTitle icon={<Target size={13} color="#6B7FA3" />} label="Action Plan" />
+              <div style={styles.card}>
+                {safe.action_plan.map((action, i) => (
+                  <div key={i} style={styles.actionItem}>
+                    <div style={styles.actionNum}>{i + 1}</div>
+                    <span style={styles.listText}>{action}</span>
+                    <ChevronRight size={13} color="#1E2D45" style={{ flexShrink: 0, marginLeft: "auto" }} />
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* LONG-TERM PROGRESS */}
+          {hasLongTermProgress && (
+            <div style={{ marginBottom: "20px" }}>
+              <SectionTitle icon={<Activity size={13} color="#6B7FA3" />} label="Long-Term Progress" />
+              <div style={styles.progressCard}>
+                {safe.recurring_pattern && (
+                  <ProgressInsight
+                    label="Recurring Pattern"
+                    text={safe.recurring_pattern}
+                    color="#F59E0B"
+                  />
+                )}
+                {safe.progress_note && (
+                  <ProgressInsight
+                    label="Progress Note"
+                    text={safe.progress_note}
+                    color="#8B5CF6"
+                  />
                 )}
               </div>
-            ))}
-          </div>
-        </>
+            </div>
+          )}
+
+          {/* REFLECTION QUESTIONS */}
+          {safe.reflection_questions.length > 0 && (
+            <div>
+              <SectionTitle icon={<BookOpen size={13} color="#6B7FA3" />} label="Post-Trade Review" note="(Optional)" />
+              <div style={styles.card}>
+                <p style={styles.reflectionIntro}>These self-audit questions are optional but designed to build self-awareness and reinforce institutional habits. You may answer them or log your trade directly below.</p>
+                {safe.reflection_questions.map((q, i) => (
+                  <div key={i} style={styles.questionBlock}>
+                    <p style={styles.questionText}>{i + 1}. {q}</p>
+                    <textarea
+                      style={{ ...styles.textarea, borderColor: (reflections[i] || "").trim().length > 10 ? "#10B98155" : "#1E2D45" }}
+                      placeholder="Your reflection (optional)..."
+                      value={reflections[i] || ""}
+                      onChange={(e) => setReflections((prev) => ({ ...prev, [i]: e.target.value }))}
+                      rows={3}
+                    />
+                    {(reflections[i] || "").trim().length > 10 && (
+                      <div style={styles.answered}>
+                        <CheckCircle size={11} color="#10B981" />
+                        <span style={{ color: "#10B981", fontSize: "0.72rem" }}>Answered</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </PremiumGate>
       )}
 
       {/* ACTION PRINCIPALE : ENREGISTRER DANS LE JOURNAL */}

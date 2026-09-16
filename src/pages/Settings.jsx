@@ -36,8 +36,9 @@ export default function Settings() {
       const params = new URLSearchParams(window.location.search);
       const sectionParam = params.get("section") || params.get("tab");
       if (sectionParam) {
+        const normalized = sectionParam === "billing" ? "facturation" : sectionParam;
         const valid = ["compte", "trading", "ia", "app", "facturation", "support"];
-        if (valid.includes(sectionParam)) setSection(sectionParam);
+        if (valid.includes(normalized)) setSection(normalized);
       }
     }
     load();
