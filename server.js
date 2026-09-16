@@ -248,6 +248,7 @@ app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" })
         if (supabaseError) {
           log("error", "supabase_update_failed", { error: supabaseError.message, userId });
           captureBackendError(supabaseError, { route: "webhook/checkout.session.completed", userId });
+          return res.status(500).json({ error: "Database update failed, awaiting Stripe retry." });
         } else if (alreadyPremium) {
           // Retry Stripe sur un événement déjà traité — on ne renvoie pas l'email
           log("warn", "webhook_checkout_duplicate", {
@@ -312,7 +313,7 @@ app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" })
         const subscription = event.data.object;
         const customerId = subscription.customer;
 
-        await updateUserSettingsBy(
+        const { error: cancelError } = await updateUserSettingsBy(
           "stripe_customer_id",
           customerId,
           {
@@ -323,6 +324,12 @@ app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" })
             updated_at: new Date().toISOString(),
           }
         );
+
+        if (cancelError) {
+          log("error", "supabase_cancel_failed", { error: cancelError.message, customerId });
+          captureBackendError(cancelError, { route: "webhook/customer.subscription.deleted", customerId });
+          return res.status(500).json({ error: "Database update failed, awaiting Stripe retry." });
+        }
 
         log("info", "subscription_cancelled", { customerId });
         trackEvent(customerId, "subscription_cancelled_by_webhook", { customer_id: customerId });
@@ -335,7 +342,7 @@ app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" })
         const status = subscription.status;
         const shouldRemainPremium = ["active", "trialing", "past_due"].includes(status);
 
-        await updateUserSettingsBy(
+        const { error: updateError } = await updateUserSettingsBy(
           "stripe_customer_id",
           customerId,
           {
@@ -346,6 +353,12 @@ app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" })
             updated_at: new Date().toISOString(),
           }
         );
+
+        if (updateError) {
+          log("error", "supabase_update_failed", { error: updateError.message, customerId });
+          captureBackendError(updateError, { route: "webhook/customer.subscription.updated", customerId });
+          return res.status(500).json({ error: "Database update failed, awaiting Stripe retry." });
+        }
 
         log("info", "subscription_updated", {
           customerId,
@@ -471,7 +484,7 @@ async function requireAuth(req, res, next) {
 
 function requireAdmin(req, res, next) {
   const email = req.user?.email?.toLowerCase();
-  const role = req.user?.app_metadata?.role || req.user?.user_metadata?.role;
+  const role = req.user?.app_metadata?.role;
 
   if (role === "admin" || (email && ADMIN_EMAILS.includes(email))) {
     return next();
@@ -919,6 +932,10 @@ app.post(
           metadata: { user_id },
         });
         customerId = customer.id;
+        await updateUserSettingsBy("user_id", user_id, {
+          stripe_customer_id: customerId,
+          updated_at: new Date().toISOString(),
+        });
       }
 
       const session = await stripe.checkout.sessions.create({
