@@ -76,12 +76,29 @@ function trackEvent(distinctId, event, properties = {}) {
 
 const app = express();
 app.set("trust proxy", 1);
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const stripe = (typeof process.env.STRIPE_SECRET_KEY === "string" && process.env.STRIPE_SECRET_KEY.startsWith("sk_"))
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
+
+if (!stripe) {
+  console.warn("STRIPE_SECRET_KEY is not configured - billing endpoints disabled");
+}
+
+const supabase = (process.env.VITE_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+  ? createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
+  : null;
+
+if (!supabase) {
+  console.warn("SUPABASE credentials not configured - database operations disabled");
+}
+
+const openai = (typeof process.env.OPENAI_API_KEY === "string" && process.env.OPENAI_API_KEY.startsWith("sk-"))
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 45000 })
+  : null;
+
+if (!openai) {
+  console.warn("OPENAI_API_KEY is not configured - AI analysis disabled");
+}
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "thomasmanach06@gmail.com")
   .split(",")
   .map((email) => email.trim().toLowerCase())
@@ -160,6 +177,9 @@ async function updateUserSettingsBy(column, value, fields) {
 // ─── WEBHOOK (AVANT tout middleware) ──────────────────────────────────────────
 
 app.post(["/api/webhook", "/webhook"], express.raw({ type: "application/json" }), async (req, res) => {
+  if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return res.status(503).json({ error: "Stripe webhook not configured." });
+  }
   const sig = req.headers["stripe-signature"];
   let event;
 
@@ -430,6 +450,9 @@ app.use(globalLimiter);
 // ─── MIDDLEWARE AUTH ───────────────────────────────────────────────────────────
 
 async function requireAuth(req, res, next) {
+  if (!supabase) {
+    return res.status(503).json({ error: "Service de base de données non configuré." });
+  }
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Non authentifié." });
@@ -872,6 +895,10 @@ app.post(
       return res.status(403).json({ error: "Accès refusé." });
     }
 
+    if (!stripe) {
+      return res.status(503).json({ error: "Service de paiement non configuré." });
+    }
+
     try {
       if (hasInvalidProductionUrl) {
         log("error", "invalid_production_app_url", { appBaseUrl: APP_BASE_URL });
@@ -923,6 +950,9 @@ app.post(
 
 // Cancel subscription
 app.post(["/api/cancel-subscription", "/cancel-subscription"], requireAuth, async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: "Service de paiement non configuré." });
+  }
   const userId = req.user.id;
   try {
     const { data: settings } = await supabase
@@ -961,6 +991,9 @@ app.post(["/api/cancel-subscription", "/cancel-subscription"], requireAuth, asyn
 
 // Stripe customer portal
 app.post(["/api/create-billing-portal-session", "/create-billing-portal-session"], requireAuth, async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: "Service de paiement non configuré." });
+  }
   const userId = req.user.id;
   try {
     const { data: settings } = await supabase
