@@ -12,7 +12,7 @@ const TABLE_COLUMNS = [
   { key: "direction", label: "Direction", align: "center", width: "10%" },
   { key: "pnl", label: "P&L", align: "center", width: "10%" },
   { key: "result", label: "Result", align: "center", width: "10%" },
-  { key: "setup", label: "Setup", align: "left", width: "26%" },
+  { key: "setup", label: "Setup", align: "center", width: "26%" },
   { key: "ai_score", label: "AI Score", align: "center", width: "10%" },
   { key: "details", label: "Details", align: "center", width: "8%" },
 ];
@@ -214,9 +214,9 @@ export default function Journal() {
                         {resultLabel}
                       </span>
                     </td>
-                    <td style={{ ...styles.td, textAlign: "left" }}>
+                    <td style={{ ...styles.td, textAlign: "center" }}>
                       {trade.setup
-                        ? <span style={{ ...styles.badge, backgroundColor: "#1E3A5F", color: "#3B82F6" }}>{trade.setup}</span>
+                        ? <span style={{ ...styles.badge, backgroundColor: "#1E3A5F", color: "#3B82F6", maxWidth: "100%", whiteSpace: "normal", textAlign: "center" }}>{trade.setup}</span>
                         : <span style={{ color: "#3B4B6B" }}>—</span>
                       }
                     </td>

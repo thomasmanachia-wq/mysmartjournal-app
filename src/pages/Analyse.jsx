@@ -11,7 +11,7 @@ import {
   Plus, X, ChevronDown
 } from "lucide-react";
 
-const EMOTIONS = ["Confident", "Calm", "FOMO / Rushed", "Anxious", "Frustrated / Revenge"];
+const EMOTIONS = ["Confident", "Calm", "FOMO / Rushed", "Anxious", "Revenge"];
 const USER_PREFS_KEY = "analysis_preferences";
 const ANALYSIS_DRAFT_KEY = "msj_analysis_draft_v1";
 const ANALYSIS_PREFS_STORAGE_KEY = "msj_analysis_preferences_v1";
@@ -545,12 +545,12 @@ export default function Analyse() {
             </div>
           </div>
 
-          <div style={styles.card}>
+          <div style={{ ...styles.card, flex: 1, display: "flex", flexDirection: "column" }}>
             <div style={styles.cardHeader}>
               <div style={styles.cardIconWrap}><Target size={13} color="#3B82F6" /></div>
               <h2 style={styles.cardTitle}>Execution & Targets</h2>
             </div>
-            <div style={styles.fieldsGrid2}>
+            <div style={{ ...styles.fieldsGrid2, flex: 1, alignContent: "space-between" }}>
               <Field label="Take Profit"><input style={inputStyle("takeProfit")} type="number" step="any" name="takeProfit" value={form.takeProfit} onChange={handleChange} placeholder="Target" {...fp("takeProfit")} /></Field>
               <Field label="Stop Loss"><input style={inputStyle("stopLoss")} type="number" step="any" name="stopLoss" value={form.stopLoss} onChange={handleChange} placeholder="Stop level" {...fp("stopLoss")} /></Field>
               <Field label="Position Size (Lots)"><input style={inputStyle("size")} type="number" step="any" name="size" value={form.size} onChange={handleChange} placeholder="0.01" {...fp("size")} /></Field>
@@ -580,12 +580,12 @@ export default function Analyse() {
           </div>
         </div>
 
-        <div style={{ ...styles.card, display: "flex", flexDirection: "column" }}>
+        <div style={{ ...styles.card, display: "flex", flexDirection: "column", height: "100%" }}>
           <div style={styles.cardHeader}>
             <div style={styles.cardIconWrap}><Brain size={13} color="#3B82F6" /></div>
             <h2 style={styles.cardTitle}>Strategy & Mindset</h2>
           </div>
-          <div style={{ ...styles.fields, flex: 1 }}>
+          <div style={{ ...styles.fields, flex: 1, display: "flex", flexDirection: "column" }}>
             <SmartSelectField
               label="Setup"
               name="setup"
@@ -631,7 +631,7 @@ export default function Analyse() {
               }}
             />
             <Field label="Trade Context & Thesis" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <textarea style={{ ...inputStyle("notes"), flex: 1, minHeight: "80px", resize: "none" }} name="notes" value={form.notes} onChange={handleChange} placeholder="Trade thesis, confluence factors, invalidation triggers..." {...fp("notes")} />
+              <textarea style={{ ...inputStyle("notes"), flex: 1, minHeight: "75px", resize: "none" }} name="notes" value={form.notes} onChange={handleChange} placeholder="Trade thesis, confluence factors, invalidation triggers..." {...fp("notes")} />
             </Field>
             <Field label="Risk (%)"><input style={inputStyle("risk")} type="number" step="any" name="risk" value={form.risk} onChange={handleChange} placeholder="Ex: 1" {...fp("risk")} /></Field>
             <Field label="Pre-trade State">
@@ -644,7 +644,7 @@ export default function Analyse() {
                     ? "#F59E0B"
                     : e === "FOMO / Rushed"
                     ? "#EF4444"
-                    : "#A855F7";
+                    : "#8B5CF6";
                   return (
                     <button
                       key={e}
@@ -839,7 +839,7 @@ const styles = {
   rrText: { color: "#6B7FA3", fontSize: "0.78rem" },
   rrValue: { fontWeight: "700", fontSize: "0.9rem" },
   mainGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", alignItems: "stretch", marginBottom: "28px" },
-  leftCol: { display: "flex", flexDirection: "column", gap: "16px" },
+  leftCol: { display: "flex", flexDirection: "column", gap: "16px", height: "100%" },
   card: { backgroundColor: "#0D1421", borderRadius: "10px", border: "1px solid #1E2D45", padding: "20px", boxShadow: "0 2px 16px rgba(0,0,0,0.25)" },
   cardHeader: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" },
   cardIconWrap: { width: "26px", height: "26px", borderRadius: "7px", backgroundColor: "#1E3A5F44", border: "1px solid #3B82F633", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
@@ -863,8 +863,8 @@ const styles = {
   inlineAddRow: { display: "grid", gridTemplateColumns: "1fr auto", gap: "6px", marginTop: "2px" },
   inlineAddInput: { padding: "7px 10px", fontSize: "0.78rem", borderRadius: "7px" },
   inlineConfirmBtn: { padding: "7px 10px", borderRadius: "7px", border: "1px solid #1E2D45", backgroundColor: "#1E3A5F44", color: "#60A5FA", fontSize: "0.72rem", fontWeight: "600", cursor: "pointer", fontFamily: "'Inter', sans-serif" },
-  emotions: { display: "flex", flexWrap: "wrap", gap: "8px" },
-  emotionBtn: { padding: "8px 14px", borderRadius: "8px", fontSize: "0.75rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s ease", display: "inline-flex", alignItems: "center", justifyContent: "center" },
+  emotions: { display: "flex", flexWrap: "wrap", gap: "6px" },
+  emotionBtn: { padding: "6px 12px", borderRadius: "7px", fontSize: "0.74rem", fontWeight: "500", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.15s ease", display: "inline-flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" },
   dirWrapper: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" },
 
   dirBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", padding: "9px", borderRadius: "8px", fontWeight: "600", fontSize: "0.82rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "all 0.2s" },
