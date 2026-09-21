@@ -1,24 +1,27 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import logo from "./assets/logo.png";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { PlanProvider } from "./context/PlanContext.jsx";
 import { OnboardingProvider, useOnboarding } from "./context/OnboardingContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Onboarding from "./pages/Onboarding.jsx";
-import Journal from "./pages/Journal.jsx";
-import Analyse from "./pages/Analyse.jsx";
-import ReponseIA from "./pages/ReponseIA.jsx";
-import TradeDetail from "./pages/TradeDetail.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
-import Settings from "./pages/Settings.jsx";
-import TermsOfService from "./pages/TermsOfService.jsx";
-import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
-import TradingDisclaimer from "./pages/TradingDisclaimer.jsx";
-import AdminFeedback from "./pages/AdminFeedback.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+
+// Lazy-load heavy authenticated and legal pages to keep landing page bundle ultra-fast (< 800ms budget)
+const Journal = lazy(() => import("./pages/Journal.jsx"));
+const Onboarding = lazy(() => import("./pages/Onboarding.jsx"));
+const Analyse = lazy(() => import("./pages/Analyse.jsx"));
+const ReponseIA = lazy(() => import("./pages/ReponseIA.jsx"));
+const TradeDetail = lazy(() => import("./pages/TradeDetail.jsx"));
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const Settings = lazy(() => import("./pages/Settings.jsx"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService.jsx"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
+const TradingDisclaimer = lazy(() => import("./pages/TradingDisclaimer.jsx"));
+const AdminFeedback = lazy(() => import("./pages/AdminFeedback.jsx"));
 import {
   User, CreditCard, MessageSquare, LogOut,
   Shield, ChevronDown, ChevronUp,
@@ -32,6 +35,21 @@ function OnboardingGuard({ children }) {
   if (loading) return null;
   if (!onboardingDone) return <Navigate to="/onboarding" replace />;
   return children;
+}
+
+function HomeRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) {
+    return (
+      <ProtectedRoute>
+        <OnboardingGuard>
+          <Journal />
+        </OnboardingGuard>
+      </ProtectedRoute>
+    );
+  }
+  return <LandingPage />;
 }
 
 function DropdownItem({ label, icon: Icon, onClick, danger, muted }) {
@@ -132,7 +150,7 @@ function NavBar() {
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  if (location.pathname === "/onboarding") return null;
+  if (location.pathname === "/onboarding" || location.pathname === "/landing") return null;
   if (!user) return null;
 
   const isAdmin = ADMIN_EMAILS.includes(user.email);
@@ -281,7 +299,7 @@ function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!user || location.pathname === "/onboarding") return null;
+  if (!user || location.pathname === "/onboarding" || location.pathname === "/landing") return null;
 
   const tabs = [
     { label: "Audit", path: "/analyse", icon: Zap },
@@ -349,12 +367,14 @@ function BottomNav() {
 
 function AppShell() {
   const location = useLocation();
+  const { user } = useAuth();
   const isOnboarding = location.pathname === "/onboarding";
+  const isLanding = location.pathname === "/landing" || (location.pathname === "/" && !user);
 
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#070B14",
+      backgroundColor: isLanding ? "#09090B" : "#070B14",
       color: "#E8EDF5",
       fontFamily: "'Inter', sans-serif",
       overflowX: "hidden",
@@ -362,35 +382,39 @@ function AppShell() {
       position: "relative",
     }}>
       <NavBar />
-      <main className={isOnboarding ? "" : "app-main-container"} style={isOnboarding ? navStyles.onboardingMain : navStyles.main}>
-        <Routes>
-          <Route path="/login"      element={<Login />} />
-          <Route path="/signup"     element={<Signup />} />
-          <Route path="/terms"      element={<TermsOfService />} />
-          <Route path="/privacy"    element={<PrivacyPolicy />} />
-          <Route path="/disclaimer" element={<TradingDisclaimer />} />
-          <Route path="/admin/feedback" element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
-          <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <OnboardingGuard><Journal /></OnboardingGuard>
-            </ProtectedRoute>
-          } />
-          <Route path="/analyse" element={
-            <ProtectedRoute>
-              <OnboardingGuard><Analyse /></OnboardingGuard>
-            </ProtectedRoute>
-          } />
-          <Route path="/reponse-ia" element={<ProtectedRoute><ReponseIA /></ProtectedRoute>} />
-          <Route path="/trade/:id"  element={<ProtectedRoute><TradeDetail /></ProtectedRoute>} />
-          <Route path="/dashboard"  element={
-            <ProtectedRoute>
-              <OnboardingGuard><Dashboard /></OnboardingGuard>
-            </ProtectedRoute>
-          } />
-          <Route path="/settings"   element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="*"           element={<Navigate to="/" replace />} />
-        </Routes>
+      <main className={isOnboarding || isLanding ? "" : "app-main-container"} style={isOnboarding || isLanding ? navStyles.onboardingMain : navStyles.main}>
+        <Suspense fallback={<div className="min-h-screen w-full bg-[#09090B]" />}>
+          <Routes>
+            <Route path="/login"      element={<Login />} />
+            <Route path="/signup"     element={<Signup />} />
+            <Route path="/terms"      element={<TermsOfService />} />
+            <Route path="/privacy"    element={<PrivacyPolicy />} />
+            <Route path="/disclaimer" element={<TradingDisclaimer />} />
+            <Route path="/admin/feedback" element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
+            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+            <Route path="/landing"    element={<LandingPage />} />
+            <Route path="/journal"    element={
+              <ProtectedRoute>
+                <OnboardingGuard><Journal /></OnboardingGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/analyse" element={
+              <ProtectedRoute>
+                <OnboardingGuard><Analyse /></OnboardingGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/reponse-ia" element={<ProtectedRoute><ReponseIA /></ProtectedRoute>} />
+            <Route path="/trade/:id"  element={<ProtectedRoute><TradeDetail /></ProtectedRoute>} />
+            <Route path="/dashboard"  element={
+              <ProtectedRoute>
+                <OnboardingGuard><Dashboard /></OnboardingGuard>
+              </ProtectedRoute>
+            } />
+            <Route path="/settings"   element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="*"           element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </main>
       <BottomNav />
     </div>

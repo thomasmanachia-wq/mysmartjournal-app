@@ -1,0 +1,35 @@
+[
+  {
+    "id": "vid-001-stoploss",
+    "hookText": "HOW 90% OF TRADERS BLOW PROP ACCOUNTS.",
+    "tradePair": "EUR/USD",
+    "direction": "LONG",
+    "pnl": "-$2,450.00",
+    "leakBadge": "Moved Stop-Loss",
+    "aiScore": 28,
+    "aiVerdict": "CRITICAL: Daily Drawdown rule breached.",
+    "ctaText": "Fix your leaks. mysmartjournal.app"
+  },
+  {
+    "id": "vid-002-revenge",
+    "hookText": "THE 3:30 PM TRADE THAT KILLS YOUR WEEK.",
+    "tradePair": "GBP/JPY",
+    "direction": "SHORT",
+    "pnl": "-$1,800.00",
+    "leakBadge": "Revenge Trading / Tilt",
+    "aiScore": 34,
+    "aiVerdict": "WARNING: Emotional execution detected.",
+    "ctaText": "Audit your discipline. mysmartjournal.app"
+  },
+  {
+    "id": "vid-003-breakeven",
+    "hookText": "MOVING TO BREAKEVEN TOO EARLY CAPPED YOUR WINS.",
+    "tradePair": "XAU/USD",
+    "direction": "LONG",
+    "pnl": "+$0.00 (BE)",
+    "leakBadge": "Fear of Loss",
+    "aiScore": 55,
+    "aiVerdict": "LEAK: 1:4 R:R missed due to micro-management.",
+    "ctaText": "Stop capping your wins. mysmartjournal.app"
+  }
+]

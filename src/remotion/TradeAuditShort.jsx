@@ -7,21 +7,46 @@ import {
 
 export const TradeAuditShort = ({
   pair = "EUR/USD",
+  tradePair,
   direction = "LONG",
   entryPrice = "1.08450",
   stopLoss = "1.08250",
   takeProfit = "1.09090",
   rr = "1:3.2",
   overallScore = 8.4,
-  disciplineScore = 9.0,
-  psychologyScore = 8.5,
-  executionScore = 7.8,
+  disciplineScore,
+  psychologyScore,
+  executionScore,
   mainLeak = "Late entry beyond M15 discount zone mitigation",
   mainRule = "Wait for liquidity pool sweep before market execution",
   cta = "mysmartjournal.app",
+  // New props from scripts.json
+  id,
+  hookText,
+  pnl,
+  leakBadge,
+  aiScore,
+  aiVerdict,
+  ctaText,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const resolvedPair = tradePair || pair;
+  const resolvedHook = hookText || "Auditing Institutional Edge...";
+  const resolvedBadge = leakBadge || (direction === "LONG" ? "Logged Trade Entry" : "Short Execution");
+  const resolvedVerdict = aiVerdict || mainLeak;
+  const resolvedRule = leakBadge ? `Risk desk mandatory protocol: ${leakBadge}` : mainRule;
+  const resolvedCta = ctaText || cta;
+
+  const isScale100 = typeof aiScore === "number";
+  const numericScore = isScale100 ? aiScore : (typeof overallScore === "number" ? overallScore * 10 : 84);
+  const targetScoreFill = isScale100 ? numericScore : (numericScore / 10);
+  const scoreColor = numericScore < 40 ? "#EF4444" : numericScore < 70 ? "#F59E0B" : "#10B981";
+
+  const resolvedDiscipline = disciplineScore ?? Math.max(1, Math.min(10, (numericScore / 10) * 1.05));
+  const resolvedPsychology = psychologyScore ?? Math.max(1, Math.min(10, (numericScore / 10) * 0.95));
+  const resolvedExecution = executionScore ?? Math.max(1, Math.min(10, (numericScore / 10) * 1.0));
 
   // ─── TRANSITIONS & TIMELINE ───────────────────────────────────────────────
   // Scene 1: Trade Submission & Scan (0 -> 75 frames)
@@ -75,20 +100,20 @@ export const TradeAuditShort = ({
     extrapolateRight: "clamp",
   });
 
-  const scoreFill = interpolate(frame, [85, 135], [0, overallScore], {
+  const scoreFill = interpolate(frame, [85, 135], [0, targetScoreFill], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
-  const barDiscipline = interpolate(frame, [100, 140], [0, disciplineScore * 10], {
+  const barDiscipline = interpolate(frame, [100, 140], [0, resolvedDiscipline * 10], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const barPsychology = interpolate(frame, [110, 150], [0, psychologyScore * 10], {
+  const barPsychology = interpolate(frame, [110, 150], [0, resolvedPsychology * 10], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const barExecution = interpolate(frame, [120, 160], [0, executionScore * 10], {
+  const barExecution = interpolate(frame, [120, 160], [0, resolvedExecution * 10], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -222,26 +247,28 @@ export const TradeAuditShort = ({
               style={{
                 fontSize: 24,
                 fontWeight: 800,
-                color: "#F59E0B",
+                color: scoreColor,
                 textTransform: "uppercase",
                 letterSpacing: "0.15em",
-                backgroundColor: "rgba(245, 158, 11, 0.12)",
-                padding: "8px 20px",
+                backgroundColor: `${scoreColor}18`,
+                padding: "8px 24px",
                 borderRadius: 8,
-                border: "1px solid rgba(245, 158, 11, 0.3)",
+                border: `1px solid ${scoreColor}44`,
               }}
             >
-              Logged Trade Entry
+              {resolvedBadge}
             </span>
             <h2
               style={{
-                fontSize: 56,
+                fontSize: 52,
                 fontWeight: 900,
                 margin: "24px 0 0 0",
                 letterSpacing: "-0.02em",
+                lineHeight: 1.15,
+                textTransform: "uppercase",
               }}
             >
-              Auditing Institutional Edge...
+              {resolvedHook}
             </h2>
           </div>
 
@@ -273,20 +300,37 @@ export const TradeAuditShort = ({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
               <div>
                 <span style={{ fontSize: 24, color: "#6B7FA3", fontWeight: 600 }}>ASSET PAIR</span>
-                <p style={{ fontSize: 52, fontWeight: 900, margin: "4px 0 0 0" }}>{pair}</p>
+                <p style={{ fontSize: 52, fontWeight: 900, margin: "4px 0 0 0" }}>{resolvedPair}</p>
               </div>
-              <div
-                style={{
-                  backgroundColor: direction === "LONG" ? "rgba(16, 185, 129, 0.16)" : "rgba(239, 68, 68, 0.16)",
-                  border: `2px solid ${direction === "LONG" ? "#10B981" : "#EF4444"}`,
-                  color: direction === "LONG" ? "#10B981" : "#EF4444",
-                  fontSize: 32,
-                  fontWeight: 900,
-                  padding: "16px 36px",
-                  borderRadius: 16,
-                }}
-              >
-                {direction}
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                {pnl && (
+                  <div
+                    style={{
+                      fontSize: 32,
+                      fontWeight: 900,
+                      color: pnl.startsWith("-") ? "#EF4444" : "#10B981",
+                      backgroundColor: pnl.startsWith("-") ? "rgba(239, 68, 68, 0.16)" : "rgba(16, 185, 129, 0.16)",
+                      padding: "14px 26px",
+                      borderRadius: 16,
+                      border: `2px solid ${pnl.startsWith("-") ? "rgba(239, 68, 68, 0.35)" : "rgba(16, 185, 129, 0.35)"}`,
+                    }}
+                  >
+                    {pnl}
+                  </div>
+                )}
+                <div
+                  style={{
+                    backgroundColor: direction === "LONG" ? "rgba(16, 185, 129, 0.16)" : "rgba(239, 68, 68, 0.16)",
+                    border: `2px solid ${direction === "LONG" ? "#10B981" : "#EF4444"}`,
+                    color: direction === "LONG" ? "#10B981" : "#EF4444",
+                    fontSize: 32,
+                    fontWeight: 900,
+                    padding: "16px 36px",
+                    borderRadius: 16,
+                  }}
+                >
+                  {direction}
+                </div>
               </div>
             </div>
 
@@ -402,20 +446,20 @@ export const TradeAuditShort = ({
                 width: 260,
                 height: 260,
                 borderRadius: "50%",
-                border: "8px solid #10B981",
+                border: `8px solid ${scoreColor}`,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 0 60px rgba(16, 185, 129, 0.45)",
-                backgroundColor: "rgba(16, 185, 129, 0.08)",
+                boxShadow: `0 0 60px ${scoreColor}44`,
+                backgroundColor: `${scoreColor}14`,
               }}
             >
-              <span style={{ fontSize: 92, fontWeight: 900, color: "#10B981", lineHeight: 1 }}>
-                {scoreFill.toFixed(1)}
+              <span style={{ fontSize: 92, fontWeight: 900, color: scoreColor, lineHeight: 1 }}>
+                {scoreFill.toFixed(isScale100 ? 0 : 1)}
               </span>
-              <span style={{ fontSize: 26, color: "#6B7FA3", fontWeight: 800, marginTop: 4 }}>
-                / 10 OVERALL
+              <span style={{ fontSize: 24, color: "#6B7FA3", fontWeight: 800, marginTop: 6 }}>
+                {isScale100 ? "/ 100 AI SCORE" : "/ 10 OVERALL"}
               </span>
             </div>
 
@@ -547,7 +591,7 @@ export const TradeAuditShort = ({
                 </span>
               </div>
               <p style={{ fontSize: 32, fontWeight: 700, margin: 0, lineHeight: 1.4, color: "#E8EDF5" }}>
-                "{mainLeak}"
+                "{resolvedVerdict}"
               </p>
             </div>
 
@@ -564,11 +608,11 @@ export const TradeAuditShort = ({
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
                 <span style={{ fontSize: 32 }}>🎯</span>
                 <span style={{ fontSize: 26, fontWeight: 900, color: "#10B981", letterSpacing: "0.05em" }}>
-                  ACTIONABLE CORRECTION
+                  ACTIONABLE PROTOCOL
                 </span>
               </div>
               <p style={{ fontSize: 32, fontWeight: 700, margin: 0, lineHeight: 1.4, color: "#E8EDF5" }}>
-                "{mainRule}"
+                "{resolvedRule}"
               </p>
             </div>
           </div>
@@ -643,7 +687,7 @@ export const TradeAuditShort = ({
               letterSpacing: "-0.01em",
             }}
           >
-            Audit Free → {cta}
+            Audit Free → {resolvedCta}
           </div>
         </div>
       )}
