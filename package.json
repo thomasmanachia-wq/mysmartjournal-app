@@ -16,7 +16,9 @@
     "remotion:bulk": "node src/remotion/bulk-render.js",
     "remotion:bulk:stills": "node src/remotion/bulk-render.js --still",
     "remotion:autopsy": "remotion render src/remotion/index.js SplitAutopsy out/split-autopsy-v1.mp4",
-    "remotion:autopsy:still": "remotion still src/remotion/index.js SplitAutopsy out/split-autopsy-preview.png --frame=60"
+    "remotion:autopsy:still": "remotion still src/remotion/index.js SplitAutopsy out/split-autopsy-preview.png --frame=60",
+    "remotion:coldmath": "remotion render src/remotion/index.js ColdMathSimulator out/cold-math-simulator.mp4",
+    "remotion:coldmath:still": "remotion still src/remotion/index.js ColdMathSimulator out/cold-math-preview.png --frame=285"
   },
   "dependencies": {
     "@sentry/node": "^10.53.1",
