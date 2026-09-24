@@ -450,73 +450,48 @@ export default function Onboarding() {
             className="w-full max-w-xl flex flex-col items-center px-4"
             style={{ margin: "0 auto" }}
           >
-            {/* Titre et sous-titre vivants sans répétition */}
+            {/* Titre et sous-titre minimaliste */}
             <h1
               className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
               style={{ marginBottom: "10px" }}
             >
               Automate your trade logs
             </h1>
-            <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
-              style={{ margin: "0 auto 32px auto" }}
-            >
-              Connect your MT4 or MT5 account. Your metrics, drawdowns, and AI audits will update in real time after every session.
+            <p className="text-base text-slate-400 text-center mb-6 max-w-md mx-auto">
+              Sync your MT4/MT5 accounts for real-time AI audits.
             </p>
 
-            <div className="w-full flex flex-col items-center gap-5" style={{ width: "100%" }}>
-              {/* Badge de réassurance humaine avec bouclier */}
-              <div
-                className="w-full max-w-md flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-2"
-                style={{ margin: "0 auto 12px auto" }}
-              >
-                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" strokeWidth={1.8} />
-                <span className="text-xs sm:text-sm text-emerald-400 font-medium text-center">
-                  Strict Read-Only Access — Investor credentials strictly allow performance tracking. Your funds can never be touched or traded.
-                </span>
-              </div>
+            {/* Le Badge Sécurité (La Pilule discrète) */}
+            <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-8">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Read-Only Secure (Investor Password)</span>
+            </div>
 
-              {/* Formulaire avec libellés et champs entièrement centrés */}
-              <div className="w-full max-w-md flex flex-col gap-4" style={{ margin: "0 auto" }}>
-                <div>
-                  <label className="block text-center text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">
-                    Account Login
-                  </label>
-                  <input
-                    type="text"
-                    value={mtLogin}
-                    onChange={(e) => setMtLogin(e.target.value)}
-                    placeholder="e.g. 10293847"
-                    className="w-full text-center bg-slate-900/70 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                </div>
+            {/* Champs de saisie clonés sur le style des cartes */}
+            <div className="flex flex-col w-full gap-4" style={{ width: "100%" }}>
+              <input
+                type="text"
+                value={mtLogin}
+                onChange={(e) => setMtLogin(e.target.value)}
+                placeholder="Account Login (e.g. 10293847)"
+                className="w-full h-16 px-5 rounded-2xl border border-slate-800 bg-slate-900/40 text-white placeholder:text-slate-600 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+              />
 
-                <div>
-                  <label className="block text-center text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">
-                    Investor Password
-                  </label>
-                  <input
-                    type="password"
-                    value={mtPassword}
-                    onChange={(e) => setMtPassword(e.target.value)}
-                    placeholder="Read-only investor password"
-                    className="w-full text-center bg-slate-900/70 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                </div>
+              <input
+                type="password"
+                value={mtPassword}
+                onChange={(e) => setMtPassword(e.target.value)}
+                placeholder="Investor Password (Read-Only)"
+                className="w-full h-16 px-5 rounded-2xl border border-slate-800 bg-slate-900/40 text-white placeholder:text-slate-600 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+              />
 
-                <div>
-                  <label className="block text-center text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">
-                    Broker Server
-                  </label>
-                  <input
-                    type="text"
-                    value={mtServer}
-                    onChange={(e) => setMtServer(e.target.value)}
-                    placeholder="e.g. ICMarkets-Live01"
-                    className="w-full text-center bg-slate-900/70 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                </div>
-              </div>
+              <input
+                type="text"
+                value={mtServer}
+                onChange={(e) => setMtServer(e.target.value)}
+                placeholder="Broker Server (e.g. ICMarkets-Live01)"
+                className="w-full h-16 px-5 rounded-2xl border border-slate-800 bg-slate-900/40 text-white placeholder:text-slate-600 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+              />
             </div>
 
             <button
