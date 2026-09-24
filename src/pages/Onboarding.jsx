@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ShieldCheck,
   Landmark,
   Wallet,
   FlaskConical,
@@ -14,7 +15,6 @@ import {
   Zap,
   Flame,
   Crosshair,
-  Terminal,
   Check,
 } from "lucide-react";
 import logo from "../assets/logo.png";
@@ -205,12 +205,12 @@ export default function Onboarding() {
             className="w-full max-w-2xl flex flex-col items-center text-center px-4"
             style={{ margin: "0 auto" }}
           >
-            {/* L'Écrin du Logo */}
+            {/* L'Écrin du Logo agrandi et parfaitement centré */}
             <div
-              className="w-28 h-28 bg-slate-900/90 backdrop-blur-xl border border-slate-700/60 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/10"
+              className="w-32 h-32 bg-slate-900/90 backdrop-blur-xl border border-slate-700/60 rounded-[2.2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/10"
               style={{ margin: "0 auto 40px auto" }}
             >
-              <img src={logo} alt="MySmartJournal" className="w-16 h-16 object-contain" />
+              <img src={logo} alt="MySmartJournal" className="w-20 h-20 sm:w-22 sm:h-22 object-contain" />
             </div>
 
             {/* Titre sur une seule ligne */}
@@ -241,7 +241,7 @@ export default function Onboarding() {
           </motion.div>
         );
 
-      // Step 1: Capital (Questionnaire mode: logo moved to header)
+      // Step 1: Capital (Questionnaire mode)
       case 1:
         return (
           <motion.div
@@ -436,7 +436,7 @@ export default function Onboarding() {
           </motion.div>
         );
 
-      // Step 4: Terminal Connection
+      // Step 4: Terminal Connection (Humanized copy & centered form inputs)
       case 4:
         return (
           <motion.div
@@ -450,64 +450,72 @@ export default function Onboarding() {
             className="w-full max-w-xl flex flex-col items-center px-4"
             style={{ margin: "0 auto" }}
           >
+            {/* Titre et sous-titre vivants sans répétition */}
             <h1
               className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
               style={{ marginBottom: "10px" }}
             >
-              Connect your terminal
+              Automate your trade logs
             </h1>
             <p
               className="text-sm sm:text-base text-slate-400 text-center max-w-md"
-              style={{ margin: "0 auto 36px auto" }}
+              style={{ margin: "0 auto 32px auto" }}
             >
-              Sync trades automatically with read-only investor credentials.
+              Connect your MT4 or MT5 account. Your metrics, drawdowns, and AI audits will update in real time after every session.
             </p>
 
-            <div className="w-full flex flex-col gap-4" style={{ width: "100%" }}>
-              <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-2">
-                <Terminal className="w-5 h-5 text-emerald-400 shrink-0" strokeWidth={1.5} />
-                <span className="text-xs text-emerald-400 font-medium">
-                  Read-Only Secure — Investor password only, never your master password.
+            <div className="w-full flex flex-col items-center gap-5" style={{ width: "100%" }}>
+              {/* Badge de réassurance humaine avec bouclier */}
+              <div
+                className="w-full max-w-md flex items-center justify-center gap-3 px-5 py-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-2"
+                style={{ margin: "0 auto 12px auto" }}
+              >
+                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" strokeWidth={1.8} />
+                <span className="text-xs sm:text-sm text-emerald-400 font-medium text-center">
+                  Strict Read-Only Access — Investor credentials strictly allow performance tracking. Your funds can never be touched or traded.
                 </span>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Account Login
-                </label>
-                <input
-                  type="text"
-                  value={mtLogin}
-                  onChange={(e) => setMtLogin(e.target.value)}
-                  placeholder="e.g. 10293847"
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                />
-              </div>
+              {/* Formulaire avec libellés et champs entièrement centrés */}
+              <div className="w-full max-w-md flex flex-col gap-4" style={{ margin: "0 auto" }}>
+                <div>
+                  <label className="block text-center text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">
+                    Account Login
+                  </label>
+                  <input
+                    type="text"
+                    value={mtLogin}
+                    onChange={(e) => setMtLogin(e.target.value)}
+                    placeholder="e.g. 10293847"
+                    className="w-full text-center bg-slate-900/70 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Investor Password
-                </label>
-                <input
-                  type="password"
-                  value={mtPassword}
-                  onChange={(e) => setMtPassword(e.target.value)}
-                  placeholder="Read-only investor password"
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                />
-              </div>
+                <div>
+                  <label className="block text-center text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">
+                    Investor Password
+                  </label>
+                  <input
+                    type="password"
+                    value={mtPassword}
+                    onChange={(e) => setMtPassword(e.target.value)}
+                    placeholder="Read-only investor password"
+                    className="w-full text-center bg-slate-900/70 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                  Broker Server
-                </label>
-                <input
-                  type="text"
-                  value={mtServer}
-                  onChange={(e) => setMtServer(e.target.value)}
-                  placeholder="e.g. ICMarkets-Live01"
-                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                />
+                <div>
+                  <label className="block text-center text-xs font-semibold tracking-wider text-slate-400 uppercase mb-2">
+                    Broker Server
+                  </label>
+                  <input
+                    type="text"
+                    value={mtServer}
+                    onChange={(e) => setMtServer(e.target.value)}
+                    placeholder="e.g. ICMarkets-Live01"
+                    className="w-full text-center bg-slate-900/70 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
+                  />
+                </div>
               </div>
             </div>
 
@@ -526,7 +534,7 @@ export default function Onboarding() {
               onClick={handleFinish}
               disabled={submitting}
               style={{ margin: "16px auto 0 auto" }}
-              className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors py-1 cursor-pointer"
+              className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors py-1 cursor-pointer text-center"
             >
               Skip for now
             </button>
@@ -535,7 +543,7 @@ export default function Onboarding() {
               type="button"
               onClick={goPrev}
               style={{ margin: "8px auto 0 auto" }}
-              className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
+              className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer text-center"
             >
               Back
             </button>
@@ -562,19 +570,15 @@ export default function Onboarding() {
         className="w-full px-6 h-20 flex items-center justify-between shrink-0"
         style={{ maxWidth: "1280px", margin: "0 auto", width: "100%" }}
       >
-        {/* Left column (fixed width for perfect center alignment) */}
-        <div className="w-48 sm:w-60 flex items-center gap-3">
-          {step > 0 && (
-            <>
-              <img src={logo} alt="MySmartJournal" className="h-8 w-auto object-contain" />
-              <span className="text-base font-bold tracking-tight text-white hidden sm:inline">
-                MySmartJournal
-              </span>
-            </>
-          )}
+        {/* Left column: Logo agrandi + MySmartJournal toujours visible */}
+        <div className="w-56 sm:w-64 flex items-center gap-3">
+          <img src={logo} alt="MySmartJournal" className="h-10 sm:h-11 w-auto object-contain" />
+          <span className="text-lg font-bold tracking-tight text-white whitespace-nowrap">
+            MySmartJournal
+          </span>
         </div>
 
-        {/* Center column (capsule progress bar, dead center of screen) */}
+        {/* Center column: Capsule progress bar, locked dead center */}
         <div className="flex-1 flex items-center justify-center">
           {step > 0 && (
             <div className="w-48 sm:w-72 md:w-80 h-2 sm:h-2.5 bg-slate-800/90 rounded-full overflow-hidden border border-slate-700/40">
@@ -588,8 +592,8 @@ export default function Onboarding() {
           )}
         </div>
 
-        {/* Right column (matches left width so center is mathematically 50%) */}
-        <div className="w-48 sm:w-60 flex items-center justify-end">
+        {/* Right column: Log out button */}
+        <div className="w-56 sm:w-64 flex items-center justify-end">
           <button
             type="button"
             onClick={handleLogout}
