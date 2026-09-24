@@ -6,6 +6,7 @@ import { PlanProvider } from "./context/PlanContext.jsx";
 import { OnboardingProvider, useOnboarding } from "./context/OnboardingContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Onboarding from "./pages/Onboarding.jsx";
+import ActiveTrade from "./pages/ActiveTrade.jsx";
 import Journal from "./pages/Journal.jsx";
 import Analyse from "./pages/Analyse.jsx";
 import ReponseIA from "./pages/ReponseIA.jsx";
@@ -132,7 +133,7 @@ function NavBar() {
 
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
 
-  if (location.pathname === "/onboarding") return null;
+  if (location.pathname === "/onboarding" || location.pathname === "/active-trade") return null;
   if (!user) return null;
 
   const isAdmin = ADMIN_EMAILS.includes(user.email);
@@ -281,7 +282,7 @@ function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!user || location.pathname === "/onboarding") return null;
+  if (!user || location.pathname === "/onboarding" || location.pathname === "/active-trade") return null;
 
   const tabs = [
     { label: "Audit", path: "/analyse", icon: Zap },
@@ -349,7 +350,7 @@ function BottomNav() {
 
 function AppShell() {
   const location = useLocation();
-  const isOnboarding = location.pathname.startsWith("/onboarding");
+  const isFocusMode = location.pathname.startsWith("/onboarding") || location.pathname === "/active-trade";
 
   return (
     <div style={{
@@ -362,7 +363,7 @@ function AppShell() {
       position: "relative",
     }}>
       <NavBar />
-      <main className={isOnboarding ? "" : "app-main-container"} style={isOnboarding ? navStyles.onboardingMain : navStyles.main}>
+      <main className={isFocusMode ? "" : "app-main-container"} style={isFocusMode ? navStyles.onboardingMain : navStyles.main}>
         <Routes>
           <Route path="/login"      element={<Login />} />
           <Route path="/signup"     element={<Signup />} />
@@ -371,6 +372,7 @@ function AppShell() {
           <Route path="/disclaimer" element={<TradingDisclaimer />} />
           <Route path="/admin/feedback" element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+          <Route path="/active-trade" element={<ProtectedRoute><ActiveTrade /></ProtectedRoute>} />
           <Route path="/" element={
             <ProtectedRoute>
               <OnboardingGuard><Journal /></OnboardingGuard>
