@@ -215,15 +215,15 @@ export default function Onboarding() {
 
             {/* Titre sur une seule ligne */}
             <h1
-              className="text-3xl sm:text-4xl md:text-[42px] font-extrabold tracking-tight text-white text-center leading-tight sm:whitespace-nowrap"
-              style={{ marginBottom: "20px" }}
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center leading-tight sm:whitespace-nowrap"
+              style={{ marginBottom: "12px" }}
             >
               Welcome to MySmartJournal
             </h1>
 
-            {/* Sous-titre avec large respiration */}
+            {/* Sous-titre harmonisé */}
             <p
-              className="text-base sm:text-lg text-slate-400 text-center leading-relaxed max-w-xl sm:whitespace-nowrap"
+              className="text-base text-slate-400 text-center leading-relaxed max-w-md mx-auto"
               style={{ margin: "0 auto 64px auto" }}
             >
               The institutional discipline engine for Prop Firm traders.
@@ -256,13 +256,13 @@ export default function Onboarding() {
             style={{ margin: "0 auto" }}
           >
             <h1
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
-              style={{ marginBottom: "10px" }}
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center leading-tight"
+              style={{ marginBottom: "12px" }}
             >
               What do you use to Trade?
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              className="text-base text-slate-400 text-center leading-relaxed max-w-md mx-auto"
               style={{ margin: "0 auto 36px auto" }}
             >
               Select your primary trading account type.
@@ -321,13 +321,13 @@ export default function Onboarding() {
             style={{ margin: "0 auto" }}
           >
             <h1
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
-              style={{ marginBottom: "10px" }}
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center leading-tight"
+              style={{ marginBottom: "12px" }}
             >
               What are you currently trading?
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              className="text-base text-slate-400 text-center leading-relaxed max-w-md mx-auto"
               style={{ margin: "0 auto 36px auto" }}
             >
               Select all markets that apply.
@@ -386,13 +386,13 @@ export default function Onboarding() {
             style={{ margin: "0 auto" }}
           >
             <h1
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
-              style={{ marginBottom: "10px" }}
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center leading-tight"
+              style={{ marginBottom: "12px" }}
             >
               What is your main execution leak?
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              className="text-base text-slate-400 text-center leading-relaxed max-w-md mx-auto"
               style={{ margin: "0 auto 36px auto" }}
             >
               Identify your primary vulnerability so our AI engine can guard against it.
@@ -452,12 +452,12 @@ export default function Onboarding() {
           >
             {/* Titre et sous-titre minimaliste */}
             <h1
-              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
-              style={{ marginBottom: "10px" }}
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center leading-tight"
+              style={{ marginBottom: "12px" }}
             >
               Automate your trade logs
             </h1>
-            <p className="text-base text-slate-400 text-center mb-6 max-w-md mx-auto">
+            <p className="text-base text-slate-400 text-center leading-relaxed max-w-md mx-auto mb-6">
               Sync your MT4/MT5 accounts for real-time AI audits.
             </p>
 
