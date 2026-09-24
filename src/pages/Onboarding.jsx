@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ShieldCheck,
   Landmark,
   Wallet,
   FlaskConical,
@@ -16,18 +15,19 @@ import {
   Flame,
   Crosshair,
   Terminal,
+  Check,
 } from "lucide-react";
 import logo from "../assets/logo.png";
 import { useOnboarding } from "../context/OnboardingContext";
 
-// Slide animation variants between steps
+// Slide animation variants
 const variants = {
-  enter: (dir) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
+  enter: (dir) => ({ x: dir > 0 ? 50 : -50, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (dir) => ({ x: dir > 0 ? -80 : 80, opacity: 0 }),
+  exit: (dir) => ({ x: dir > 0 ? -50 : 50, opacity: 0 }),
 };
 
-const TOTAL_STEPS = 5; // Step 0 (Welcome) -> Step 4 (Terminal)
+const TOTAL_STEPS = 5; // Step 0 to Step 4
 
 // Step 1: Capital Options
 const CAPITAL_OPTIONS = [
@@ -53,11 +53,11 @@ const CAPITAL_OPTIONS = [
 
 // Step 2: Markets Options
 const MARKET_OPTIONS = [
-  { id: "forex", label: "Forex", Icon: CandlestickChart },
-  { id: "crypto", label: "Crypto", Icon: Bitcoin },
-  { id: "indices", label: "Indices", Icon: LineChart },
-  { id: "commodities", label: "Commodities", Icon: Layers },
-  { id: "stocks", label: "Stocks", Icon: TrendingUp },
+  { id: "forex", label: "Forex", description: "EUR/USD, GBP/JPY, and major pairs", Icon: CandlestickChart },
+  { id: "crypto", label: "Crypto", description: "BTC, ETH, and digital assets", Icon: Bitcoin },
+  { id: "indices", label: "Indices", description: "US30, NAS100, SPX500, DAX40", Icon: LineChart },
+  { id: "commodities", label: "Commodities", description: "Gold, Silver, and Crude Oil", Icon: Layers },
+  { id: "stocks", label: "Stocks", description: "Equities and shares", Icon: TrendingUp },
 ];
 
 // Step 3: Execution Leaks
@@ -88,47 +88,40 @@ const LEAK_OPTIONS = [
   },
 ];
 
-// Top progress indicator
-function ProgressBar({ step, total }) {
-  return (
-    <div className="w-full h-[2px] bg-slate-800 shrink-0">
-      <motion.div
-        className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 origin-left"
-        initial={false}
-        animate={{ scaleX: (step + 1) / total }}
-        transition={{ duration: 0.45, ease: "easeInOut" }}
-        style={{ transformOrigin: "left" }}
-      />
-    </div>
-  );
-}
-
-// Reusable card for selection grids
-function OptionCard({ label, description, Icon, selected, onClick, className = "" }) {
+// Horizontal row card component for strictly vertical lists
+function RowCard({ label, description, Icon, selected, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex flex-col items-center justify-center p-6 rounded-xl border cursor-pointer text-center gap-3 transition-all duration-200 outline-none ${
+      className={`w-full flex items-center text-left p-5 rounded-2xl border transition-all gap-5 cursor-pointer outline-none ${
         selected
           ? "border-emerald-500 ring-1 ring-emerald-500/50 bg-emerald-500/10 text-emerald-400"
           : "border-slate-800 bg-slate-900/40 hover:bg-slate-800/80 text-slate-300 hover:border-slate-700"
-      } ${className}`}
+      }`}
     >
-      <Icon
-        className={`w-8 h-8 transition-colors duration-200 ${
-          selected ? "text-emerald-400" : "text-slate-400"
+      <div
+        className={`p-3 rounded-xl shrink-0 transition-colors ${
+          selected ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800/60 text-slate-400"
         }`}
-        strokeWidth={1.5}
-      />
-      <div>
+      >
+        <Icon className="w-6 h-6" strokeWidth={1.5} />
+      </div>
+
+      <div className="flex-1 min-w-0">
         <p className={`text-base font-semibold leading-tight ${selected ? "text-emerald-400" : "text-white"}`}>
           {label}
         </p>
         {description && (
-          <p className="text-xs text-slate-500 mt-1 leading-snug">{description}</p>
+          <p className="text-xs text-slate-400 mt-1 leading-normal">{description}</p>
         )}
       </div>
+
+      {selected && (
+        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+          <Check className="w-3.5 h-3.5 text-black stroke-[3]" />
+        </div>
+      )}
     </button>
   );
 }
@@ -195,23 +188,21 @@ export default function Onboarding() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="w-full flex flex-col items-center"
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/10">
-              <ShieldCheck className="w-8 h-8 text-emerald-400" strokeWidth={1.5} />
-            </div>
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2 text-center">
+            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               Welcome to MySmartJournal
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 text-center max-w-lg mx-auto">
+            <p className="text-base text-slate-400 text-center mb-10 max-w-md">
               The institutional discipline engine for Prop Firm traders.
             </p>
 
             <button
               type="button"
               onClick={goNext}
-              className="w-full sm:w-2/3 mx-auto mt-10 h-12 rounded-lg bg-white text-black font-semibold hover:bg-slate-200 transition-colors cursor-pointer"
+              className="w-full h-12 rounded-xl bg-white text-black font-semibold hover:bg-slate-200 transition-colors cursor-pointer"
             >
               Continue
             </button>
@@ -228,26 +219,26 @@ export default function Onboarding() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="w-full flex flex-col items-center"
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2 text-center">
+            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               What do you use to Trade?
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 text-center max-w-lg mx-auto">
-              Select your primary trading account type so we can calibrate rules.
+            <p className="text-base text-slate-400 text-center mb-10 max-w-md">
+              Select your primary trading account type.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-8">
-              {CAPITAL_OPTIONS.map((opt, idx) => (
-                <OptionCard
+            <div className="flex flex-col w-full gap-4">
+              {CAPITAL_OPTIONS.map((opt) => (
+                <RowCard
                   key={opt.id}
                   label={opt.label}
                   description={opt.description}
                   Icon={opt.Icon}
                   selected={capital === opt.id}
                   onClick={() => setCapital(opt.id)}
-                  className={idx === 2 ? "sm:col-span-2 sm:max-w-xs sm:mx-auto w-full" : ""}
                 />
               ))}
             </div>
@@ -256,7 +247,7 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              className={`w-full sm:w-2/3 mx-auto mt-10 h-12 rounded-lg font-semibold transition-colors ${
+              className={`w-full h-12 rounded-xl mt-8 font-semibold transition-colors ${
                 canProceed()
                   ? "bg-white text-black hover:bg-slate-200 cursor-pointer"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -268,7 +259,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              className="mt-3 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
+              className="mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
             </button>
@@ -285,25 +276,26 @@ export default function Onboarding() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="w-full flex flex-col items-center"
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2 text-center">
+            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               What are you currently trading?
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 text-center max-w-lg mx-auto">
-              Select all markets that apply to customize your analytics suite.
+            <p className="text-base text-slate-400 text-center mb-10 max-w-md">
+              Select all markets that apply.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-8">
-              {MARKET_OPTIONS.map((opt, idx) => (
-                <OptionCard
+            <div className="flex flex-col w-full gap-4">
+              {MARKET_OPTIONS.map((opt) => (
+                <RowCard
                   key={opt.id}
                   label={opt.label}
+                  description={opt.description}
                   Icon={opt.Icon}
                   selected={markets.includes(opt.id)}
                   onClick={() => toggleMarket(opt.id)}
-                  className={idx === 4 ? "sm:col-span-2 sm:max-w-xs sm:mx-auto w-full" : ""}
                 />
               ))}
             </div>
@@ -312,7 +304,7 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              className={`w-full sm:w-2/3 mx-auto mt-10 h-12 rounded-lg font-semibold transition-colors ${
+              className={`w-full h-12 rounded-xl mt-8 font-semibold transition-colors ${
                 canProceed()
                   ? "bg-white text-black hover:bg-slate-200 cursor-pointer"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -324,7 +316,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              className="mt-3 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
+              className="mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
             </button>
@@ -341,19 +333,20 @@ export default function Onboarding() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="w-full flex flex-col items-center"
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2 text-center">
+            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               What is your main execution leak?
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 text-center max-w-lg mx-auto">
+            <p className="text-base text-slate-400 text-center mb-10 max-w-md">
               Identify your primary vulnerability so our AI engine can guard against it.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-8">
+            <div className="flex flex-col w-full gap-4">
               {LEAK_OPTIONS.map((opt) => (
-                <OptionCard
+                <RowCard
                   key={opt.id}
                   label={opt.label}
                   description={opt.description}
@@ -368,7 +361,7 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              className={`w-full sm:w-2/3 mx-auto mt-10 h-12 rounded-lg font-semibold transition-colors ${
+              className={`w-full h-12 rounded-xl mt-8 font-semibold transition-colors ${
                 canProceed()
                   ? "bg-white text-black hover:bg-slate-200 cursor-pointer"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -380,7 +373,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              className="mt-3 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
+              className="mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
             </button>
@@ -397,63 +390,62 @@ export default function Onboarding() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.32, ease: [0.32, 0.72, 0, 1] }}
-            className="w-full flex flex-col items-center"
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-2 text-center">
+            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               Connect your terminal
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 text-center max-w-lg mx-auto">
-              Sync trades automatically with read-only investor credentials. You can also skip this step.
+            <p className="text-base text-slate-400 text-center mb-10 max-w-md">
+              Sync trades automatically with read-only investor credentials.
             </p>
 
-            <div className="w-full mt-8">
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-6">
+            <div className="w-full flex flex-col gap-4">
+              <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-2">
                 <Terminal className="w-5 h-5 text-emerald-400 shrink-0" strokeWidth={1.5} />
                 <span className="text-xs text-emerald-400 font-medium">
                   Read-Only Secure — Investor password only, never your master password.
                 </span>
               </div>
 
-              <div className="flex flex-col gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                    Account Login
-                  </label>
-                  <input
-                    type="text"
-                    value={mtLogin}
-                    onChange={(e) => setMtLogin(e.target.value)}
-                    placeholder="e.g. 10293847"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Account Login
+                </label>
+                <input
+                  type="text"
+                  value={mtLogin}
+                  onChange={(e) => setMtLogin(e.target.value)}
+                  placeholder="e.g. 10293847"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                    Investor Password
-                  </label>
-                  <input
-                    type="password"
-                    value={mtPassword}
-                    onChange={(e) => setMtPassword(e.target.value)}
-                    placeholder="Read-only investor password"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Investor Password
+                </label>
+                <input
+                  type="password"
+                  value={mtPassword}
+                  onChange={(e) => setMtPassword(e.target.value)}
+                  placeholder="Read-only investor password"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1.5">
-                    Broker Server
-                  </label>
-                  <input
-                    type="text"
-                    value={mtServer}
-                    onChange={(e) => setMtServer(e.target.value)}
-                    placeholder="e.g. ICMarkets-Live01"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5">
+                  Broker Server
+                </label>
+                <input
+                  type="text"
+                  value={mtServer}
+                  onChange={(e) => setMtServer(e.target.value)}
+                  placeholder="e.g. ICMarkets-Live01"
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40 transition"
+                />
               </div>
             </div>
 
@@ -461,7 +453,7 @@ export default function Onboarding() {
               type="button"
               onClick={handleFinish}
               disabled={submitting}
-              className="w-full sm:w-2/3 mx-auto mt-10 h-12 rounded-lg bg-white text-black font-semibold hover:bg-slate-200 transition-colors cursor-pointer"
+              className="w-full h-12 rounded-xl mt-8 bg-white text-black font-semibold hover:bg-slate-200 transition-colors cursor-pointer"
             >
               {submitting ? "Setting up your account..." : "Launch my journal"}
             </button>
@@ -470,7 +462,7 @@ export default function Onboarding() {
               type="button"
               onClick={handleFinish}
               disabled={submitting}
-              className="mt-3 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
+              className="mt-4 text-xs text-slate-400 hover:text-white transition-colors py-1 cursor-pointer"
             >
               Skip for now
             </button>
@@ -478,7 +470,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              className="mt-1 text-xs text-slate-600 hover:text-slate-400 transition-colors py-1 cursor-pointer"
+              className="mt-2 text-xs text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
             </button>
@@ -491,25 +483,20 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Progress Bar at the top */}
-      <ProgressBar step={step} total={TOTAL_STEPS} />
+    <div className="relative w-full min-h-screen bg-slate-950">
+      {/* Fixed progress bar at the very top */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-slate-900 z-50">
+        <motion.div
+          className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 origin-left"
+          initial={false}
+          animate={{ scaleX: (step + 1) / TOTAL_STEPS }}
+          transition={{ duration: 0.45, ease: "easeInOut" }}
+          style={{ transformOrigin: "left" }}
+        />
+      </div>
 
-      {/* Header with official logo */}
-      <header className="flex items-center justify-between px-6 py-5 shrink-0 w-full max-w-5xl mx-auto">
-        <div className="flex items-center gap-3">
-          <img src={logo} alt="MySmartJournal" className="h-9 w-auto" />
-          <span className="text-sm font-semibold text-white tracking-tight hidden sm:block">
-            MySmartJournal
-          </span>
-        </div>
-        <span className="text-xs font-mono text-slate-400 font-medium">
-          {step + 1} / {TOTAL_STEPS}
-        </span>
-      </header>
-
-      {/* Centered Main Layout */}
-      <main className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto px-4 min-h-[80vh]">
+      {/* Main container: centered vertically and horizontally with generous breathing room */}
+      <main className="w-full min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 py-16">
         <AnimatePresence mode="wait" custom={direction} initial={false}>
           {renderStepContent()}
         </AnimatePresence>
