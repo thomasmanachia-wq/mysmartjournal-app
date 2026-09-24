@@ -178,7 +178,7 @@ export default function Onboarding() {
 
   function renderStepContent() {
     switch (step) {
-      // Step 0: Welcome
+      // Step 0: Welcome (Exact Series-A standard modeled after reference)
       case 0:
         return (
           <motion.div
@@ -191,18 +191,26 @@ export default function Onboarding() {
             transition={{ duration: 0.28, ease: "easeInOut" }}
             className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
-            <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
+            {/* L'Écrin du Logo géant */}
+            <div className="w-32 h-32 bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/10 mx-auto mb-10">
+              <img src={logo} alt="MySmartJournal" className="w-16 h-auto object-contain" />
+            </div>
+
+            {/* Titre imposant */}
+            <h1 className="text-5xl font-extrabold tracking-tight text-white mb-6 text-center">
               Welcome to MySmartJournal
             </h1>
-            <p className="text-base text-slate-400 text-center mb-10 max-w-md">
+
+            {/* Sous-titre avec large respiration mb-14 */}
+            <p className="text-lg text-slate-400 text-center mb-14 max-w-md mx-auto">
               The institutional discipline engine for Prop Firm traders.
             </p>
 
+            {/* Bouton d'action centré w-72 */}
             <button
               type="button"
               onClick={goNext}
-              className="w-full h-12 rounded-xl bg-white text-black font-semibold hover:bg-slate-200 transition-colors cursor-pointer"
+              className="w-72 h-14 mx-auto rounded-xl bg-white text-black text-lg font-semibold hover:bg-slate-200 transition-colors shadow-lg shadow-white/5 cursor-pointer flex items-center justify-center"
             >
               Continue
             </button>
@@ -222,7 +230,10 @@ export default function Onboarding() {
             transition={{ duration: 0.28, ease: "easeInOut" }}
             className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <div className="w-20 h-20 bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/10 mx-auto mb-6">
+              <img src={logo} alt="MySmartJournal" className="w-10 h-auto object-contain" />
+            </div>
+
             <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               What do you use to Trade?
             </h1>
@@ -247,9 +258,9 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              className={`w-full h-12 rounded-xl mt-8 font-semibold transition-colors ${
+              className={`w-72 h-14 mx-auto mt-10 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center ${
                 canProceed()
-                  ? "bg-white text-black hover:bg-slate-200 cursor-pointer"
+                  ? "bg-white text-black hover:bg-slate-200 shadow-lg shadow-white/5"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
               }`}
             >
@@ -279,7 +290,10 @@ export default function Onboarding() {
             transition={{ duration: 0.28, ease: "easeInOut" }}
             className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <div className="w-20 h-20 bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/10 mx-auto mb-6">
+              <img src={logo} alt="MySmartJournal" className="w-10 h-auto object-contain" />
+            </div>
+
             <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               What are you currently trading?
             </h1>
@@ -304,9 +318,9 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              className={`w-full h-12 rounded-xl mt-8 font-semibold transition-colors ${
+              className={`w-72 h-14 mx-auto mt-10 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center ${
                 canProceed()
-                  ? "bg-white text-black hover:bg-slate-200 cursor-pointer"
+                  ? "bg-white text-black hover:bg-slate-200 shadow-lg shadow-white/5"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
               }`}
             >
@@ -336,7 +350,10 @@ export default function Onboarding() {
             transition={{ duration: 0.28, ease: "easeInOut" }}
             className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <div className="w-20 h-20 bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/10 mx-auto mb-6">
+              <img src={logo} alt="MySmartJournal" className="w-10 h-auto object-contain" />
+            </div>
+
             <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               What is your main execution leak?
             </h1>
@@ -361,9 +378,9 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              className={`w-full h-12 rounded-xl mt-8 font-semibold transition-colors ${
+              className={`w-72 h-14 mx-auto mt-10 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center ${
                 canProceed()
-                  ? "bg-white text-black hover:bg-slate-200 cursor-pointer"
+                  ? "bg-white text-black hover:bg-slate-200 shadow-lg shadow-white/5"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
               }`}
             >
@@ -393,7 +410,10 @@ export default function Onboarding() {
             transition={{ duration: 0.28, ease: "easeInOut" }}
             className="w-full max-w-lg mx-auto flex flex-col items-center"
           >
-            <img src={logo} alt="MySmartJournal" className="h-16 w-auto mx-auto mb-8" />
+            <div className="w-20 h-20 bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl flex items-center justify-center shadow-xl shadow-emerald-500/10 mx-auto mb-6">
+              <img src={logo} alt="MySmartJournal" className="w-10 h-auto object-contain" />
+            </div>
+
             <h1 className="text-4xl font-bold tracking-tight text-white mb-3 text-center">
               Connect your terminal
             </h1>
@@ -453,7 +473,7 @@ export default function Onboarding() {
               type="button"
               onClick={handleFinish}
               disabled={submitting}
-              className="w-full h-12 rounded-xl mt-8 bg-white text-black font-semibold hover:bg-slate-200 transition-colors cursor-pointer"
+              className="w-72 h-14 mx-auto mt-10 rounded-xl bg-white text-black font-semibold hover:bg-slate-200 transition-colors shadow-lg shadow-white/5 cursor-pointer flex items-center justify-center"
             >
               {submitting ? "Setting up your account..." : "Launch my journal"}
             </button>
@@ -483,7 +503,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="relative w-full min-h-screen bg-slate-950">
+    <div className="relative w-full min-h-screen bg-black">
       {/* Fixed progress bar at the very top */}
       <div className="fixed top-0 left-0 w-full h-1 bg-slate-900 z-50">
         <motion.div
@@ -495,8 +515,14 @@ export default function Onboarding() {
         />
       </div>
 
-      {/* Main container: centered vertically and horizontally with generous breathing room */}
-      <main className="w-full min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 py-16">
+      {/* Main container: radial gradient texture with generous padding */}
+      <main
+        className="min-h-screen w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800/40 via-slate-950 to-black flex flex-col items-center justify-center p-4 py-16"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse at top, rgba(30, 41, 59, 0.45) 0%, #020617 55%, #000000 100%)",
+        }}
+      >
         <AnimatePresence mode="wait" custom={direction} initial={false}>
           {renderStepContent()}
         </AnimatePresence>
