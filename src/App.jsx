@@ -349,7 +349,7 @@ function BottomNav() {
 
 function AppShell() {
   const location = useLocation();
-  const isOnboarding = location.pathname === "/onboarding";
+  const isOnboarding = location.pathname.startsWith("/onboarding");
 
   return (
     <div style={{
@@ -421,8 +421,8 @@ const navStyles = {
     boxSizing: "border-box",
   },
   onboardingMain: {
-    maxWidth: "none",
-    margin: 0,
+    maxWidth: "100%",
+    margin: "0 auto",
     width: "100%",
     boxSizing: "border-box",
   },

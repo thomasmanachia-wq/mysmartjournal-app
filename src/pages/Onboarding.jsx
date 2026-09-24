@@ -202,12 +202,13 @@ export default function Onboarding() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.28, ease: "easeInOut" }}
-            className="w-full max-w-2xl mx-auto flex flex-col items-center text-center px-4"
+            className="w-full max-w-2xl flex flex-col items-center text-center px-4"
+            style={{ margin: "0 auto" }}
           >
             {/* L'Écrin du Logo */}
             <div
-              className="w-28 h-28 bg-slate-900/90 backdrop-blur-xl border border-slate-700/60 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/10 mx-auto"
-              style={{ marginBottom: "40px" }}
+              className="w-28 h-28 bg-slate-900/90 backdrop-blur-xl border border-slate-700/60 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-500/10"
+              style={{ margin: "0 auto 40px auto" }}
             >
               <img src={logo} alt="MySmartJournal" className="w-16 h-16 object-contain" />
             </div>
@@ -222,8 +223,8 @@ export default function Onboarding() {
 
             {/* Sous-titre avec large respiration */}
             <p
-              className="text-base sm:text-lg text-slate-400 text-center leading-relaxed max-w-xl mx-auto sm:whitespace-nowrap"
-              style={{ marginBottom: "64px" }}
+              className="text-base sm:text-lg text-slate-400 text-center leading-relaxed max-w-xl sm:whitespace-nowrap"
+              style={{ margin: "0 auto 64px auto" }}
             >
               The institutional discipline engine for Prop Firm traders.
             </p>
@@ -232,7 +233,8 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goNext}
-              className="w-72 h-14 mx-auto rounded-xl bg-white text-black text-base sm:text-lg font-semibold hover:bg-slate-200 transition-colors shadow-lg shadow-white/5 cursor-pointer flex items-center justify-center"
+              className="w-72 h-14 rounded-xl bg-white text-black text-base sm:text-lg font-semibold hover:bg-slate-200 transition-colors shadow-lg shadow-white/5 cursor-pointer flex items-center justify-center"
+              style={{ margin: "0 auto" }}
             >
               Continue
             </button>
@@ -250,7 +252,8 @@ export default function Onboarding() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.28, ease: "easeInOut" }}
-            className="w-full max-w-xl mx-auto flex flex-col items-center px-4"
+            className="w-full max-w-xl flex flex-col items-center px-4"
+            style={{ margin: "0 auto" }}
           >
             <h1
               className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
@@ -259,13 +262,13 @@ export default function Onboarding() {
               What do you use to Trade?
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md mx-auto"
-              style={{ marginBottom: "36px" }}
+              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              style={{ margin: "0 auto 36px auto" }}
             >
               Select your primary trading account type.
             </p>
 
-            <div className="flex flex-col w-full gap-4">
+            <div className="flex flex-col w-full gap-4" style={{ width: "100%" }}>
               {CAPITAL_OPTIONS.map((opt) => (
                 <RowCard
                   key={opt.id}
@@ -282,8 +285,8 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              style={{ marginTop: "40px" }}
-              className={`w-72 h-14 mx-auto rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center text-base sm:text-lg ${
+              style={{ margin: "40px auto 0 auto" }}
+              className={`w-72 h-14 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center text-base sm:text-lg ${
                 canProceed()
                   ? "bg-white text-black hover:bg-slate-200 shadow-lg shadow-white/5"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -295,7 +298,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              style={{ marginTop: "16px" }}
+              style={{ margin: "16px auto 0 auto" }}
               className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
@@ -314,7 +317,8 @@ export default function Onboarding() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.28, ease: "easeInOut" }}
-            className="w-full max-w-xl mx-auto flex flex-col items-center px-4"
+            className="w-full max-w-xl flex flex-col items-center px-4"
+            style={{ margin: "0 auto" }}
           >
             <h1
               className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
@@ -323,13 +327,13 @@ export default function Onboarding() {
               What are you currently trading?
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md mx-auto"
-              style={{ marginBottom: "36px" }}
+              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              style={{ margin: "0 auto 36px auto" }}
             >
               Select all markets that apply.
             </p>
 
-            <div className="flex flex-col w-full gap-4">
+            <div className="flex flex-col w-full gap-4" style={{ width: "100%" }}>
               {MARKET_OPTIONS.map((opt) => (
                 <RowCard
                   key={opt.id}
@@ -346,8 +350,8 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              style={{ marginTop: "40px" }}
-              className={`w-72 h-14 mx-auto rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center text-base sm:text-lg ${
+              style={{ margin: "40px auto 0 auto" }}
+              className={`w-72 h-14 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center text-base sm:text-lg ${
                 canProceed()
                   ? "bg-white text-black hover:bg-slate-200 shadow-lg shadow-white/5"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -359,7 +363,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              style={{ marginTop: "16px" }}
+              style={{ margin: "16px auto 0 auto" }}
               className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
@@ -378,7 +382,8 @@ export default function Onboarding() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.28, ease: "easeInOut" }}
-            className="w-full max-w-xl mx-auto flex flex-col items-center px-4"
+            className="w-full max-w-xl flex flex-col items-center px-4"
+            style={{ margin: "0 auto" }}
           >
             <h1
               className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
@@ -387,13 +392,13 @@ export default function Onboarding() {
               What is your main execution leak?
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md mx-auto"
-              style={{ marginBottom: "36px" }}
+              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              style={{ margin: "0 auto 36px auto" }}
             >
               Identify your primary vulnerability so our AI engine can guard against it.
             </p>
 
-            <div className="flex flex-col w-full gap-4">
+            <div className="flex flex-col w-full gap-4" style={{ width: "100%" }}>
               {LEAK_OPTIONS.map((opt) => (
                 <RowCard
                   key={opt.id}
@@ -410,8 +415,8 @@ export default function Onboarding() {
               type="button"
               onClick={goNext}
               disabled={!canProceed()}
-              style={{ marginTop: "40px" }}
-              className={`w-72 h-14 mx-auto rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center text-base sm:text-lg ${
+              style={{ margin: "40px auto 0 auto" }}
+              className={`w-72 h-14 rounded-xl font-semibold transition-colors cursor-pointer flex items-center justify-center text-base sm:text-lg ${
                 canProceed()
                   ? "bg-white text-black hover:bg-slate-200 shadow-lg shadow-white/5"
                   : "bg-slate-800 text-slate-500 cursor-not-allowed"
@@ -423,7 +428,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              style={{ marginTop: "16px" }}
+              style={{ margin: "16px auto 0 auto" }}
               className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
@@ -442,7 +447,8 @@ export default function Onboarding() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.28, ease: "easeInOut" }}
-            className="w-full max-w-xl mx-auto flex flex-col items-center px-4"
+            className="w-full max-w-xl flex flex-col items-center px-4"
+            style={{ margin: "0 auto" }}
           >
             <h1
               className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white text-center"
@@ -451,13 +457,13 @@ export default function Onboarding() {
               Connect your terminal
             </h1>
             <p
-              className="text-sm sm:text-base text-slate-400 text-center max-w-md mx-auto"
-              style={{ marginBottom: "36px" }}
+              className="text-sm sm:text-base text-slate-400 text-center max-w-md"
+              style={{ margin: "0 auto 36px auto" }}
             >
               Sync trades automatically with read-only investor credentials.
             </p>
 
-            <div className="w-full flex flex-col gap-4">
+            <div className="w-full flex flex-col gap-4" style={{ width: "100%" }}>
               <div className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-2">
                 <Terminal className="w-5 h-5 text-emerald-400 shrink-0" strokeWidth={1.5} />
                 <span className="text-xs text-emerald-400 font-medium">
@@ -509,8 +515,8 @@ export default function Onboarding() {
               type="button"
               onClick={handleFinish}
               disabled={submitting}
-              style={{ marginTop: "40px" }}
-              className="w-72 h-14 mx-auto rounded-xl bg-white text-black font-semibold hover:bg-slate-200 transition-colors shadow-lg shadow-white/5 cursor-pointer flex items-center justify-center text-base sm:text-lg"
+              style={{ margin: "40px auto 0 auto" }}
+              className="w-72 h-14 rounded-xl bg-white text-black font-semibold hover:bg-slate-200 transition-colors shadow-lg shadow-white/5 cursor-pointer flex items-center justify-center text-base sm:text-lg"
             >
               {submitting ? "Setting up your account..." : "Launch my journal"}
             </button>
@@ -519,7 +525,7 @@ export default function Onboarding() {
               type="button"
               onClick={handleFinish}
               disabled={submitting}
-              style={{ marginTop: "16px" }}
+              style={{ margin: "16px auto 0 auto" }}
               className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors py-1 cursor-pointer"
             >
               Skip for now
@@ -528,7 +534,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={goPrev}
-              style={{ marginTop: "8px" }}
+              style={{ margin: "8px auto 0 auto" }}
               className="text-xs sm:text-sm text-slate-500 hover:text-slate-300 transition-colors py-1 cursor-pointer"
             >
               Back
@@ -545,23 +551,32 @@ export default function Onboarding() {
     <div
       className="min-h-screen w-full flex flex-col justify-between"
       style={{
+        width: "100%",
+        minHeight: "100vh",
         backgroundImage:
           "radial-gradient(ellipse at top, rgba(30, 41, 59, 0.55) 0%, #030712 60%, #000000 100%)",
       }}
     >
-      {/* Top Header modeled after TradeZella */}
-      <header className="w-full max-w-6xl mx-auto px-6 h-20 flex items-center justify-between shrink-0">
-        {step > 0 ? (
-          <>
-            {/* Left: Brand logo + name */}
-            <div className="flex items-center gap-3">
+      {/* Top Header with mathematically balanced 3-column layout */}
+      <header
+        className="w-full px-6 h-20 flex items-center justify-between shrink-0"
+        style={{ maxWidth: "1280px", margin: "0 auto", width: "100%" }}
+      >
+        {/* Left column (fixed width for perfect center alignment) */}
+        <div className="w-48 sm:w-60 flex items-center gap-3">
+          {step > 0 && (
+            <>
               <img src={logo} alt="MySmartJournal" className="h-8 w-auto object-contain" />
               <span className="text-base font-bold tracking-tight text-white hidden sm:inline">
                 MySmartJournal
               </span>
-            </div>
+            </>
+          )}
+        </div>
 
-            {/* Center: Capsule Progress Bar */}
+        {/* Center column (capsule progress bar, dead center of screen) */}
+        <div className="flex-1 flex items-center justify-center">
+          {step > 0 && (
             <div className="w-48 sm:w-72 md:w-80 h-2 sm:h-2.5 bg-slate-800/90 rounded-full overflow-hidden border border-slate-700/40">
               <motion.div
                 className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full"
@@ -570,38 +585,41 @@ export default function Onboarding() {
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               />
             </div>
+          )}
+        </div>
 
-            {/* Right: Log out button */}
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              Log out
-            </button>
-          </>
-        ) : (
-          <div className="w-full flex justify-end">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
-            >
-              Log out
-            </button>
-          </div>
-        )}
+        {/* Right column (matches left width so center is mathematically 50%) */}
+        <div className="w-48 sm:w-60 flex items-center justify-end">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-xs sm:text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer"
+          >
+            Log out
+          </button>
+        </div>
       </header>
 
       {/* Main Centered Questionnaire / Welcome Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4 py-8 w-full max-w-2xl mx-auto">
-        <AnimatePresence mode="wait" custom={direction} initial={false}>
-          {renderStepContent()}
-        </AnimatePresence>
+      <main
+        className="flex-1 flex flex-col items-center justify-center p-4 py-8 w-full"
+        style={{ width: "100%", margin: "0 auto" }}
+      >
+        <div
+          className="w-full flex flex-col items-center justify-center"
+          style={{ width: "100%", margin: "0 auto" }}
+        >
+          <AnimatePresence mode="wait" custom={direction} initial={false}>
+            {renderStepContent()}
+          </AnimatePresence>
+        </div>
       </main>
 
       {/* Footer modeled after TradeZella */}
-      <footer className="w-full py-6 text-center text-xs text-slate-500 shrink-0 border-t border-slate-900/60">
+      <footer
+        className="w-full py-6 text-center text-xs text-slate-500 shrink-0 border-t border-slate-900/60"
+        style={{ width: "100%", textAlign: "center" }}
+      >
         © 2025 MySmartJournal. All rights reserved.
       </footer>
     </div>
