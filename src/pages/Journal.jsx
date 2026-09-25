@@ -133,7 +133,7 @@ export default function Journal() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search trades..."
           />
-          <button onClick={() => navigate("/analyse")} style={styles.addBtn}>
+          <button onClick={() => navigate("/active-trade")} style={styles.addBtn}>
             + New Trade
           </button>
         </div>
@@ -144,7 +144,7 @@ export default function Journal() {
       ) : filtered.length === 0 ? (
         <div style={styles.empty}>
           <p style={{ color: "#6B7FA3", margin: 0 }}>No trades found.</p>
-          <button onClick={() => navigate("/analyse")} style={styles.addBtn}>
+          <button onClick={() => navigate("/active-trade")} style={styles.addBtn}>
             + Log my first trade
           </button>
         </div>

@@ -20,6 +20,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import TradingDisclaimer from "./pages/TradingDisclaimer.jsx";
 import AdminFeedback from "./pages/AdminFeedback.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import { Toaster } from "sonner";
 import {
   User, CreditCard, MessageSquare, LogOut,
   Shield, ChevronDown, ChevronUp,
@@ -167,9 +168,30 @@ function NavBar() {
 
       {/* ── Nav centrale (desktop) */}
       <div className="nav-center-desktop" style={navStyles.center}>
-        <NavLink label="Journal"     path="/"          active={isActive("/")} />
-        <NavLink label="Audit Trade" path="/analyse"   active={isActive("/analyse")} />
-        <NavLink label="Dashboard"   path="/dashboard" active={isActive("/dashboard")} />
+        <NavLink label="Dashboard"   path="/"          active={location.pathname === "/" || location.pathname === "/dashboard"} />
+        <NavLink label="Journal"     path="/journal"   active={location.pathname.startsWith("/journal")} />
+        <button
+          onClick={() => navigate("/active-trade")}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "5px 12px",
+            borderRadius: "8px",
+            backgroundColor: "rgba(16, 185, 129, 0.12)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
+            color: "#10B981",
+            fontSize: "0.82rem",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+            marginLeft: "4px",
+          }}
+          className="hover:bg-emerald-500/20 active:scale-95"
+        >
+          <Zap size={13} fill="#10B981" />
+          <span>Focus Mode</span>
+        </button>
       </div>
 
       {/* ── Profil */}
@@ -285,21 +307,23 @@ function BottomNav() {
   if (!user || location.pathname === "/onboarding" || location.pathname === "/active-trade") return null;
 
   const tabs = [
-    { label: "Audit", path: "/analyse", icon: Zap },
-    { label: "Journal", path: "/", icon: BookOpen },
-    { label: "Dashboard", path: "/dashboard", icon: Activity },
+    { label: "Dashboard", path: "/", icon: Activity },
+    { label: "Journal", path: "/journal", icon: BookOpen },
+    { label: "Focus", path: "/active-trade", icon: Zap },
     { label: "Settings", path: "/settings", icon: SettingsIcon },
   ];
 
   const isActive = (path) =>
-    path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
+    path === "/"
+      ? location.pathname === "/" || location.pathname === "/dashboard"
+      : location.pathname.startsWith(path);
 
   return (
     <nav className="bottom-nav-mobile" aria-label="Mobile Navigation">
       {tabs.map(({ label, path, icon: Icon }) => {
         const active = isActive(path);
-        const isAudit = path === "/analyse";
-        const activeColor = isAudit ? "#10B981" : "#3B82F6";
+        const isFocus = path === "/active-trade";
+        const activeColor = isFocus ? "#10B981" : "#3B82F6";
         return (
           <button
             key={path}
@@ -327,7 +351,7 @@ function BottomNav() {
               width: "28px",
               height: "24px",
               borderRadius: "12px",
-              backgroundColor: active && isAudit ? "rgba(16, 185, 129, 0.15)" : active ? "rgba(59, 130, 246, 0.12)" : "transparent",
+              backgroundColor: active && isFocus ? "rgba(16, 185, 129, 0.15)" : active ? "rgba(59, 130, 246, 0.12)" : "transparent",
             }}>
               <Icon size={19} strokeWidth={active ? 2.4 : 1.8} color={active ? activeColor : "#64748B"} />
             </div>
@@ -362,6 +386,7 @@ function AppShell() {
       width: "100%",
       position: "relative",
     }}>
+      <Toaster theme="dark" richColors position="top-right" />
       <NavBar />
       <main className={isFocusMode ? "" : "app-main-container"} style={isFocusMode ? navStyles.onboardingMain : navStyles.main}>
         <Routes>
@@ -375,21 +400,22 @@ function AppShell() {
           <Route path="/active-trade" element={<ProtectedRoute><ActiveTrade /></ProtectedRoute>} />
           <Route path="/" element={
             <ProtectedRoute>
-              <OnboardingGuard><Journal /></OnboardingGuard>
+              <OnboardingGuard><Dashboard /></OnboardingGuard>
             </ProtectedRoute>
           } />
-          <Route path="/analyse" element={
-            <ProtectedRoute>
-              <OnboardingGuard><Analyse /></OnboardingGuard>
-            </ProtectedRoute>
-          } />
-          <Route path="/reponse-ia" element={<ProtectedRoute><ReponseIA /></ProtectedRoute>} />
-          <Route path="/trade/:id"  element={<ProtectedRoute><TradeDetail /></ProtectedRoute>} />
-          <Route path="/dashboard"  element={
+          <Route path="/dashboard" element={
             <ProtectedRoute>
               <OnboardingGuard><Dashboard /></OnboardingGuard>
             </ProtectedRoute>
           } />
+          <Route path="/journal" element={
+            <ProtectedRoute>
+              <OnboardingGuard><Journal /></OnboardingGuard>
+            </ProtectedRoute>
+          } />
+          <Route path="/analyse" element={<Navigate to="/" replace />} />
+          <Route path="/reponse-ia" element={<ProtectedRoute><ReponseIA /></ProtectedRoute>} />
+          <Route path="/trade/:id"  element={<ProtectedRoute><TradeDetail /></ProtectedRoute>} />
           <Route path="/settings"   element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="*"           element={<Navigate to="/" replace />} />
         </Routes>
